@@ -1,0 +1,221 @@
+<script setup lang="ts">
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute, RouterLink } from 'vue-router'
+import { Star, Heart, ShoppingCart, Minus, Plus, Check, Truck, Shield, ChevronRight, Ruler } from 'lucide-vue-next'
+import DefaultLayout from '@/components/layout/DefaultLayout.vue'
+import ProductCard from '@/components/ui/ProductCard.vue'
+import { supabase, type Product, type ProductReview } from '@/lib/supabase'
+import { useCurrencyStore } from '@/stores/currency'
+import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
+
+const route = useRoute()
+const currency = useCurrencyStore()
+const cart = useCartStore()
+const auth = useAuthStore()
+
+const product = ref<Product | null>(null)
+const similar = ref<Product[]>([])
+const reviews = ref<ProductReview[]>([])
+const loading = ref(true)
+const quantity = ref(1)
+const selectedImage = ref(0)
+const isFavorite = ref(false)
+const activeTab = ref<'description' | 'specs' | 'reviews'>('description')
+
+const customLength = ref(4000)
+const customWidth = ref(100)
+const customThickness = ref(30)
+const customTreatment = ref('Naturel')
+
+onMounted(loadProduct)
+watch(() => route.params.slug, loadProduct)
+
+async function loadProduct() {
+  loading.value = true
+  const { data } = await supabase.from('products').select('*').eq('slug', route.params.slug as string).maybeSingle()
+  if (data) {
+    product.value = data as Product
+    customLength.value = data.dimensions.length_mm ?? 4000
+    customWidth.value = data.dimensions.width_mm ?? 100
+    customThickness.value = data.dimensions.thickness_mm ?? 30
+    await Promise.all([loadSimilar(data.essence, data.id), loadReviews(data.id)])
+    if (auth.isAuthenticated) await checkFavorite(data.id)
+  }
+  loading.value = false
+}
+
+async function loadSimilar(essence: string, excludeId: string) {
+  const { data } = await supabase.from('products').select('*').eq('essence', essence).eq('is_active', true).neq('id', excludeId).limit(3)
+  if (data) similar.value = data as Product[]
+}
+
+async function loadReviews(productId: string) {
+  const { data } = await supabase.from('product_reviews').select('*').eq('product_id', productId).eq('is_approved', true).order('created_at', { ascending: false })
+  if (data) reviews.value = data as ProductReview[]
+}
+
+async function checkFavorite(productId: string) {
+  const { data } = await supabase.from('favorites').select('id').eq('product_id', productId).eq('user_id', auth.user!.id).maybeSingle()
+  isFavorite.value = !!data
+}
+
+async function toggleFavorite() {
+  if (!auth.isAuthenticated || !product.value) return
+  if (isFavorite.value) {
+    await supabase.from('favorites').delete().eq('product_id', product.value.id).eq('user_id', auth.user!.id)
+    isFavorite.value = false
+  } else {
+    await supabase.from('favorites').insert({ product_id: product.value.id, user_id: auth.user!.id })
+    isFavorite.value = true
+  }
+}
+
+function addToCart() {
+  if (!product.value) return
+  cart.addItem(product.value, quantity.value, 'pcs', {
+    longueur_mm: customLength.value, largeur_mm: customWidth.value,
+    epaisseur_mm: customThickness.value, traitement: customTreatment.value,
+  })
+  cart.toggleCart()
+}
+
+const avgRating = computed(() => reviews.value.length === 0 ? 0 : (reviews.value.reduce((s, r) => s + r.rating, 0) / reviews.value.length).toFixed(1))
+
+const priceMultiplier = computed(() => {
+  if (!product.value) return 1
+  const base = (product.value.dimensions.length_mm ?? 4000) * (product.value.dimensions.width_mm ?? 100) * (product.value.dimensions.thickness_mm ?? 30)
+  const custom = customLength.value * customWidth.value * customThickness.value
+  return base === 0 ? 1 : Math.max(0.5, custom / base)
+})
+
+const computedPrice = computed(() => {
+  if (!product.value) return { eur: 0, usd: 0, fcfa: 0 }
+  return {
+    eur: Math.round(product.value.price_eur * priceMultiplier.value * quantity.value),
+    usd: Math.round(product.value.price_usd * priceMultiplier.value * quantity.value),
+    fcfa: Math.round(product.value.price_fcfa * priceMultiplier.value * quantity.value),
+  }
+})
+</script>
+
+<template>
+  <DefaultLayout>
+    <div v-if="loading" class="max-w-7xl mx-auto px-4 py-20 text-center"><p class="text-wood-400">Chargement...</p></div>
+
+    <div v-else-if="product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <nav class="flex items-center gap-1 text-sm text-wood-400 mb-6">
+        <RouterLink to="/" class="hover:text-primary-500">Accueil</RouterLink>
+        <ChevronRight class="w-3 h-3" />
+        <RouterLink to="/catalogue" class="hover:text-primary-500">Catalogue</RouterLink>
+        <ChevronRight class="w-3 h-3" />
+        <span class="text-primary-500">{{ product.name }}</span>
+      </nav>
+
+      <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+        <div>
+          <div class="aspect-square rounded-2xl overflow-hidden bg-wood-100 border border-wood-200">
+            <img :src="product.images[selectedImage]" :alt="product.name" class="w-full h-full object-cover" />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="px-3 py-1 bg-primary-100 text-primary-500 text-xs font-medium rounded-md">{{ product.essence }}</span>
+            <div class="flex items-center gap-1">
+              <Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= Math.round(Number(avgRating)) ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" />
+              <span class="text-sm text-wood-400 ml-1">({{ reviews.length }} avis)</span>
+            </div>
+          </div>
+
+          <h1 class="font-display text-3xl font-medium text-primary-500">{{ product.name }}</h1>
+          <p class="mt-3 text-wood-600 leading-relaxed">{{ product.description }}</p>
+
+          <div class="mt-6 text-3xl font-semibold text-primary-500">{{ currency.formatPrice(computedPrice.eur, computedPrice.usd, computedPrice.fcfa) }}</div>
+
+          <div class="mt-6 bg-white rounded-xl border border-wood-200 p-5">
+            <h3 class="font-medium text-primary-500 flex items-center gap-2 mb-4"><Ruler class="w-4 h-4" /> Personnalisation</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="text-xs text-wood-500">Longueur (mm)</label><input v-model.number="customLength" type="number" min="100" step="100" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+              <div><label class="text-xs text-wood-500">Largeur (mm)</label><input v-model.number="customWidth" type="number" min="10" step="10" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+              <div><label class="text-xs text-wood-500">Épaisseur (mm)</label><input v-model.number="customThickness" type="number" min="5" step="5" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+              <div><label class="text-xs text-wood-500">Traitement</label><select v-model="customTreatment" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"><option>Naturel</option><option>Autoclave Classe 3</option><option>Autoclave Classe 4</option><option>Saturateur</option></select></div>
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center gap-4">
+            <div class="flex items-center border border-wood-200 rounded-lg">
+              <button @click="quantity = Math.max(1, quantity - 1)" class="p-2.5 text-wood-500 hover:text-primary-500"><Minus class="w-4 h-4" /></button>
+              <span class="w-12 text-center font-medium">{{ quantity }}</span>
+              <button @click="quantity++" class="p-2.5 text-wood-500 hover:text-primary-500"><Plus class="w-4 h-4" /></button>
+            </div>
+            <button @click="addToCart" class="flex-1 bg-primary-500 text-wood-100 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"><ShoppingCart class="w-5 h-5" /> Ajouter au panier</button>
+            <button @click="toggleFavorite" class="p-3 border border-wood-200 rounded-lg transition-colors" :class="isFavorite ? 'text-cta-500 border-cta-500' : 'text-wood-500 hover:text-cta-500'"><Heart class="w-5 h-5" :class="isFavorite ? 'fill-cta-500' : ''" /></button>
+          </div>
+
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="flex items-center gap-2 text-sm text-wood-500"><Check class="w-4 h-4 text-success-500" /> Stock: {{ product.stock }}</div>
+            <div class="flex items-center gap-2 text-sm text-wood-500"><Shield class="w-4 h-4 text-success-500" /> {{ product.characteristics.certification || 'FSC' }}</div>
+            <div class="flex items-center gap-2 text-sm text-wood-500"><Truck class="w-4 h-4 text-success-500" /> Expédition 48h</div>
+            <div class="flex items-center gap-2 text-sm text-wood-500"><Check class="w-4 h-4 text-success-500" /> {{ product.characteristics.class_emploi }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="mt-12 border-t border-wood-200 pt-8">
+        <div class="flex gap-6 border-b border-wood-200 mb-6">
+          <button v-for="tab in (['description','specs','reviews'] as const)" :key="tab" @click="activeTab = tab"
+            :class="['pb-3 text-sm font-medium border-b-2 transition-colors', activeTab === tab ? 'border-primary-500 text-primary-500' : 'border-transparent text-wood-500 hover:text-primary-500']">
+            {{ tab === 'description' ? 'Description' : tab === 'specs' ? 'Caractéristiques' : `Avis (${reviews.length})` }}
+          </button>
+        </div>
+
+        <div v-if="activeTab === 'description'"><p class="text-wood-600 leading-relaxed">{{ product.description }}</p></div>
+
+        <div v-else-if="activeTab === 'specs'" class="grid md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl border border-wood-200 p-5">
+            <h3 class="font-medium text-primary-500 mb-3">Dimensions de base</h3>
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between"><dt class="text-wood-500">Longueur</dt><dd class="font-medium">{{ product.dimensions.length_mm }} mm</dd></div>
+              <div class="flex justify-between"><dt class="text-wood-500">Largeur</dt><dd class="font-medium">{{ product.dimensions.width_mm }} mm</dd></div>
+              <div class="flex justify-between"><dt class="text-wood-500">Épaisseur</dt><dd class="font-medium">{{ product.dimensions.thickness_mm }} mm</dd></div>
+              <div class="flex justify-between"><dt class="text-wood-500">Densité</dt><dd class="font-medium">{{ product.dimensions.weight_kg_m3 }} kg/m³</dd></div>
+            </dl>
+          </div>
+          <div class="bg-white rounded-xl border border-wood-200 p-5">
+            <h3 class="font-medium text-primary-500 mb-3">Caractéristiques techniques</h3>
+            <dl class="space-y-2 text-sm">
+              <div v-for="(val, key) in product.characteristics" :key="String(key)" class="flex justify-between">
+                <dt class="text-wood-500 capitalize">{{ String(key).replace(/_/g, ' ') }}</dt><dd class="font-medium">{{ val }}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <div v-else>
+          <div v-if="reviews.length === 0" class="text-center py-10 text-wood-400"><p>Aucun avis pour le moment.</p></div>
+          <div v-else class="space-y-4">
+            <div v-for="r in reviews" :key="r.id" class="bg-white rounded-xl border border-wood-200 p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /></div>
+                <span class="text-xs text-wood-400">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</span>
+              </div>
+              <p class="text-wood-600 text-sm leading-relaxed">{{ r.comment }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="similar.length > 0" class="mt-16">
+        <h2 class="font-display text-2xl font-medium text-primary-500 mb-6">Produits similaires</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"><ProductCard v-for="p in similar" :key="p.id" :product="p" /></div>
+      </div>
+    </div>
+
+    <div v-else class="max-w-7xl mx-auto px-4 py-20 text-center">
+      <p class="text-wood-400">Produit introuvable</p>
+      <RouterLink to="/catalogue" class="text-primary-500 hover:underline mt-2 inline-block">Retour au catalogue</RouterLink>
+    </div>
+  </DefaultLayout>
+</template>

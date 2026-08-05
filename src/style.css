@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #f7f2ef;
+  --color-primary-100: #ede0d7;
+  --color-primary-200: #d9bfae;
+  --color-primary-300: #b8906a;
+  --color-primary-400: #7a4f38;
+  --color-primary-500: #3e2a1f;
+  --color-primary-600: #2e1e15;
+  --color-primary-700: #1f140d;
+  --color-primary-800: #130c07;
+  --color-primary-900: #0a0503;
+
+  --color-wood-50: #faf8f5;
+  --color-wood-100: #f7f5f1;
+  --color-wood-200: #ede8e1;
+  --color-wood-300: #e4dfd6;
+  --color-wood-400: #c9a876;
+  --color-wood-500: #b8924f;
+  --color-wood-600: #6e6259;
+  --color-wood-700: #4a3f38;
+  --color-wood-800: #362d27;
+  --color-wood-900: #241a13;
+
+  --color-cta-400: #d4574a;
+  --color-cta-500: #b23a2e;
+  --color-cta-600: #9a2f25;
+  --color-cta-700: #7a221a;
+
+  --color-success-100: #d4f0e1;
+  --color-success-500: #2e7d4f;
+  --color-error-100: #fde8e6;
+  --color-error-500: #c1352a;
+  --color-warning-100: #fdf3e0;
+  --color-warning-500: #d98a1e;
+
+  --font-family-display: 'Fraunces', Georgia, serif;
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    @apply bg-wood-100 text-wood-900 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+
+  :focus-visible {
+    outline: 2px solid #3e2a1f;
+    outline-offset: 2px;
+  }
+}

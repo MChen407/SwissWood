@@ -1,0 +1,51 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { supabase, type Order } from '@/lib/supabase'
+import { STATUS_LABELS } from '@/types/index'
+
+const orders = ref<Order[]>([])
+const loading = ref(true)
+const statuses = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled']
+
+onMounted(load)
+
+async function load() {
+  loading.value = true
+  const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+  if (data) orders.value = data as Order[]
+  loading.value = false
+}
+
+async function updateStatus(order: Order, status: string) {
+  await supabase.from('orders').update({ status }).eq('id', order.id)
+  order.status = status as Order['status']
+}
+</script>
+
+<template>
+  <div>
+    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">Gestion des commandes</h1>
+    <div class="bg-white rounded-xl border border-wood-200 overflow-hidden">
+      <div v-if="loading" class="p-10 text-center text-wood-400">Chargement...</div>
+      <div v-else-if="orders.length === 0" class="p-10 text-center text-wood-400">Aucune commande</div>
+      <table v-else class="w-full text-sm">
+        <thead class="bg-wood-100 text-wood-500 text-left">
+          <tr><th class="px-4 py-3 font-medium">N° Commande</th><th class="px-4 py-3 font-medium">Date</th><th class="px-4 py-3 font-medium">Total</th><th class="px-4 py-3 font-medium">Paiement</th><th class="px-4 py-3 font-medium">Statut</th></tr>
+        </thead>
+        <tbody class="divide-y divide-wood-100">
+          <tr v-for="order in orders" :key="order.id" class="hover:bg-wood-50">
+            <td class="px-4 py-3 font-medium text-primary-500">{{ order.order_number }}</td>
+            <td class="px-4 py-3 text-wood-500">{{ new Date(order.created_at).toLocaleDateString('fr-FR') }}</td>
+            <td class="px-4 py-3 text-wood-500">{{ (order.total_eur / 100).toFixed(2) }} €</td>
+            <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded-full capitalize" :class="{
+              'bg-success-100 text-success-500': order.payment_status === 'paid',
+              'bg-warning-100 text-warning-500': order.payment_status === 'pending' || order.payment_status === 'awaiting_transfer',
+              'bg-error-100 text-error-500': order.payment_status === 'failed',
+            }">{{ order.payment_status }}</span></td>
+            <td class="px-4 py-3"><select :value="order.status" @change="updateStatus(order, ($event.target as HTMLSelectElement).value)" class="text-xs px-2 py-1 border border-wood-200 rounded-lg focus:outline-none focus:border-primary-500"><option v-for="s in statuses" :key="s" :value="s">{{ STATUS_LABELS[s] }}</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
