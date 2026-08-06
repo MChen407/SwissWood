@@ -36,11 +36,10 @@ const features = [
     <section class="relative overflow-hidden" style="background:#4A2C1A; min-height: 560px;">
       <div class="absolute inset-0">
         <img
-          src="/bois_chaud.webp"
+          src="/wood2.webp"
           alt="Bois SwissWood"
           class="w-full h-full object-cover"
-          style="opacity:0.18;"
-          onerror="this.style.display='none'"
+          style="opacity:0.22;"
         />
       </div>
       <div class="absolute inset-0" style="background: linear-gradient(105deg, #4A2C1A 45%, rgba(74,44,26,0.6) 80%, transparent 100%);"></div>
@@ -187,7 +186,7 @@ const features = [
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div class="rounded-2xl p-10 md:p-14 text-center relative overflow-hidden" style="background:#4A2C1A;">
         <div class="absolute inset-0 opacity-10">
-          <img src="https://images.pexels.com/photos/12278586/pexels-photo-12278586.jpeg?auto=compress&cs=tinysrgb&h=400&w=800" alt="" class="w-full h-full object-cover" />
+          <img src="/wood3.webp" alt="" class="w-full h-full object-cover" />
         </div>
         <div class="relative">
           <p class="text-sm font-medium uppercase tracking-widest mb-3" style="color:#C89B5D;">Commencez maintenant</p>
