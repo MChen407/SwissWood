@@ -24,8 +24,8 @@ async function signOut() { await auth.signOut(); router.push('/') }
     <aside class="w-64 bg-primary-500 text-wood-100 flex-shrink-0 hidden md:flex flex-col fixed h-full">
       <div class="p-5 border-b border-primary-700">
         <RouterLink to="/" class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-lg bg-wood-100/10 flex items-center justify-center"><span class="font-display text-base font-semibold text-wood-100">A</span></div>
-          <div><span class="font-display text-lg font-semibold block">Arbora</span><span class="text-xs text-wood-300 flex items-center gap-1"><ShieldCheck class="w-3 h-3" /> Admin</span></div>
+          <img src="/logo.jpg" alt="SwissWood" class="w-9 h-9 rounded-lg object-cover" />
+          <div><span class="font-display text-lg font-semibold block">SwissWood</span><span class="text-xs text-wood-300 flex items-center gap-1"><ShieldCheck class="w-3 h-3" /> Admin</span></div>
         </RouterLink>
       </div>
       <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -42,7 +42,7 @@ async function signOut() { await auth.signOut(); router.push('/') }
 
     <div class="flex-1 md:ml-64">
       <header class="bg-white border-b border-wood-200 h-16 flex items-center px-4 sm:px-6 sticky top-0 z-20">
-        <div class="md:hidden flex items-center gap-2 mr-4"><div class="w-7 h-7 rounded-lg bg-primary-500 flex items-center justify-center"><span class="font-display text-sm font-semibold text-wood-100">A</span></div><span class="font-display text-lg font-semibold text-primary-500">Admin</span></div>
+        <div class="md:hidden flex items-center gap-2 mr-4"><img src="/logo.jpg" alt="SwissWood" class="w-7 h-7 rounded-lg object-cover" /><span class="font-display text-lg font-semibold text-primary-500">Admin</span></div>
         <p class="text-sm text-wood-500">{{ auth.fullName }}</p>
       </header>
       <main class="p-4 sm:p-6 lg:p-8"><RouterView /></main>

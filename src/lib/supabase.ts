@@ -3,7 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL as string
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
-export const supabase = createClient(url, key)
+// Create a stub client when credentials are missing (dev / preview without Supabase)
+const isConfigured = url && key && url !== 'undefined' && key !== 'undefined'
+
+export const supabase = isConfigured
+  ? createClient(url, key)
+  : createClient('https://placeholder.supabase.co', 'placeholder-anon-key')
 
 export type Profile = {
   id: string; first_name: string; last_name: string; phone: string

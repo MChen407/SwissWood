@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Mail, Phone, MapPin, Send, Check, Building2 } from 'lucide-vue-next'
+import { Mail, Phone, MapPin, Send, Check, Clock } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 
 const form = ref({ name: '', email: '', subject: '', message: '' })
@@ -13,48 +13,92 @@ function handleSubmit() {
 }
 
 const contacts = [
-  { icon: Mail, label: 'E-mail', value: 'contact@arbora.eu' },
-  { icon: Phone, label: 'Téléphone', value: '+33 1 23 45 67 89' },
-  { icon: MapPin, label: 'Adresse', value: '42 Rue du Bois, 75008 Paris, France' },
+  { icon: Mail, label: 'E-mail', value: 'contact@swisswood.ch' },
+  { icon: Phone, label: 'Téléphone', value: '+41 22 123 45 67' },
+  { icon: MapPin, label: 'Adresse', value: 'Rue du Bois 12, 1201 Genève, Suisse' },
+  { icon: Clock, label: 'Horaires', value: 'Lun–Ven 8h–18h · Sam 9h–12h' },
 ]
 </script>
 
 <template>
   <DefaultLayout>
-    <section class="bg-primary-500 text-wood-100 py-16">
+    <!-- Hero -->
+    <section class="py-14 text-white" style="background:#4A2C1A;">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="font-display text-4xl font-medium">Contactez-nous</h1>
-        <p class="mt-3 text-wood-200">Notre équipe est à votre disposition pour vous conseiller.</p>
+        <h1 class="font-display text-4xl font-semibold">Contactez-nous</h1>
+        <p class="mt-3" style="color:#E8D4A8;">Notre équipe est à votre disposition pour vous conseiller.</p>
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
       <div class="grid md:grid-cols-3 gap-8">
+
+        <!-- Contact info -->
         <div class="space-y-4">
-          <div v-for="c in contacts" :key="c.label" class="bg-white rounded-xl border border-wood-200 p-5">
-            <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center mb-3"><component :is="c.icon" class="w-5 h-5 text-primary-500" /></div>
-            <p class="text-xs text-wood-400 uppercase tracking-wider">{{ c.label }}</p>
-            <p class="text-sm font-medium text-primary-500 mt-1">{{ c.value }}</p>
-          </div>
-          <div class="bg-white rounded-xl border border-wood-200 p-5">
-            <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center mb-3"><Building2 class="w-5 h-5 text-primary-500" /></div>
-            <p class="text-xs text-wood-400 uppercase tracking-wider">Horaires</p>
-            <p class="text-sm text-wood-600 mt-1">Lun - Ven: 8h - 18h</p>
-            <p class="text-sm text-wood-600">Sam: 9h - 12h</p>
+          <div v-for="c in contacts" :key="c.label"
+            class="bg-white rounded-xl border p-5 transition-all hover:-translate-y-0.5"
+            style="border-color:#E2DCD1; box-shadow:0 2px 8px rgba(43,36,32,0.05);">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#E8D4A8;">
+              <component :is="c.icon" class="w-5 h-5" style="color:#6B4226;" />
+            </div>
+            <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:#C89B5D;">{{ c.label }}</p>
+            <p class="text-sm font-medium" style="color:#4A2C1A;">{{ c.value }}</p>
           </div>
         </div>
 
+        <!-- Form -->
         <div class="md:col-span-2">
-          <form @submit.prevent="handleSubmit" class="bg-white rounded-xl border border-wood-200 p-6 space-y-4">
-            <h2 class="font-display text-xl font-medium text-primary-500">Envoyer un message</h2>
-            <div v-if="sent" class="flex items-center gap-2 p-3 bg-success-100 text-success-500 text-sm rounded-lg"><Check class="w-4 h-4" /> Votre message a bien été envoyé. Nous vous répondrons sous 24h.</div>
-            <div class="grid sm:grid-cols-2 gap-4">
-              <div><label class="text-sm text-wood-500">Nom complet</label><input v-model="form.name" type="text" required class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-              <div><label class="text-sm text-wood-500">E-mail</label><input v-model="form.email" type="email" required class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+          <form @submit.prevent="handleSubmit"
+            class="bg-white rounded-xl border p-8 space-y-5"
+            style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
+            <h2 class="font-display text-xl font-semibold" style="color:#4A2C1A;">Envoyer un message</h2>
+
+            <div v-if="sent"
+              class="flex items-center gap-3 p-4 rounded-lg text-sm"
+              style="background:#d4f0e0; color:#4E7A51;">
+              <Check class="w-4 h-4 flex-shrink-0" />
+              Votre message a bien été envoyé. Nous vous répondrons dans les 24h.
             </div>
-            <div><label class="text-sm text-wood-500">Sujet</label><input v-model="form.subject" type="text" required class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-            <div><label class="text-sm text-wood-500">Message</label><textarea v-model="form.message" rows="5" required class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"></textarea></div>
-            <button type="submit" class="bg-primary-500 text-wood-100 px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"><Send class="w-4 h-4" /> Envoyer</button>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Nom complet *</label>
+                <input v-model="form.name" type="text" required placeholder="Jean Dupont"
+                  class="w-full px-3 py-2.5 rounded-lg text-sm"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">E-mail *</label>
+                <input v-model="form.email" type="email" required placeholder="vous@exemple.com"
+                  class="w-full px-3 py-2.5 rounded-lg text-sm"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Sujet *</label>
+              <input v-model="form.subject" type="text" required placeholder="Demande de devis, renseignement..."
+                class="w-full px-3 py-2.5 rounded-lg text-sm"
+                style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Message *</label>
+              <textarea v-model="form.message" rows="5" required placeholder="Décrivez votre demande en détail..."
+                class="w-full px-3 py-2.5 rounded-lg text-sm resize-none"
+                style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'"></textarea>
+            </div>
+
+            <button type="submit"
+              class="inline-flex items-center gap-2 text-white px-7 py-3 rounded-lg font-semibold transition-all"
+              style="background:#B23A2E; box-shadow:0 4px 12px rgba(178,58,46,0.25);"
+              onmouseover="this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
+              <Send class="w-4 h-4" /> Envoyer le message
+            </button>
           </form>
         </div>
       </div>

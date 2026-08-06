@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowRight, Check } from 'lucide-vue-next'
+import { ArrowRight, ArrowLeft, Shield, Truck, RotateCcw } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
@@ -16,7 +16,7 @@ const router = useRouter()
 const shipping = ref({
   address: auth.profile?.address || '',
   city: auth.profile?.city || '',
-  country: auth.profile?.country || 'France',
+  country: auth.profile?.country || 'Suisse',
   phone: auth.profile?.phone || '',
   notes: '',
 })
@@ -53,49 +53,148 @@ async function placeOrder() {
 
 <template>
   <DefaultLayout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 class="font-display text-3xl font-medium text-primary-500 mb-8">Finaliser ma commande</h1>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+      <!-- Back + Steps -->
+      <div class="flex items-center justify-between mb-8">
+        <button @click="router.back()" class="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style="color:#6B4226;">
+          <ArrowLeft class="w-4 h-4" /> Retour au panier
+        </button>
+        <!-- Progress bar -->
+        <div class="hidden sm:flex items-center gap-2 text-xs font-medium">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white" style="background:#6B4226;">
+            <span class="w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-[10px]">1</span>
+            Livraison
+          </span>
+          <div class="w-8 h-px" style="background:#E2DCD1;"></div>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="color:#7A7167; background:#FAF7F2; border:1px solid #E2DCD1;">
+            <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px]" style="border:1.5px solid #C89B5D;">2</span>
+            Paiement
+          </span>
+          <div class="w-8 h-px" style="background:#E2DCD1;"></div>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="color:#7A7167; background:#FAF7F2; border:1px solid #E2DCD1;">
+            <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px]" style="border:1.5px solid #C89B5D;">3</span>
+            Confirmation
+          </span>
+        </div>
+      </div>
+
+      <h1 class="font-display text-3xl font-semibold mb-8" style="color:#4A2C1A;">Finaliser ma commande</h1>
 
       <div class="grid lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-6">
-          <div class="bg-white rounded-xl border border-wood-200 p-6">
-            <h2 class="font-medium text-primary-500 mb-4">Adresse de livraison</h2>
+
+          <!-- Shipping address -->
+          <div class="bg-white rounded-xl border p-6" style="border-color:#E2DCD1;">
+            <h2 class="font-semibold text-base mb-5" style="color:#4A2C1A;">Adresse de livraison</h2>
             <div class="grid sm:grid-cols-2 gap-4">
-              <div class="sm:col-span-2"><label class="text-sm text-wood-500">Adresse</label><input v-model="shipping.address" type="text" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="123 Rue du Bois" /></div>
-              <div><label class="text-sm text-wood-500">Ville</label><input v-model="shipping.city" type="text" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Paris" /></div>
-              <div><label class="text-sm text-wood-500">Pays</label><select v-model="shipping.country" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"><option>France</option><option>Belgique</option><option>Suisse</option><option>Luxembourg</option><option>Allemagne</option><option>Espagne</option><option>Italie</option><option>Portugal</option><option>Pays-Bas</option><option>Royaume-Uni</option></select></div>
-              <div><label class="text-sm text-wood-500">Téléphone</label><input v-model="shipping.phone" type="tel" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="+33 6 12 34 56 78" /></div>
-              <div class="sm:col-span-2"><label class="text-sm text-wood-500">Notes (optionnel)</label><textarea v-model="shipping.notes" rows="2" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Instructions de livraison..."></textarea></div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Adresse</label>
+                <input v-model="shipping.address" type="text" placeholder="123 Rue du Bois"
+                  class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Ville</label>
+                <input v-model="shipping.city" type="text" placeholder="Genève"
+                  class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Pays</label>
+                <select v-model="shipping.country"
+                  class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'">
+                  <option>Suisse</option><option>France</option><option>Belgique</option><option>Luxembourg</option>
+                  <option>Allemagne</option><option>Espagne</option><option>Italie</option>
+                  <option>Portugal</option><option>Pays-Bas</option><option>Royaume-Uni</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Téléphone</label>
+                <input v-model="shipping.phone" type="tel" placeholder="+41 79 123 45 67"
+                  class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Notes de livraison (optionnel)</label>
+                <textarea v-model="shipping.notes" rows="2" placeholder="Instructions particulières..."
+                  class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors resize-none"
+                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
+                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'"></textarea>
+              </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl border border-wood-200 p-6">
-            <h2 class="font-medium text-primary-500 mb-4">Articles</h2>
-            <div class="space-y-3">
-              <div v-for="item in cart.items" :key="item.product.id" class="flex items-center gap-3 pb-3 border-b border-wood-100 last:border-0">
-                <img :src="item.product.images[0]" :alt="item.product.name" class="w-12 h-12 rounded-md object-cover" />
-                <div class="flex-1"><p class="text-sm font-medium text-primary-500">{{ item.product.name }}</p><p class="text-xs text-wood-400">{{ item.quantity }} × {{ currency.formatPrice(item.product.price_eur, item.product.price_usd, item.product.price_fcfa) }}</p></div>
-                <span class="text-sm font-semibold">{{ currency.formatPrice(item.product.price_eur * item.quantity, 0, 0) }}</span>
+          <!-- Cart items -->
+          <div class="bg-white rounded-xl border p-6" style="border-color:#E2DCD1;">
+            <h2 class="font-semibold text-base mb-4" style="color:#4A2C1A;">Articles commandés</h2>
+            <div class="space-y-4">
+              <div v-for="item in cart.items" :key="item.product.id"
+                class="flex items-center gap-4 pb-4 last:pb-0 last:border-0" style="border-bottom:1px solid #FAF7F2;">
+                <img :src="item.product.images[0]" :alt="item.product.name" class="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold truncate" style="color:#4A2C1A;">{{ item.product.name }}</p>
+                  <p class="text-xs mt-0.5" style="color:#7A7167;">
+                    {{ item.quantity }} × {{ currency.formatPrice(item.product.price_eur, item.product.price_usd, item.product.price_fcfa) }}
+                  </p>
+                </div>
+                <span class="text-sm font-bold flex-shrink-0" style="color:#4A2C1A;">
+                  {{ currency.formatPrice(item.product.price_eur * item.quantity, 0, 0) }}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-wood-200 p-6 h-fit sticky top-20">
-          <h2 class="font-medium text-primary-500 mb-4">Total</h2>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between"><span class="text-wood-500">Sous-total</span><span class="font-medium">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span></div>
-            <div class="flex justify-between"><span class="text-wood-500">Livraison</span><span class="text-wood-400">À déterminer</span></div>
+        <!-- Summary -->
+        <div class="bg-white rounded-xl border p-6 h-fit sticky top-20" style="border-color:#E2DCD1; box-shadow:0 2px 8px rgba(43,36,32,0.06);">
+          <h2 class="font-display text-lg font-semibold mb-5" style="color:#4A2C1A;">Résumé de commande</h2>
+
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span style="color:#7A7167;">Sous-total</span>
+              <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span style="color:#7A7167;">Livraison</span>
+              <span style="color:#7A7167;">À déterminer</span>
+            </div>
           </div>
-          <div class="border-t border-wood-200 mt-4 pt-4 flex justify-between">
-            <span class="font-medium text-primary-500">Total</span>
-            <span class="text-xl font-semibold text-primary-500">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+
+          <div class="my-5" style="border-top:1px solid #E2DCD1;"></div>
+
+          <div class="flex justify-between items-center mb-6">
+            <span class="font-semibold" style="color:#4A2C1A;">Total</span>
+            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
           </div>
-          <div v-if="error" class="mt-4 p-3 bg-error-100 text-error-500 text-sm rounded-lg">{{ error }}</div>
-          <button @click="placeOrder" :disabled="loading" class="w-full mt-6 bg-primary-500 text-wood-100 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-            <span v-if="loading">Traitement...</span><span v-else class="flex items-center gap-2">Continuer vers le paiement <ArrowRight class="w-4 h-4" /></span>
+
+          <div v-if="error" class="mb-4 p-3 rounded-lg text-sm" style="background:#fde8e6; color:#C0392B;">{{ error }}</div>
+
+          <button @click="placeOrder" :disabled="loading"
+            class="w-full text-white py-3.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            style="background:#B23A2E; box-shadow:0 4px 12px rgba(178,58,46,0.25);"
+            onmouseover="if(!this.disabled) this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
+            <span v-if="loading">Traitement en cours...</span>
+            <span v-else class="flex items-center gap-2">Continuer vers le paiement <ArrowRight class="w-4 h-4" /></span>
           </button>
-          <div class="mt-4 flex items-center gap-2 text-xs text-wood-400"><Check class="w-3.5 h-3.5 text-success-500" /> Paiement sécurisé</div>
+
+          <!-- Reassurance -->
+          <div class="mt-5 space-y-2.5 pt-5" style="border-top:1px solid #E2DCD1;">
+            <div class="flex items-center gap-2 text-xs" style="color:#7A7167;">
+              <Shield class="w-4 h-4 flex-shrink-0" style="color:#6B4226;" /> Paiement 100% sécurisé
+            </div>
+            <div class="flex items-center gap-2 text-xs" style="color:#7A7167;">
+              <Truck class="w-4 h-4 flex-shrink-0" style="color:#6B4226;" /> Livraison Europe
+            </div>
+            <div class="flex items-center gap-2 text-xs" style="color:#7A7167;">
+              <RotateCcw class="w-4 h-4 flex-shrink-0" style="color:#6B4226;" /> Retours sous 14 jours
+            </div>
+          </div>
         </div>
       </div>
     </div>

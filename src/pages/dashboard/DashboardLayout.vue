@@ -21,8 +21,8 @@ async function signOut() { await auth.signOut(); router.push('/') }
     <header class="bg-primary-500 text-wood-100 sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <RouterLink to="/" class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-lg bg-primary-500 flex items-center justify-center"><span class="font-display text-base font-semibold text-wood-100">A</span></div>
-          <span class="font-display text-xl font-semibold">Arbora</span>
+          <img src="/logo.jpg" alt="SwissWood" class="w-9 h-9 rounded-lg object-cover" />
+          <span class="font-display text-xl font-semibold">SwissWood</span>
         </RouterLink>
         <button @click="signOut" class="flex items-center gap-2 text-sm text-wood-200 hover:text-white"><LogOut class="w-4 h-4" /> Déconnexion</button>
       </div>

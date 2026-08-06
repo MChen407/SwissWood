@@ -1,49 +1,67 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #f7f2ef;
-  --color-primary-100: #ede0d7;
-  --color-primary-200: #d9bfae;
-  --color-primary-300: #b8906a;
-  --color-primary-400: #7a4f38;
-  --color-primary-500: #3e2a1f;
-  --color-primary-600: #2e1e15;
-  --color-primary-700: #1f140d;
-  --color-primary-800: #130c07;
-  --color-primary-900: #0a0503;
+  /* Primary — Brun Bois */
+  --color-primary-50:  #f5efe9;
+  --color-primary-100: #e8d9cc;
+  --color-primary-200: #d4b89d;
+  --color-primary-300: #b5895e;
+  --color-primary-400: #8a5c35;
+  --color-primary-500: #6B4226;
+  --color-primary-600: #4A2C1A;
+  --color-primary-700: #3a2013;
+  --color-primary-800: #27150c;
+  --color-primary-900: #150a05;
 
-  --color-wood-50: #faf8f5;
-  --color-wood-100: #f7f5f1;
-  --color-wood-200: #ede8e1;
-  --color-wood-300: #e4dfd6;
-  --color-wood-400: #c9a876;
-  --color-wood-500: #b8924f;
-  --color-wood-600: #6e6259;
-  --color-wood-700: #4a3f38;
-  --color-wood-800: #362d27;
-  --color-wood-900: #241a13;
+  /* Wood / Sand — Bois clair */
+  --color-wood-50:  #faf7f2;
+  --color-wood-100: #f5f0e8;
+  --color-wood-200: #E8D4A8;
+  --color-wood-300: #d9bc88;
+  --color-wood-400: #C89B5D;
+  --color-wood-500: #a07a3f;
+  --color-wood-600: #7A7167;
+  --color-wood-700: #57504a;
+  --color-wood-800: #2B2420;
+  --color-wood-900: #1a1612;
 
+  /* Neutral */
+  --color-neutral-50:  #FAF7F2;
+  --color-neutral-100: #F5F2EC;
+  --color-neutral-200: #E2DCD1;
+  --color-neutral-300: #cdc5b8;
+  --color-neutral-400: #a79c8e;
+  --color-neutral-500: #7A7167;
+  --color-neutral-600: #5a5249;
+  --color-neutral-700: #3e3830;
+  --color-neutral-800: #2B2420;
+  --color-neutral-900: #1a1612;
+
+  /* CTA — Braise rouge */
   --color-cta-400: #d4574a;
-  --color-cta-500: #b23a2e;
-  --color-cta-600: #9a2f25;
-  --color-cta-700: #7a221a;
+  --color-cta-500: #B23A2E;
+  --color-cta-600: #8F2E24;
+  --color-cta-700: #7A2620;
 
-  --color-success-100: #d4f0e1;
-  --color-success-500: #2e7d4f;
-  --color-error-100: #fde8e6;
-  --color-error-500: #c1352a;
-  --color-warning-100: #fdf3e0;
-  --color-warning-500: #d98a1e;
+  /* States */
+  --color-success-100: #d4f0e0;
+  --color-success-500: #4E7A51;
+  --color-error-100:   #fde8e6;
+  --color-error-500:   #C0392B;
+  --color-warning-100: #FBF0DA;
+  --color-warning-500: #D69B2C;
 
   --font-family-display: 'Fraunces', Georgia, serif;
-  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-sans:    'Inter', system-ui, sans-serif;
 }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
 
   body {
-    @apply bg-wood-100 text-wood-900 antialiased;
+    @apply antialiased;
+    background-color: #FAF7F2;
+    color: #2B2420;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
@@ -53,7 +71,11 @@
   }
 
   :focus-visible {
-    outline: 2px solid #3e2a1f;
+    outline: 2px solid #6B4226;
     outline-offset: 2px;
+  }
+
+  input, textarea, select {
+    background-color: #ffffff;
   }
 }

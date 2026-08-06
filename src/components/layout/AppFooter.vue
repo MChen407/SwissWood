@@ -6,58 +6,64 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="bg-primary-500 text-wood-100 mt-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+  <footer class="mt-20 text-white" style="background:#4A2C1A;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+
+        <!-- Brand -->
         <div>
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-10 h-10 rounded-lg bg-wood-100/10 flex items-center justify-center"><span class="font-display text-lg font-semibold text-wood-100">A</span></div>
-            <span class="font-display text-2xl font-semibold">Arbora</span>
+          <div class="flex items-center gap-3 mb-5">
+            <img src="/logo.jpg" alt="SwissWood" class="h-11 w-11 rounded-lg object-cover" />
+            <span class="font-display text-2xl font-semibold text-white">SwissWood</span>
           </div>
-          <p class="text-sm text-wood-200 leading-relaxed">Votre spécialiste européen du bois de construction premium. Des essences durables, certifiées et résistantes.</p>
-          <div class="flex flex-col gap-2 mt-4">
-            <span class="flex items-center gap-2 text-xs text-wood-200"><Shield class="w-4 h-4" /> Paiement sécurisé</span>
-            <span class="flex items-center gap-2 text-xs text-wood-200"><Leaf class="w-4 h-4" /> Bois certifiés FSC/PEFC</span>
-            <span class="flex items-center gap-2 text-xs text-wood-200"><Truck class="w-4 h-4" /> Livraison Europe</span>
+          <p class="text-sm leading-relaxed" style="color:#E8D4A8;">Votre spécialiste suisse du bois de chauffage premium et des fourneaux. Chaleur, qualité et fiabilité pour votre foyer.</p>
+          <div class="flex flex-col gap-2.5 mt-5">
+            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Shield class="w-4 h-4" /> Paiement sécurisé</span>
+            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Leaf class="w-4 h-4" /> Bois certifiés FSC/PEFC</span>
+            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Truck class="w-4 h-4" /> Livraison en Europe</span>
           </div>
         </div>
 
+        <!-- Navigation -->
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-wood-300 mb-4">Navigation</h3>
-          <ul class="space-y-2">
-            <li><RouterLink to="/" class="text-sm text-wood-200 hover:text-white transition-colors">Accueil</RouterLink></li>
-            <li><RouterLink to="/catalogue" class="text-sm text-wood-200 hover:text-white transition-colors">Catalogue</RouterLink></li>
-            <li><RouterLink to="/a-propos" class="text-sm text-wood-200 hover:text-white transition-colors">À propos</RouterLink></li>
-            <li><RouterLink to="/contact" class="text-sm text-wood-200 hover:text-white transition-colors">Contact</RouterLink></li>
+          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Navigation</h3>
+          <ul class="space-y-2.5">
+            <li><RouterLink to="/" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Accueil</RouterLink></li>
+            <li><RouterLink to="/catalogue" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Catalogue</RouterLink></li>
+            <li><RouterLink to="/a-propos" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">À propos</RouterLink></li>
+            <li><RouterLink to="/contact" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Contact</RouterLink></li>
           </ul>
         </div>
 
+        <!-- Essences -->
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-wood-300 mb-4">Essences</h3>
-          <ul class="space-y-2">
-            <li><RouterLink to="/catalogue?essence=Teck" class="text-sm text-wood-200 hover:text-white transition-colors">Teck</RouterLink></li>
-            <li><RouterLink to="/catalogue?essence=Iroko" class="text-sm text-wood-200 hover:text-white transition-colors">Iroko</RouterLink></li>
-            <li><RouterLink to="/catalogue?essence=Pin" class="text-sm text-wood-200 hover:text-white transition-colors">Pin</RouterLink></li>
-            <li><RouterLink to="/catalogue?essence=Sapin" class="text-sm text-wood-200 hover:text-white transition-colors">Sapin</RouterLink></li>
+          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Essences</h3>
+          <ul class="space-y-2.5">
+            <li><RouterLink to="/catalogue?essence=Teck" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Teck</RouterLink></li>
+            <li><RouterLink to="/catalogue?essence=Iroko" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Iroko</RouterLink></li>
+            <li><RouterLink to="/catalogue?essence=Pin" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Pin</RouterLink></li>
+            <li><RouterLink to="/catalogue?essence=Sapin" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Sapin</RouterLink></li>
           </ul>
         </div>
 
+        <!-- Contact -->
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-wood-300 mb-4">Contact</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Contact</h3>
           <ul class="space-y-3">
-            <li class="flex items-start gap-2 text-sm text-wood-200"><Mail class="w-4 h-4 mt-0.5" /> contact@arbora.eu</li>
-            <li class="flex items-start gap-2 text-sm text-wood-200"><Phone class="w-4 h-4 mt-0.5" /> +33 1 23 45 67 89</li>
-            <li class="flex items-start gap-2 text-sm text-wood-200"><MapPin class="w-4 h-4 mt-0.5" /> 42 Rue du Bois, 75008 Paris, France</li>
+            <li class="flex items-start gap-2 text-sm" style="color:#E8D4A8;"><Mail class="w-4 h-4 mt-0.5 flex-shrink-0" style="color:#C89B5D;" /> contact@swisswood.ch</li>
+            <li class="flex items-start gap-2 text-sm" style="color:#E8D4A8;"><Phone class="w-4 h-4 mt-0.5 flex-shrink-0" style="color:#C89B5D;" /> +41 22 123 45 67</li>
+            <li class="flex items-start gap-2 text-sm" style="color:#E8D4A8;"><MapPin class="w-4 h-4 mt-0.5 flex-shrink-0" style="color:#C89B5D;" /> Rue du Bois 12, 1201 Genève, Suisse</li>
           </ul>
         </div>
       </div>
 
-      <div class="border-t border-primary-700 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-xs text-wood-300">© {{ year }} Arbora. Tous droits réservés.</p>
-        <div class="flex items-center gap-4">
-          <RouterLink to="/" class="text-xs text-wood-300 hover:text-white transition-colors">Mentions légales</RouterLink>
-          <RouterLink to="/" class="text-xs text-wood-300 hover:text-white transition-colors">Confidentialité</RouterLink>
-          <RouterLink to="/" class="text-xs text-wood-300 hover:text-white transition-colors">CGV</RouterLink>
+      <!-- Bottom bar -->
+      <div class="mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top: 1px solid #6B4226;">
+        <p class="text-xs" style="color:#C89B5D;">© {{ year }} SwissWood. Tous droits réservés.</p>
+        <div class="flex items-center gap-6">
+          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Mentions légales</RouterLink>
+          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Confidentialité</RouterLink>
+          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">CGV</RouterLink>
         </div>
       </div>
     </div>
