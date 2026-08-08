@@ -14,7 +14,23 @@ export function createApp(): Express {
 
   app.set('trust proxy', 1)
 
-  app.use(helmet())
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+          fontSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameAncestors: ["'self'"],
+        },
+      },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  )
   app.use(cors({ origin: corsOrigins, credentials: true }))
   app.use(generalLimiter)
   app.use(express.json({ limit: '1mb' }))

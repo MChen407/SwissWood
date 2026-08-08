@@ -34,6 +34,16 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
   ApiResponse.success(res, result)
 })
 
+export const updateProfile = asyncHandler(async (req: Request, res: Response) => {
+  const result = await authService.updateProfile(req.user!.id, req.body)
+  ApiResponse.success(res, result)
+})
+
+export const changePassword = asyncHandler(async (req: Request, res: Response) => {
+  await authService.changePassword(req.user!.id, req.body)
+  ApiResponse.success(res, null)
+})
+
 export const googleRedirect = asyncHandler(async (req: Request, res: Response) => {
   const state = createOAuthState()
   res.redirect(googleOAuthService.buildAuthorizationUrl(state))

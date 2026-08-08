@@ -12,36 +12,37 @@ export interface AuthResponse {
   tokens: TokenPair
 }
 
+// Format aligné sur le type `Profile` du frontend (snake_case)
 export interface UserPublicDto {
   id: string
   email: string
-  firstName: string
-  lastName: string
+  first_name: string
+  last_name: string
   phone: string | null
   address: string | null
   city: string | null
   country: string
   role: Role
-  avatarUrl: string | null
-  emailVerified: boolean
-  createdAt: Date
-  updatedAt: Date
+  avatar_url: string | null
+  email_verified: boolean
+  created_at: Date
+  updated_at: Date
 }
 
 export function toUserPublicDto(user: User): UserPublicDto {
   return {
     id: user.id,
     email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    first_name: user.firstName,
+    last_name: user.lastName,
     phone: user.phone,
     address: user.address,
     city: user.city,
     country: user.country,
     role: user.role,
-    avatarUrl: user.avatarUrl,
-    emailVerified: user.emailVerified,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    avatar_url: user.avatarUrl,
+    email_verified: user.emailVerified,
+    created_at: user.createdAt,
+    updated_at: user.updatedAt,
   }
 }

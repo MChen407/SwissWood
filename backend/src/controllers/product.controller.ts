@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { productService } from '@/services/product.service'
+import { adminProductService, productService } from '@/services/product.service'
 import { reviewService } from '@/services/review.service'
 import { ApiResponse } from '@/utils/apiResponse'
 import { asyncHandler } from '@/utils/asyncHandler'
+import type { AdminProductInput } from '@/services/product.service'
 
 export const listProducts = asyncHandler(async (req: Request, res: Response) => {
   const query = (req.query as unknown) as {
@@ -32,4 +33,24 @@ export const getProductBySlug = asyncHandler(async (req: Request, res: Response)
 export const productReviews = asyncHandler(async (req: Request, res: Response) => {
   const reviews = await reviewService.getApprovedByProduct(req.params.id)
   ApiResponse.success(res, reviews, StatusCodes.OK)
+})
+
+export const adminListProducts = asyncHandler(async (_req: Request, res: Response) => {
+  const products = await adminProductService.listAll()
+  ApiResponse.success(res, products)
+})
+
+export const adminCreateProduct = asyncHandler(async (req: Request, res: Response) => {
+  const product = await adminProductService.create(req.body as AdminProductInput)
+  ApiResponse.success(res, product, StatusCodes.CREATED)
+})
+
+export const adminUpdateProduct = asyncHandler(async (req: Request, res: Response) => {
+  const product = await adminProductService.update(req.params.id, req.body as Partial<AdminProductInput>)
+  ApiResponse.success(res, product)
+})
+
+export const adminDeleteProduct = asyncHandler(async (req: Request, res: Response) => {
+  await adminProductService.remove(req.params.id)
+  ApiResponse.success(res, null)
 })

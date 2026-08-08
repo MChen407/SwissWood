@@ -1,25 +1,31 @@
 import { Router } from 'express'
 import { authenticate } from '@/middlewares/auth.middleware'
-import { loginLimiter } from '@/middlewares/rateLimit.middleware'
+import { loginLimiter, refreshLimiter, registerLimiter } from '@/middlewares/rateLimit.middleware'
 import { validate } from '@/middlewares/validate.middleware'
 import {
+  changePassword,
   googleCallback,
   googleRedirect,
   googleStatus,
   login,
   logout,
+  me,
   refresh,
   register,
+  updateProfile,
 } from '@/controllers/auth.controller'
-import { registerSchema, loginSchema, refreshTokenSchema } from '@/validators/auth.validator'
+import { loginSchema, refreshTokenSchema, registerSchema } from '@/validators/auth.validator'
+import { changePasswordSchema, updateProfileSchema } from '@/validators/user.validator'
 
 const router = Router()
 
-router.post('/register', validate(registerSchema), register)
+router.post('/register', registerLimiter, validate(registerSchema), register)
 router.post('/login', loginLimiter, validate(loginSchema), login)
-router.post('/refresh', validate(refreshTokenSchema), refresh)
+router.post('/refresh', refreshLimiter, validate(refreshTokenSchema), refresh)
 router.post('/logout', logout)
 router.get('/me', authenticate, me)
+router.patch('/me', authenticate, validate(updateProfileSchema), updateProfile)
+router.post('/me/change-password', authenticate, validate(changePasswordSchema), changePassword)
 
 // OAuth Google
 router.get('/google', googleRedirect)

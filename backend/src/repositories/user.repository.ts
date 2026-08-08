@@ -22,6 +22,7 @@ export interface UpdateUserData {
   city?: string
   country?: string
   avatarUrl?: string
+  role?: Role
 }
 
 export const userRepository = {

@@ -34,3 +34,19 @@ export const strictLimiter = rateLimit({
   legacyHeaders: false,
   handler: handleRateLimit,
 })
+
+export const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: handleRateLimit,
+})
+
+export const refreshLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: handleRateLimit,
+})

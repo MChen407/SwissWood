@@ -1,11 +1,13 @@
 import bcrypt from 'bcryptjs'
+import { Prisma } from '@prisma/client'
 import { env } from '@/config/env'
 import { userRepository } from '@/repositories/user.repository'
 import { refreshTokenRepository } from '@/repositories/refreshToken.repository'
 import { generateAccessToken, generateRefreshToken, hashToken, durationToMs } from '@/services/token.service'
 import { toUserPublicDto, type AuthResponse, type UserPublicDto } from '@/dto/auth.dto'
 import type { LoginDto, RegisterDto } from '@/validators/auth.validator'
-import { ConflictError, UnauthorizedError } from '@/utils/httpErrors'
+import type { ChangePasswordDto, UpdateProfileDto } from '@/validators/user.validator'
+import { BadRequestError, ConflictError, UnauthorizedError } from '@/utils/httpErrors'
 
 const BCRYPT_ROUNDS = 12
 
@@ -122,5 +124,34 @@ export const authService = {
 
   issueSession(userId: string): Promise<AuthResponse> {
     return buildAuthResponse(userId)
+  },
+
+  async updateProfile(userId: string, data: UpdateProfileDto): Promise<UserPublicDto> {
+    const payload: Prisma.UserUncheckedUpdateInput = {}
+    if (data.first_name !== undefined) payload.firstName = data.first_name
+    if (data.last_name !== undefined) payload.lastName = data.last_name
+    if (data.phone !== undefined) payload.phone = data.phone
+    if (data.address !== undefined) payload.address = data.address
+    if (data.city !== undefined) payload.city = data.city
+    if (data.country !== undefined) payload.country = data.country
+
+    const user = await userRepository.update(userId, payload as Parameters<typeof userRepository.update>[1])
+    return toUserPublicDto(user)
+  },
+
+  async changePassword(userId: string, data: ChangePasswordDto): Promise<void> {
+    const user = await userRepository.findById(userId)
+    if (!user?.password) {
+      throw new UnauthorizedError('Impossible de modifier le mot de passe de ce compte')
+    }
+
+    const valid = await bcrypt.compare(data.currentPassword, user.password)
+    if (!valid) {
+      throw new BadRequestError('Mot de passe actuel incorrect')
+    }
+
+    const passwordHash = await bcrypt.hash(data.newPassword, BCRYPT_ROUNDS)
+    await userRepository.update(userId, { password: passwordHash })
+    await refreshTokenRepository.revokeAllForUser(userId)
   },
 }

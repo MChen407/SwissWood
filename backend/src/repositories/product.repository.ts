@@ -46,4 +46,20 @@ export const productRepository = {
   async findById(id: string) {
     return prisma.product.findUnique({ where: { id } })
   },
+
+  async findByIds(ids: string[]) {
+    return prisma.product.findMany({ where: { id: { in: ids } } })
+  },
+
+  async create(data: Prisma.ProductUncheckedCreateInput) {
+    return prisma.product.create({ data })
+  },
+
+  async update(id: string, data: Prisma.ProductUncheckedUpdateInput) {
+    return prisma.product.update({ where: { id }, data })
+  },
+
+  async remove(id: string) {
+    return prisma.product.delete({ where: { id } })
+  },
 }

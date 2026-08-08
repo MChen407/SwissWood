@@ -7,3 +7,8 @@ export const getCmsContent = asyncHandler(async (_req: Request, res: Response) =
   const content = await cmsService.getAll()
   ApiResponse.success(res, content)
 })
+
+export const updateCmsContent = asyncHandler(async (req: Request, res: Response) => {
+  const content = await cmsService.updateById(req.params.id, req.body)
+  ApiResponse.success(res, content)
+})
