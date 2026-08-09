@@ -1613,5 +1613,56 @@ export const swaggerDocument = {
         },
       },
     },
+
+    '/admin/uploads/images': {
+      post: {
+        tags: ['Admin'],
+        summary: 'Uploader des images produits (multipart)',
+        operationId: 'adminUploadImages',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  images: {
+                    type: 'array',
+                    items: { type: 'string', format: 'binary' },
+                    description: 'Images (JPEG, PNG, WEBP, GIF) — max 8 fichiers, 10 Mo chacun',
+                  },
+                },
+                required: ['images'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'URLs des images uploadées',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        urls: { type: 'array', items: { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Aucun fichier / type non autorisé / trop volumineux' },
+          '401': { description: 'Non authentifié' },
+          '403': { description: 'Accès interdit pour ce rôle' },
+        },
+      },
+    },
   },
 }

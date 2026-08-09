@@ -13,6 +13,8 @@ const envSchema = z.object({
 
   FRONTEND_URL: z.string().default('http://localhost:5173'),
 
+  API_PUBLIC_URL: z.string().default('http://localhost:4000'),
+
   DATABASE_URL: z.string().min(1, 'DATABASE_URL est requis'),
 
   JWT_ACCESS_SECRET: z.string().min(16, 'JWT_ACCESS_SECRET doit contenir au moins 16 caractères'),

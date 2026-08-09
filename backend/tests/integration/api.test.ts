@@ -1,6 +1,10 @@
 import request from 'supertest'
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
+import { rmSync, readdirSync } from 'node:fs'
 import { createApp } from '@/app'
+import { generateAccessToken } from '@/services/token.service'
+import { ROLES } from '@/constants'
+import { UPLOAD_DIR } from '@/config/upload'
 
 const app = createApp()
 
@@ -93,5 +97,49 @@ describe('Validation des commandes', () => {
       .get('/api/orders/zz')
       .set('Authorization', 'Bearer whatever')
     expect(res.status).toBe(401) // auth middleware avant la validation
+  })
+})
+
+describe('Admin — upload d’images', () => {
+  const adminToken = generateAccessToken({ id: 'admin-id', email: 'admin@swisswood.ch', role: ROLES.ADMIN })
+
+  it('refuse l’accès sans token', async () => {
+    const res = await request(app).post('/api/admin/uploads/images')
+    expect(res.status).toBe(401)
+  })
+
+  it('refuse l’accès avec un rôle customer', async () => {
+    const customerToken = generateAccessToken({ id: 'cust-id', email: 'cust@test.ch', role: ROLES.CUSTOMER })
+    const res = await request(app)
+      .post('/api/admin/uploads/images')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .attach('images', Buffer.from('hello', 'utf-8'), 'fichier.txt')
+    expect(res.status).toBe(403)
+  })
+
+  it('refuse un type de fichier non autorisé', async () => {
+    const res = await request(app)
+      .post('/api/admin/uploads/images')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('images', Buffer.from('%PDF-1.4', 'utf-8'), 'document.pdf')
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('BAD_REQUEST')
+  })
+
+  it('upload un fichier image et renvoie son URL', async () => {
+    const res = await request(app)
+      .post('/api/admin/uploads/images')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('images', Buffer.from([0xff, 0xd8, 0xff, 0xe0]), 'photo.jpg')
+    expect(res.status).toBe(201)
+    expect(res.body.success).toBe(true)
+    expect(Array.isArray(res.body.data.urls)).toBe(true)
+    expect(res.body.data.urls[0]).toMatch(/\/uploads\/.+\.jpg$/)
+  })
+
+  afterAll(() => {
+    for (const file of readdirSync(UPLOAD_DIR)) {
+      rmSync(`${UPLOAD_DIR}/${file}`, { force: true })
+    }
   })
 })

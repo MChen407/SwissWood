@@ -395,17 +395,20 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const { method = 'GET', body, query, auth = true, retryOnUnauthorized = true } = options
   const url = `${apiBaseUrl}${path}${buildQueryString(query)}`
   const headers: Record<string, string> = { Accept: 'application/json' }
+  const isFormData = body instanceof FormData
   const hasBody = body !== undefined
-  if (hasBody) headers['Content-Type'] = 'application/json'
+  if (hasBody && !isFormData) headers['Content-Type'] = 'application/json'
   if (auth) {
     const token = getAccessToken()
     if (token) headers.Authorization = `Bearer ${token}`
   }
 
+  const fetchBody = isFormData ? body : hasBody ? JSON.stringify(body) : undefined
+
   let res = await fetch(url, {
     method,
     headers,
-    ...(hasBody ? { body: JSON.stringify(body) } : {}),
+    ...(fetchBody !== undefined ? { body: fetchBody as BodyInit } : {}),
   })
 
   if (res.status === 401 && auth && retryOnUnauthorized && getRefreshToken()) {
@@ -416,7 +419,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
         res = await fetch(url, {
           method,
           headers: { ...headers, Authorization: `Bearer ${newToken}` },
-          ...(hasBody ? { body: JSON.stringify(body) } : {}),
+          ...(fetchBody !== undefined ? { body: fetchBody as BodyInit } : {}),
         })
       }
     }
@@ -527,5 +530,10 @@ export const api = {
     getCms: () => request<CmsContentDto[]>('/admin/cms'),
     updateCms: (id: string, input: { value?: string; label?: string }) =>
       request<CmsContentDto>(`/admin/cms/${encodeURIComponent(id)}`, { method: 'PATCH', body: input }),
+    uploadImages: (files: File[]) => {
+      const formData = new FormData()
+      for (const file of files) formData.append('images', file)
+      return request<{ urls: string[] }>('/admin/uploads/images', { method: 'POST', body: formData })
+    },
   },
 }

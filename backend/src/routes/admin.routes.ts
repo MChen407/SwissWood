@@ -16,6 +16,8 @@ import {
   adminUpdateOrderStatus,
 } from '@/controllers/order.controller'
 import { approveReview, listAllReviews, rejectReview } from '@/controllers/review.controller'
+import { uploadImagesController } from '@/controllers/upload.controller'
+import { uploadImages } from '@/config/upload'
 import { getCmsContent, updateCmsContent } from '@/controllers/cms.controller'
 import {
   createProductSchema,
@@ -54,5 +56,7 @@ router.patch('/reviews/:id/reject', validate(reviewParamsSchema), rejectReview)
 
 router.get('/cms', getCmsContent)
 router.patch('/cms/:id', validate(updateCmsSchema), updateCmsContent)
+
+router.post('/uploads/images', uploadImages.array('images'), uploadImagesController)
 
 export default router

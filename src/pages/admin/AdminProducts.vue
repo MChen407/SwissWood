@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Plus, Edit, Trash2, X, Save, Package } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, X, Save, Package, Upload } from 'lucide-vue-next'
 import { api, type ProductDto, type ProductEssence } from '@/lib/api'
 
 const products = ref<ProductDto[]>([])
 const loading = ref(true)
 const showForm = ref(false)
 const editing = ref<ProductDto | null>(null)
+const uploading = ref(false)
+const uploadError = ref('')
+const fileInput = ref<HTMLInputElement | null>(null)
 
 const emptyForm = {
   name: '', slug: '', essence: 'Teck' as ProductEssence, description: '',
   price_eur: 0, price_usd: 0, price_fcfa: 0, stock: 0,
   length_mm: 4000, width_mm: 100, thickness_mm: 30, weight_kg_m3: 500,
-  images: '', certification: 'FSC', class_emploi: 'Classe 3', origine: '', traitement: 'Naturel', is_active: true,
+  images: [] as string[], certification: 'FSC', class_emploi: 'Classe 3', origine: '', traitement: 'Naturel', is_active: true,
 }
 const form = ref({ ...emptyForm })
 
@@ -24,7 +27,7 @@ async function load() {
   loading.value = false
 }
 
-function openCreate() { editing.value = null; form.value = { ...emptyForm }; showForm.value = true }
+function openCreate() { editing.value = null; form.value = { ...emptyForm }; uploadError.value = ''; showForm.value = true }
 
 function openEdit(p: ProductDto) {
   editing.value = p
@@ -33,11 +36,33 @@ function openEdit(p: ProductDto) {
     price_eur: p.price_eur, price_usd: p.price_usd, price_fcfa: p.price_fcfa, stock: p.stock,
     length_mm: p.dimensions.length_mm ?? 4000, width_mm: p.dimensions.width_mm ?? 100,
     thickness_mm: p.dimensions.thickness_mm ?? 30, weight_kg_m3: p.dimensions.weight_kg_m3 ?? 500,
-    images: p.images.join(', '),
+    images: [...p.images],
     certification: p.characteristics.certification || 'FSC', class_emploi: p.characteristics.class_emploi || 'Classe 3',
     origine: p.characteristics.origine || '', traitement: p.characteristics.traitement || 'Naturel', is_active: p.is_active,
   }
+  uploadError.value = ''
   showForm.value = true
+}
+
+async function onFilesSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  input.value = ''
+  if (files.length === 0) return
+  uploadError.value = ''
+  uploading.value = true
+  try {
+    const { urls } = await api.admin.uploadImages(files)
+    form.value.images.push(...urls)
+  } catch (err) {
+    uploadError.value = err instanceof Error ? err.message : 'Échec de l\'upload des images'
+  } finally {
+    uploading.value = false
+  }
+}
+
+function removeImage(url: string) {
+  form.value.images = form.value.images.filter((u) => u !== url)
 }
 
 async function save() {
@@ -47,7 +72,7 @@ async function save() {
     price_eur: Number(form.value.price_eur), price_usd: Number(form.value.price_usd), price_fcfa: Number(form.value.price_fcfa),
     stock: Number(form.value.stock),
     dimensions: { length_mm: Number(form.value.length_mm), width_mm: Number(form.value.width_mm), thickness_mm: Number(form.value.thickness_mm), weight_kg_m3: Number(form.value.weight_kg_m3) },
-    images: form.value.images.split(',').map(s => s.trim()).filter(Boolean),
+    images: form.value.images,
     characteristics: { certification: form.value.certification, class_emploi: form.value.class_emploi, origine: form.value.origine, traitement: form.value.traitement },
     is_active: form.value.is_active,
   }
@@ -120,7 +145,26 @@ async function remove(id: string) {
             <div><label class="text-sm text-wood-500">Épaisseur (mm)</label><input v-model.number="form.thickness_mm" type="number" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
             <div><label class="text-sm text-wood-500">Densité (kg/m³)</label><input v-model.number="form.weight_kg_m3" type="number" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
           </div>
-          <div><label class="text-sm text-wood-500">Images (URLs séparées par virgules)</label><input v-model="form.images" type="text" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+          <div>
+            <label class="text-sm text-wood-500">Images</label>
+            <div class="mt-1 flex items-start gap-3">
+              <div class="flex-1">
+                <div class="flex flex-wrap gap-3">
+                  <div v-for="url in form.images" :key="url" class="relative">
+                    <img :src="url" alt="Image produit" class="w-20 h-20 rounded-lg object-cover border border-wood-200" />
+                    <button @click="removeImage(url)" class="absolute -top-2 -right-2 bg-error-500 text-white rounded-full p-0.5 hover:bg-error-600"><X class="w-3.5 h-3.5" /></button>
+                  </div>
+                </div>
+                <div v-if="form.images.length === 0" class="text-sm text-wood-400">Aucune image</div>
+                <button type="button" @click="fileInput?.click()" :disabled="uploading"
+                  class="mt-2 px-3 py-2 border border-dashed border-wood-300 rounded-lg text-sm text-wood-500 hover:border-primary-500 hover:text-primary-500 flex items-center gap-2 disabled:opacity-50">
+                  <Upload class="w-4 h-4" /> {{ uploading ? 'Upload en cours...' : 'Importer depuis l\'appareil' }}
+                </button>
+                <input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple class="hidden" @change="onFilesSelected" />
+                <p v-if="uploadError" class="mt-2 text-sm text-error-500">{{ uploadError }}</p>
+              </div>
+            </div>
+          </div>
           <div class="grid sm:grid-cols-4 gap-4">
             <div><label class="text-sm text-wood-500">Certification</label><input v-model="form.certification" type="text" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
             <div><label class="text-sm text-wood-500">Classe d'emploi</label><input v-model="form.class_emploi" type="text" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
