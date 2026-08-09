@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { orderService } from '@/services/order.service'
-import { paymentService } from '@/services/payment.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
-import type { CreateOrderDto } from '@/validators/order.validator'
+import { orderService } from '../services/order.service.js'
+import { paymentService } from '../services/payment.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import type { CreateOrderDto } from '../validators/order.validator.js'
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const order = await orderService.create(req.user!.id, req.body as CreateOrderDto)

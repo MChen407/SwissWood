@@ -1,5 +1,5 @@
-import { prisma } from '@/config/db'
-import type { Role } from '@/constants'
+import { prisma } from '../config/db.js'
+import type { Role } from '../constants/index.js'
 
 export interface CreateUserData {
   email: string

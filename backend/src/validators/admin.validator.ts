@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ORDER_PAYMENT_STATUSES, ORDER_STATUSES, PRODUCT_ESSENCES, ROLES } from '@/constants'
+import { ORDER_PAYMENT_STATUSES, ORDER_STATUSES, PRODUCT_ESSENCES, ROLES } from '../constants/index.js'
 
 export const createProductSchema = z.object({
   body: z.object({

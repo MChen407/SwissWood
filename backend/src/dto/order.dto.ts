@@ -1,6 +1,6 @@
 import type { Order, OrderItem, Payment, Product } from '@prisma/client'
 import type { OrderStatus, OrderPaymentStatus, PaymentMethod } from '@prisma/client'
-import { toPaymentDto, type PaymentDto } from '@/dto/payment.dto'
+import { toPaymentDto, type PaymentDto } from './payment.dto.js'
 
 export interface OrderItemDto {
   id: string

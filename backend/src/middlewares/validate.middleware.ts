@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { AnyZodObject, ZodEffects } from 'zod'
-import { ValidationError } from '@/utils/httpErrors'
+import { ValidationError } from '../utils/httpErrors.js'
 
 export type ZodSchema = AnyZodObject | ZodEffects<AnyZodObject>
 

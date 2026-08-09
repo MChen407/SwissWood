@@ -1,4 +1,4 @@
-import type { Role } from '@/constants'
+import type { Role } from '../constants/index.js'
 import type { User } from '@prisma/client'
 
 export interface TokenPair {

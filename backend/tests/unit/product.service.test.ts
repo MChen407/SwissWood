@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/repositories/product.repository', () => ({
+vi.mock('../../src/repositories/product.repository', () => ({
   productRepository: {
     findMany: vi.fn(),
     findBySlug: vi.fn(),
@@ -12,9 +12,9 @@ vi.mock('@/repositories/product.repository', () => ({
   },
 }))
 
-import { productService, adminProductService } from '@/services/product.service'
-import { productRepository } from '@/repositories/product.repository'
-import { BadRequestError, ConflictError, NotFoundError } from '@/utils/httpErrors'
+import { productService, adminProductService } from '../../src/services/product.service.js'
+import { productRepository } from '../../src/repositories/product.repository.js'
+import { BadRequestError, ConflictError, NotFoundError } from '../../src/utils/httpErrors.js'
 import type { Product } from '@prisma/client'
 
 const UUID = '11111111-1111-1111-1111-111111111111'

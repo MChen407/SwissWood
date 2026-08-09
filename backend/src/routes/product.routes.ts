@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { validate } from '@/middlewares/validate.middleware'
-import { featuredProducts, getProductBySlug, listProducts, productReviews } from '@/controllers/product.controller'
-import { listProductsSchema, productBySlugSchema, productReviewsSchema } from '@/validators/product.validator'
+import { validate } from '../middlewares/validate.middleware.js'
+import { featuredProducts, getProductBySlug, listProducts, productReviews } from '../controllers/product.controller.js'
+import { listProductsSchema, productBySlugSchema, productReviewsSchema } from '../validators/product.validator.js'
 
 const router = Router()
 

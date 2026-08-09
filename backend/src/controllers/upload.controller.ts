@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '@/config/env'
-import { MAX_IMAGE_COUNT, MAX_IMAGE_SIZE } from '@/config/upload'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
-import { BadRequestError } from '@/utils/httpErrors'
+import { env } from '../config/env.js'
+import { MAX_IMAGE_COUNT, MAX_IMAGE_SIZE } from '../config/upload.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { BadRequestError } from '../utils/httpErrors.js'
 
 const MB = 1024 * 1024
 

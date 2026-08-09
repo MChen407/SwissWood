@@ -5,7 +5,7 @@ import {
   generateRefreshToken,
   hashToken,
   verifyAccessToken,
-} from '@/services/token.service'
+} from '../../src/services/token.service.js'
 
 describe('token.service', () => {
   const user = { id: 'abc-123', email: 'test@swisswood.ch', role: 'customer' as const }

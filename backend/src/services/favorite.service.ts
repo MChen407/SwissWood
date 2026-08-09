@@ -1,8 +1,8 @@
-import { favoriteRepository } from '@/repositories/favorite.repository'
-import { productRepository } from '@/repositories/product.repository'
-import { toFavoriteItemDto, type FavoriteItemDto } from '@/dto/favorite.dto'
-import { toProductDto } from '@/dto/public.dto'
-import { NotFoundError } from '@/utils/httpErrors'
+import { favoriteRepository } from '../repositories/favorite.repository.js'
+import { productRepository } from '../repositories/product.repository.js'
+import { toFavoriteItemDto, type FavoriteItemDto } from '../dto/favorite.dto.js'
+import { toProductDto } from '../dto/public.dto.js'
+import { NotFoundError } from '../utils/httpErrors.js'
 
 export const favoriteService = {
   async listForUser(userId: string): Promise<FavoriteItemDto[]> {

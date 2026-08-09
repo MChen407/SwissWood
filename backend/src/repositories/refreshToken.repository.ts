@@ -1,4 +1,4 @@
-import { prisma } from '@/config/db'
+import { prisma } from '../config/db.js'
 
 export const refreshTokenRepository = {
   async create(data: { tokenHash: string; userId: string; expiresAt: Date }) {

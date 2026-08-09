@@ -1,5 +1,5 @@
 import type { PaymentStatus } from '@prisma/client'
-import { prisma } from '@/config/db'
+import { prisma } from '../config/db.js'
 
 export const paymentRepository = {
   async findLatestByOrder(orderId: string) {

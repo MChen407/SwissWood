@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import multer from 'multer'
-import { BadRequestError } from '@/utils/httpErrors'
+import { BadRequestError } from '../utils/httpErrors.js'
 
 export const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads')
 

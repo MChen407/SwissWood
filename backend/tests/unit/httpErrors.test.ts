@@ -8,7 +8,7 @@ import {
   RateLimitError,
   UnauthorizedError,
   ValidationError,
-} from '@/utils/httpErrors'
+} from '../../src/utils/httpErrors.js'
 
 describe('httpErrors', () => {
   it('HttpError expose un statut, un code et le message', () => {

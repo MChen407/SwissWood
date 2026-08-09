@@ -3,12 +3,12 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '@/config/env'
-import { UPLOAD_DIR } from '@/config/upload'
-import { prisma } from '@/config/db'
-import routes from '@/routes'
-import { errorHandler, notFoundHandler } from '@/middlewares/error.middleware'
-import { generalLimiter } from '@/middlewares/rateLimit.middleware'
+import { env } from './config/env.js'
+import { UPLOAD_DIR } from './config/upload.js'
+import { prisma } from './config/db.js'
+import routes from './routes/index.js'
+import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js'
+import { generalLimiter } from './middlewares/rateLimit.middleware.js'
 
 export function createApp(): Express {
   const app = express()

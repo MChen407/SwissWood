@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CURRENCIES } from '@/constants'
+import { CURRENCIES } from '../constants/index.js'
 
 export const orderItemSchema = z.object({
   productId: z.string().uuid('Identifiant de produit invalide'),

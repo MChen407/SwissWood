@@ -1,7 +1,7 @@
-import { orderRepository } from '@/repositories/order.repository'
-import { productRepository } from '@/repositories/product.repository'
-import { BadRequestError, NotFoundError } from '@/utils/httpErrors'
-import { toOrderDetailDto, toOrderDto, type OrderDetailDto, type OrderDto } from '@/dto/order.dto'
+import { orderRepository } from '../repositories/order.repository.js'
+import { productRepository } from '../repositories/product.repository.js'
+import { BadRequestError, NotFoundError } from '../utils/httpErrors.js'
+import { toOrderDetailDto, toOrderDto, type OrderDetailDto, type OrderDto } from '../dto/order.dto.js'
 import type { OrderPaymentStatus, OrderStatus } from '@prisma/client'
 
 export interface OrderLineInput {

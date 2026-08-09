@@ -1,7 +1,7 @@
-import { env } from '@/config/env'
+import { env } from '../config/env.js'
 import jwt, { type SignOptions } from 'jsonwebtoken'
-import { userRepository } from '@/repositories/user.repository'
-import { UnauthorizedError } from '@/utils/httpErrors'
+import { userRepository } from '../repositories/user.repository.js'
+import { UnauthorizedError } from '../utils/httpErrors.js'
 
 interface GoogleUserInfo {
   sub: string

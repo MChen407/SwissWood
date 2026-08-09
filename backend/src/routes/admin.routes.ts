@@ -1,24 +1,24 @@
 import { Router, type RequestHandler } from 'express'
-import { authenticate } from '@/middlewares/auth.middleware'
-import { requireRole } from '@/middlewares/rbac.middleware'
-import { ROLES } from '@/constants'
-import { validate } from '@/middlewares/validate.middleware'
-import { getStats, listClients, listPayments, updateClientRole } from '@/controllers/admin.controller'
+import { authenticate } from '../middlewares/auth.middleware.js'
+import { requireRole } from '../middlewares/rbac.middleware.js'
+import { ROLES } from '../constants/index.js'
+import { validate } from '../middlewares/validate.middleware.js'
+import { getStats, listClients, listPayments, updateClientRole } from '../controllers/admin.controller.js'
 import {
   adminCreateProduct,
   adminDeleteProduct,
   adminListProducts,
   adminUpdateProduct,
-} from '@/controllers/product.controller'
+} from '../controllers/product.controller.js'
 import {
   adminListOrders,
   adminUpdateOrderPayment,
   adminUpdateOrderStatus,
-} from '@/controllers/order.controller'
-import { approveReview, listAllReviews, rejectReview } from '@/controllers/review.controller'
-import { uploadImagesController } from '@/controllers/upload.controller'
-import { uploadImages } from '@/config/upload'
-import { getCmsContent, updateCmsContent } from '@/controllers/cms.controller'
+} from '../controllers/order.controller.js'
+import { approveReview, listAllReviews, rejectReview } from '../controllers/review.controller.js'
+import { uploadImagesController } from '../controllers/upload.controller.js'
+import { uploadImages } from '../config/upload.js'
+import { getCmsContent, updateCmsContent } from '../controllers/cms.controller.js'
 import {
   createProductSchema,
   productParamsSchema,
@@ -27,8 +27,8 @@ import {
   updateOrderStatusSchema,
   updateProductSchema,
   updateUserRoleSchema,
-} from '@/validators/admin.validator'
-import { reviewParamsSchema } from '@/validators/review.validator'
+} from '../validators/admin.validator.js'
+import { reviewParamsSchema } from '../validators/review.validator.js'
 
 const router = Router()
 

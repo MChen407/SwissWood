@@ -1,5 +1,5 @@
 import { Prisma, type OrderStatus, type OrderPaymentStatus, type PaymentMethod } from '@prisma/client'
-import { prisma } from '@/config/db'
+import { prisma } from '../config/db.js'
 
 export interface CreateOrderItemData {
   productId: string

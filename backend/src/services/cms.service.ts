@@ -1,6 +1,6 @@
-import { cmsRepository } from '@/repositories/cms.repository'
-import { toCmsContentDto, type CmsContentDto } from '@/dto/public.dto'
-import { BadRequestError, NotFoundError } from '@/utils/httpErrors'
+import { cmsRepository } from '../repositories/cms.repository.js'
+import { toCmsContentDto, type CmsContentDto } from '../dto/public.dto.js'
+import { BadRequestError, NotFoundError } from '../utils/httpErrors.js'
 
 export const cmsService = {
   async getAll(): Promise<CmsContentDto[]> {

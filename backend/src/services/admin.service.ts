@@ -1,11 +1,11 @@
-import { statsRepository } from '@/repositories/stats.repository'
-import { orderRepository } from '@/repositories/order.repository'
-import { paymentRepository } from '@/repositories/payment.repository'
-import { toOrderDto } from '@/dto/order.dto'
-import type { Role } from '@/constants'
-import { userRepository } from '@/repositories/user.repository'
-import { NotFoundError } from '@/utils/httpErrors'
-import { toUserPublicDto } from '@/dto/auth.dto'
+import { statsRepository } from '../repositories/stats.repository.js'
+import { orderRepository } from '../repositories/order.repository.js'
+import { paymentRepository } from '../repositories/payment.repository.js'
+import { toOrderDto } from '../dto/order.dto.js'
+import type { Role } from '../constants/index.js'
+import { userRepository } from '../repositories/user.repository.js'
+import { NotFoundError } from '../utils/httpErrors.js'
+import { toUserPublicDto } from '../dto/auth.dto.js'
 
 export const adminService = {
   async stats() {

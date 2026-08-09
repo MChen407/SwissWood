@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
 import { Prisma } from '@prisma/client'
-import { env } from '@/config/env'
-import { userRepository } from '@/repositories/user.repository'
-import { refreshTokenRepository } from '@/repositories/refreshToken.repository'
-import { generateAccessToken, generateRefreshToken, hashToken, durationToMs } from '@/services/token.service'
-import { toUserPublicDto, type AuthResponse, type UserPublicDto } from '@/dto/auth.dto'
-import type { LoginDto, RegisterDto } from '@/validators/auth.validator'
-import type { ChangePasswordDto, UpdateProfileDto } from '@/validators/user.validator'
-import { BadRequestError, ConflictError, UnauthorizedError } from '@/utils/httpErrors'
+import { env } from '../config/env.js'
+import { userRepository } from '../repositories/user.repository.js'
+import { refreshTokenRepository } from '../repositories/refreshToken.repository.js'
+import { generateAccessToken, generateRefreshToken, hashToken, durationToMs } from './token.service.js'
+import { toUserPublicDto, type AuthResponse, type UserPublicDto } from '../dto/auth.dto.js'
+import type { LoginDto, RegisterDto } from '../validators/auth.validator.js'
+import type { ChangePasswordDto, UpdateProfileDto } from '../validators/user.validator.js'
+import { BadRequestError, ConflictError, UnauthorizedError } from '../utils/httpErrors.js'
 
 const BCRYPT_ROUNDS = 12
 

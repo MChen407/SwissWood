@@ -1,5 +1,5 @@
 import type { Product, ProductReview, CmsContent } from '@prisma/client'
-import type { ProductEssence } from '@/constants'
+import type { ProductEssence } from '../constants/index.js'
 
 export interface ProductDto {
   id: string

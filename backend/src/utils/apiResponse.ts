@@ -1,6 +1,6 @@
 import type { Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import type { ApiError, ApiSuccess } from '@/interfaces/api.interface'
+import type { ApiError, ApiSuccess } from '../interfaces/api.interface.js'
 
 export abstract class ApiResponse {
   static success<T>(res: Response, data: T, status: number = StatusCodes.OK): Response<ApiSuccess<T>> {

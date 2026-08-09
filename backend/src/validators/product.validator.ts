@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PRODUCT_ESSENCES } from '@/constants'
+import { PRODUCT_ESSENCES } from '../constants/index.js'
 
 export const listProductsSchema = z.object({
   query: z.object({

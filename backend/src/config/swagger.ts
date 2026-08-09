@@ -1,4 +1,4 @@
-import { env } from '@/config/env'
+import { env } from './env.js'
 
 export const swaggerDocument = {
   openapi: '3.0.3',

@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { favoriteService } from '@/services/favorite.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
+import { favoriteService } from '../services/favorite.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const listFavorites = asyncHandler(async (req: Request, res: Response) => {
   const favorites = await favoriteService.listForUser(req.user!.id)

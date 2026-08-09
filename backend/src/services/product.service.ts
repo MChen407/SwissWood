@@ -1,8 +1,8 @@
 import { Prisma } from '@prisma/client'
-import { productRepository, type ProductListFilters } from '@/repositories/product.repository'
-import { toProductDto, type ProductDto } from '@/dto/public.dto'
-import { BadRequestError, ConflictError, NotFoundError } from '@/utils/httpErrors'
-import { PRODUCT_ESSENCES, type ProductEssence } from '@/constants'
+import { productRepository, type ProductListFilters } from '../repositories/product.repository.js'
+import { toProductDto, type ProductDto } from '../dto/public.dto.js'
+import { BadRequestError, ConflictError, NotFoundError } from '../utils/httpErrors.js'
+import { PRODUCT_ESSENCES, type ProductEssence } from '../constants/index.js'
 
 export interface ProductListQuery {
   essence?: string

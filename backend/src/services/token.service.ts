@@ -1,7 +1,7 @@
 import jwt, { type JwtPayload, type SignOptions } from 'jsonwebtoken'
 import { createHash, randomBytes } from 'node:crypto'
-import { env } from '@/config/env'
-import type { Role } from '@/constants'
+import { env } from '../config/env.js'
+import type { Role } from '../constants/index.js'
 
 export interface AccessTokenPayload {
   sub: string

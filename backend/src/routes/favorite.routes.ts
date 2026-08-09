@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { authenticate } from '@/middlewares/auth.middleware'
-import { validate } from '@/middlewares/validate.middleware'
-import { addFavorite, listFavorites, removeFavorite } from '@/controllers/favorite.controller'
-import { favoriteParamsSchema } from '@/validators/favorite.validator'
+import { authenticate } from '../middlewares/auth.middleware.js'
+import { validate } from '../middlewares/validate.middleware.js'
+import { addFavorite, listFavorites, removeFavorite } from '../controllers/favorite.controller.js'
+import { favoriteParamsSchema } from '../validators/favorite.validator.js'
 
 const router = Router()
 

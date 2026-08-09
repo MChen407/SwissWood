@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { adminProductService, productService } from '@/services/product.service'
-import { reviewService } from '@/services/review.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
-import type { AdminProductInput } from '@/services/product.service'
+import { adminProductService, productService } from '../services/product.service.js'
+import { reviewService } from '../services/review.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import type { AdminProductInput } from '../services/product.service.js'
 
 export const listProducts = asyncHandler(async (req: Request, res: Response) => {
   const query = (req.query as unknown) as {

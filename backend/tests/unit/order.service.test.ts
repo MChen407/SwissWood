@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/repositories/order.repository', () => ({
+vi.mock('../../src/repositories/order.repository', () => ({
   orderRepository: {
     createWithItems: vi.fn(),
     findByUser: vi.fn(),
@@ -13,18 +13,18 @@ vi.mock('@/repositories/order.repository', () => ({
     confirmPayment: vi.fn(),
   },
 }))
-vi.mock('@/repositories/product.repository', () => ({
+vi.mock('../../src/repositories/product.repository', () => ({
   productRepository: {
     findByIds: vi.fn(),
   },
 }))
 
-import { orderService } from '@/services/order.service'
-import { orderRepository } from '@/repositories/order.repository'
-import { productRepository } from '@/repositories/product.repository'
-import { BadRequestError, NotFoundError } from '@/utils/httpErrors'
+import { orderService } from '../../src/services/order.service.js'
+import { orderRepository } from '../../src/repositories/order.repository.js'
+import { productRepository } from '../../src/repositories/product.repository.js'
+import { BadRequestError, NotFoundError } from '../../src/utils/httpErrors.js'
 import type { OrderStatus, Product } from '@prisma/client'
-import type { OrderDto } from '@/dto/order.dto'
+import type { OrderDto } from '../../src/dto/order.dto.js'
 
 const UUID = '11111111-1111-1111-1111-111111111111'
 

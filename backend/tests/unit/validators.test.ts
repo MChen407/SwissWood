@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { registerSchema, loginSchema, refreshTokenSchema } from '@/validators/auth.validator'
-import { changePasswordSchema, updateProfileSchema } from '@/validators/user.validator'
-import { createOrderSchema, initPaymentSchema, orderByIdSchema } from '@/validators/order.validator'
-import { createReviewSchema } from '@/validators/review.validator'
-import { contactMessageSchema } from '@/validators/contact.validator'
-import { createProductSchema } from '@/validators/admin.validator'
+import { registerSchema, loginSchema, refreshTokenSchema } from '../../src/validators/auth.validator.js'
+import { changePasswordSchema, updateProfileSchema } from '../../src/validators/user.validator.js'
+import { createOrderSchema, initPaymentSchema, orderByIdSchema } from '../../src/validators/order.validator.js'
+import { createReviewSchema } from '../../src/validators/review.validator.js'
+import { contactMessageSchema } from '../../src/validators/contact.validator.js'
+import { createProductSchema } from '../../src/validators/admin.validator.js'
 
 describe('auth.validators', () => {
   const validUser = { email: 'JOHN@SwissWood.ch ', password: 'MotDePasse1', firstName: ' John ', lastName: 'Doe' }

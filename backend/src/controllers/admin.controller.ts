@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
-import { adminService } from '@/services/admin.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
+import { adminService } from '../services/admin.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const getStats = asyncHandler(async (_req: Request, res: Response) => {
   const stats = await adminService.stats()

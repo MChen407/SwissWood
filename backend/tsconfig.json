@@ -28,9 +28,6 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": false,
-    "paths": {
-      "@/*": ["./src/*.ts", "./src/*/index.ts", "./src/*"]
-    },
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],

@@ -1,10 +1,10 @@
 import request from 'supertest'
 import { afterAll, describe, expect, it } from 'vitest'
 import { rmSync, readdirSync } from 'node:fs'
-import { createApp } from '@/app'
-import { generateAccessToken } from '@/services/token.service'
-import { ROLES } from '@/constants'
-import { UPLOAD_DIR } from '@/config/upload'
+import { createApp } from '../../src/app.js'
+import { generateAccessToken } from '../../src/services/token.service.js'
+import { ROLES } from '../../src/constants/index.js'
+import { UPLOAD_DIR } from '../../src/config/upload.js'
 
 const app = createApp()
 

@@ -1,20 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/repositories/order.repository', () => ({
+vi.mock('../../src/repositories/order.repository', () => ({
   orderRepository: {
     findById: vi.fn(),
     initializePayment: vi.fn(),
     confirmPayment: vi.fn(),
   },
 }))
-vi.mock('@/repositories/payment.repository', () => ({
+vi.mock('../../src/repositories/payment.repository', () => ({
   paymentRepository: { findLatestByOrder: vi.fn() },
 }))
 
-import { paymentService } from '@/services/payment.service'
-import { orderRepository } from '@/repositories/order.repository'
-import { paymentRepository } from '@/repositories/payment.repository'
-import { BadRequestError, NotFoundError } from '@/utils/httpErrors'
+import { paymentService } from '../../src/services/payment.service.js'
+import { orderRepository } from '../../src/repositories/order.repository.js'
+import { paymentRepository } from '../../src/repositories/payment.repository.js'
+import { BadRequestError, NotFoundError } from '../../src/utils/httpErrors.js'
 
 const UUID = '11111111-1111-1111-1111-111111111111'
 

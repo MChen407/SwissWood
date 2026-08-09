@@ -1,7 +1,7 @@
-import { reviewRepository } from '@/repositories/review.repository'
-import { productRepository } from '@/repositories/product.repository'
-import { toProductReviewDto } from '@/dto/public.dto'
-import { NotFoundError } from '@/utils/httpErrors'
+import { reviewRepository } from '../repositories/review.repository.js'
+import { productRepository } from '../repositories/product.repository.js'
+import { toProductReviewDto } from '../dto/public.dto.js'
+import { NotFoundError } from '../utils/httpErrors.js'
 
 export interface CreateReviewInput {
   productId: string

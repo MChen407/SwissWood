@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/repositories/favorite.repository', () => ({
+vi.mock('../../src/repositories/favorite.repository', () => ({
   favoriteRepository: {
     findByUser: vi.fn(),
     upsert: vi.fn(),
@@ -8,14 +8,14 @@ vi.mock('@/repositories/favorite.repository', () => ({
     countByUser: vi.fn(),
   },
 }))
-vi.mock('@/repositories/product.repository', () => ({
+vi.mock('../../src/repositories/product.repository', () => ({
   productRepository: { findById: vi.fn() },
 }))
 
-import { favoriteService } from '@/services/favorite.service'
-import { favoriteRepository } from '@/repositories/favorite.repository'
-import { productRepository } from '@/repositories/product.repository'
-import { NotFoundError } from '@/utils/httpErrors'
+import { favoriteService } from '../../src/services/favorite.service.js'
+import { favoriteRepository } from '../../src/repositories/favorite.repository.js'
+import { productRepository } from '../../src/repositories/product.repository.js'
+import { NotFoundError } from '../../src/utils/httpErrors.js'
 import type { Product } from '@prisma/client'
 
 const UUID = '11111111-1111-1111-1111-111111111111'

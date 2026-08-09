@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
-import { cmsService } from '@/services/cms.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
+import { cmsService } from '../services/cms.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const getCmsContent = asyncHandler(async (_req: Request, res: Response) => {
   const content = await cmsService.getAll()

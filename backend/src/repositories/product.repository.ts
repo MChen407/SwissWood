@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { prisma } from '@/config/db'
+import { prisma } from '../config/db.js'
 
 export interface ProductListFilters {
   essence?: string

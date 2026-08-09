@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import type { ApiError } from '@/interfaces/api.interface'
-import { env } from '@/config/env'
-import { HttpError } from '@/utils/httpErrors'
+import type { ApiError } from '../interfaces/api.interface.js'
+import { env } from '../config/env.js'
+import { HttpError } from '../utils/httpErrors.js'
 
 export function notFoundHandler(req: Request, res: Response): void {
   const body: ApiError = {

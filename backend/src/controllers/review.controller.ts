@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { reviewService } from '@/services/review.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
-import type { CreateReviewDto } from '@/validators/review.validator'
+import { reviewService } from '../services/review.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import type { CreateReviewDto } from '../validators/review.validator.js'
 
 export const createReview = asyncHandler(async (req: Request, res: Response) => {
   const review = await reviewService.create(req.user!.id, req.body as CreateReviewDto)

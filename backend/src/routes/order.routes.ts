@@ -1,19 +1,19 @@
 import { Router } from 'express'
-import { authenticate } from '@/middlewares/auth.middleware'
-import { validate } from '@/middlewares/validate.middleware'
+import { authenticate } from '../middlewares/auth.middleware.js'
+import { validate } from '../middlewares/validate.middleware.js'
 import {
   confirmPayment,
   createOrder,
   getMyOrder,
   initPayment,
   listMyOrders,
-} from '@/controllers/order.controller'
+} from '../controllers/order.controller.js'
 import {
   confirmPaymentSchema,
   createOrderSchema,
   initPaymentSchema,
   orderByIdSchema,
-} from '@/validators/order.validator'
+} from '../validators/order.validator.js'
 
 const router = Router()
 

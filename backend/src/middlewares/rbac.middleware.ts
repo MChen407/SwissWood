@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
-import type { Role } from '@/constants'
-import { ForbiddenError, UnauthorizedError } from '@/utils/httpErrors'
+import type { Role } from '../constants/index.js'
+import { ForbiddenError, UnauthorizedError } from '../utils/httpErrors.js'
 
 export function requireRole(...roles: Role[]) {
   return (req: Request, _res: Response, next: NextFunction): void => {

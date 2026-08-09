@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { authenticate } from '@/middlewares/auth.middleware'
-import { loginLimiter, refreshLimiter, registerLimiter } from '@/middlewares/rateLimit.middleware'
-import { validate } from '@/middlewares/validate.middleware'
+import { authenticate } from '../middlewares/auth.middleware.js'
+import { loginLimiter, refreshLimiter, registerLimiter } from '../middlewares/rateLimit.middleware.js'
+import { validate } from '../middlewares/validate.middleware.js'
 import {
   changePassword,
   googleCallback,
@@ -13,9 +13,9 @@ import {
   refresh,
   register,
   updateProfile,
-} from '@/controllers/auth.controller'
-import { loginSchema, refreshTokenSchema, registerSchema } from '@/validators/auth.validator'
-import { changePasswordSchema, updateProfileSchema } from '@/validators/user.validator'
+} from '../controllers/auth.controller.js'
+import { loginSchema, refreshTokenSchema, registerSchema } from '../validators/auth.validator.js'
+import { changePasswordSchema, updateProfileSchema } from '../validators/user.validator.js'
 
 const router = Router()
 

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/repositories/review.repository', () => ({
+vi.mock('../../src/repositories/review.repository', () => ({
   reviewRepository: {
     findApprovedByProduct: vi.fn(),
     create: vi.fn(),
@@ -10,14 +10,14 @@ vi.mock('@/repositories/review.repository', () => ({
     setModeration: vi.fn(),
   },
 }))
-vi.mock('@/repositories/product.repository', () => ({
+vi.mock('../../src/repositories/product.repository', () => ({
   productRepository: { findById: vi.fn() },
 }))
 
-import { reviewService } from '@/services/review.service'
-import { reviewRepository } from '@/repositories/review.repository'
-import { productRepository } from '@/repositories/product.repository'
-import { NotFoundError } from '@/utils/httpErrors'
+import { reviewService } from '../../src/services/review.service.js'
+import { reviewRepository } from '../../src/repositories/review.repository.js'
+import { productRepository } from '../../src/repositories/product.repository.js'
+import { NotFoundError } from '../../src/utils/httpErrors.js'
 
 const UUID = '11111111-1111-1111-1111-111111111111'
 

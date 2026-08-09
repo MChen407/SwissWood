@@ -1,8 +1,8 @@
-import { orderRepository } from '@/repositories/order.repository'
-import { paymentRepository } from '@/repositories/payment.repository'
-import { toOrderDto, type OrderDto } from '@/dto/order.dto'
-import { toPaymentDto, type PaymentDto } from '@/dto/payment.dto'
-import { BadRequestError, NotFoundError } from '@/utils/httpErrors'
+import { orderRepository } from '../repositories/order.repository.js'
+import { paymentRepository } from '../repositories/payment.repository.js'
+import { toOrderDto, type OrderDto } from '../dto/order.dto.js'
+import { toPaymentDto, type PaymentDto } from '../dto/payment.dto.js'
+import { BadRequestError, NotFoundError } from '../utils/httpErrors.js'
 import type { OrderPaymentStatus, PaymentMethod } from '@prisma/client'
 
 function paymentReference(): string {

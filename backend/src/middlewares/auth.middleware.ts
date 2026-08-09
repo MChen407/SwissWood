@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
-import type { Role } from '@/constants'
-import { verifyAccessToken } from '@/services/token.service'
-import { UnauthorizedError } from '@/utils/httpErrors'
+import type { Role } from '../constants/index.js'
+import { verifyAccessToken } from '../services/token.service.js'
+import { UnauthorizedError } from '../utils/httpErrors.js'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

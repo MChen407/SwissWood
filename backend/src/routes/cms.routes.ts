@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getCmsContent } from '@/controllers/cms.controller'
+import { getCmsContent } from '../controllers/cms.controller.js'
 
 const router = Router()
 

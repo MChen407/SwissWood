@@ -1,6 +1,6 @@
-import { env } from '@/config/env'
-import { createApp, checkDatabaseConnection } from '@/app'
-import { prisma } from '@/config/db'
+import { env } from './config/env.js'
+import { createApp, checkDatabaseConnection } from './app.js'
+import { prisma } from './config/db.js'
 
 const app = createApp()
 

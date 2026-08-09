@@ -1,5 +1,5 @@
-import { contactRepository } from '@/repositories/contact.repository'
-import type { ContactMessageDto } from '@/validators/contact.validator'
+import { contactRepository } from '../repositories/contact.repository.js'
+import type { ContactMessageDto } from '../validators/contact.validator.js'
 
 export const contactService = {
   async send(data: ContactMessageDto) {

@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { strictLimiter } from '@/middlewares/rateLimit.middleware'
-import { validate } from '@/middlewares/validate.middleware'
-import { sendContactMessage } from '@/controllers/contact.controller'
-import { contactMessageSchema } from '@/validators/contact.validator'
+import { strictLimiter } from '../middlewares/rateLimit.middleware.js'
+import { validate } from '../middlewares/validate.middleware.js'
+import { sendContactMessage } from '../controllers/contact.controller.js'
+import { contactMessageSchema } from '../validators/contact.validator.js'
 
 const router = Router()
 

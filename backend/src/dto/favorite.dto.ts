@@ -1,5 +1,5 @@
 import type { Favorite, Product } from '@prisma/client'
-import { toProductDto, type ProductDto } from '@/dto/public.dto'
+import { toProductDto, type ProductDto } from './public.dto.js'
 
 export interface FavoriteItemDto {
   id: string

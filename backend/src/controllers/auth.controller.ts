@@ -1,12 +1,12 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { authService } from '@/services/auth.service'
-import { googleOAuthService, createOAuthState, verifyOAuthState } from '@/services/googleOAuth.service'
-import { ApiResponse } from '@/utils/apiResponse'
-import { asyncHandler } from '@/utils/asyncHandler'
-import { BadRequestError } from '@/utils/httpErrors'
-import { env } from '@/config/env'
-import type { LoginDto, RegisterDto } from '@/validators/auth.validator'
+import { authService } from '../services/auth.service.js'
+import { googleOAuthService, createOAuthState, verifyOAuthState } from '../services/googleOAuth.service.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { BadRequestError } from '../utils/httpErrors.js'
+import { env } from '../config/env.js'
+import type { LoginDto, RegisterDto } from '../validators/auth.validator.js'
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const result = await authService.register(req.body as RegisterDto)
