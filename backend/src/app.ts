@@ -43,7 +43,7 @@ export function createApp(): Express {
   // app.use(cors({ origin: corsOrigins, credentials: true }))
   app.use(
   cors({
-    origin: 'https://swiss-wood.vercel.app',
+    origin: "https://swiss-wood.vercel.app",
     credentials: true,
   })
 )

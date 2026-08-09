@@ -54,4 +54,4 @@ Follows the **SwissWood Charte Graphique** (see `attached_assets/SwissWood-Chart
 
 - Keep all existing French-language routes and copy
 - Maintain the existing file structure — components, pages, stores, router
-- Brand name is **SwissWood** (not Arbora)
+- Brand name is **SwissWood**
