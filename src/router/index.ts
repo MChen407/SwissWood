@@ -19,7 +19,7 @@ const router = createRouter({
     {
       path: '/mon-compte',
       component: () => import('@/pages/dashboard/DashboardLayout.vue'),
-      meta: { requiresAuth: false },
+      meta: { requiresAuth: true },
       children: [
         { path: '', name: 'dashboard', component: () => import('@/pages/dashboard/DashboardHome.vue') },
         { path: 'commandes', name: 'my-orders', component: () => import('@/pages/dashboard/MyOrders.vue') },
@@ -31,7 +31,7 @@ const router = createRouter({
     {
       path: '/admin',
       component: () => import('@/pages/admin/AdminLayout.vue'),
-      meta: { requiresAuth: false, requiresAdmin: false },
+      meta: { requiresAuth: true, requiresAdmin: true },
       children: [
         { path: '', name: 'admin-dashboard', component: () => import('@/pages/admin/AdminDashboard.vue') },
         { path: 'produits', name: 'admin-products', component: () => import('@/pages/admin/AdminProducts.vue') },
