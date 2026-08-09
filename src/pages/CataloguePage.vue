@@ -4,11 +4,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { Search, SlidersHorizontal, X } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
-import { supabase, type Product } from '@/lib/supabase'
+import { api, type ProductDto, type ProductEssence } from '@/lib/api'
 
 const route = useRoute()
 const router = useRouter()
-const products = ref<Product[]>([])
+const products = ref<ProductDto[]>([])
 const loading = ref(true)
 const search = ref('')
 const selectedEssence = ref('')
@@ -26,14 +26,16 @@ watch(selectedEssence, (v) => router.replace({ query: { ...route.query, essence:
 
 async function load() {
   loading.value = true
-  let q = supabase.from('products').select('*').eq('is_active', true)
-  if (selectedEssence.value) q = q.eq('essence', selectedEssence.value)
-  if (search.value) q = q.or(`name.ilike.%${search.value}%,description.ilike.%${search.value}%`)
-  if (sortBy.value === 'price-asc') q = q.order('price_eur', { ascending: true })
-  else if (sortBy.value === 'price-desc') q = q.order('price_eur', { ascending: false })
-  else q = q.order('name', { ascending: true })
-  const { data } = await q
-  if (data) products.value = data as Product[]
+  const res = await api.products.list({ active: true, essence: (selectedEssence.value || undefined) as ProductEssence })
+  let list = res.items
+  if (search.value) {
+    const q = search.value.toLowerCase()
+    list = list.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))
+  }
+  if (sortBy.value === 'price-asc') list = [...list].sort((a, b) => a.price_eur - b.price_eur)
+  else if (sortBy.value === 'price-desc') list = [...list].sort((a, b) => b.price_eur - a.price_eur)
+  else list = [...list].sort((a, b) => a.name.localeCompare(b.name))
+  products.value = list
   loading.value = false
 }
 

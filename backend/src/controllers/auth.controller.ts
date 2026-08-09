@@ -44,7 +44,7 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
   ApiResponse.success(res, null)
 })
 
-export const googleRedirect = asyncHandler(async (req: Request, res: Response) => {
+export const googleRedirect = asyncHandler(async (_req: Request, res: Response) => {
   const state = createOAuthState()
   res.redirect(googleOAuthService.buildAuthorizationUrl(state))
 })
@@ -67,7 +67,7 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   res.redirect(redirectUrl.toString())
 })
 
-export const googleStatus = asyncHandler((_req: Request, res: Response) => {
+export const googleStatus = asyncHandler(async (_req: Request, res: Response) => {
   if (!googleOAuthService.isConfigured()) {
     throw new BadRequestError('OAuth Google non configuré sur le serveur')
   }

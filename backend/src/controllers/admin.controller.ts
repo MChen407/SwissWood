@@ -19,6 +19,6 @@ export const listClients = asyncHandler(async (_req: Request, res: Response) => 
 })
 
 export const updateClientRole = asyncHandler(async (req: Request, res: Response) => {
-  const client = await adminService.updateRole(req.params.id, req.body.role)
+  const client = await adminService.updateRole(req.params.id!, req.body.role)
   ApiResponse.success(res, client)
 })

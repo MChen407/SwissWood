@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { supabase, type Order } from '@/lib/supabase'
+import { api, type OrderDto } from '@/lib/api'
 import { STATUS_LABELS } from '@/types/index'
 
-const orders = ref<Order[]>([])
+const orders = ref<OrderDto[]>([])
 const loading = ref(true)
 const statuses = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled']
 
@@ -11,14 +11,13 @@ onMounted(load)
 
 async function load() {
   loading.value = true
-  const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
-  if (data) orders.value = data as Order[]
+  orders.value = await api.admin.listOrders()
   loading.value = false
 }
 
-async function updateStatus(order: Order, status: string) {
-  await supabase.from('orders').update({ status }).eq('id', order.id)
-  order.status = status as Order['status']
+async function updateStatus(order: OrderDto, status: string) {
+  await api.admin.updateOrderStatus(order.id, status as OrderDto['status'])
+  order.status = status as OrderDto['status']
 }
 </script>
 

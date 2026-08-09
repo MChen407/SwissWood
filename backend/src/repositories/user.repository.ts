@@ -14,6 +14,8 @@ export interface CreateUserData {
 }
 
 export interface UpdateUserData {
+  googleId?: string
+  emailVerified?: boolean
   password?: string
   firstName?: string
   lastName?: string

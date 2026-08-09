@@ -4,7 +4,7 @@ import { useRoute, RouterLink } from 'vue-router'
 import { Star, Heart, ShoppingCart, Minus, Plus, Check, Truck, Shield, ChevronRight, Ruler } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
-import { supabase, type Product, type ProductReview } from '@/lib/supabase'
+import { api, type ProductDto, type ProductReviewDto, type ProductEssence } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
@@ -14,9 +14,9 @@ const currency = useCurrencyStore()
 const cart = useCartStore()
 const auth = useAuthStore()
 
-const product = ref<Product | null>(null)
-const similar = ref<Product[]>([])
-const reviews = ref<ProductReview[]>([])
+const product = ref<ProductDto | null>(null)
+const similar = ref<ProductDto[]>([])
+const reviews = ref<ProductReviewDto[]>([])
 const loading = ref(true)
 const quantity = ref(1)
 const selectedImage = ref(0)
@@ -33,40 +33,42 @@ watch(() => route.params.slug, loadProduct)
 
 async function loadProduct() {
   loading.value = true
-  const { data } = await supabase.from('products').select('*').eq('slug', route.params.slug as string).maybeSingle()
-  if (data) {
-    product.value = data as Product
+  try {
+    const data = await api.products.bySlug(route.params.slug as string)
+    product.value = data
     customLength.value = data.dimensions.length_mm ?? 4000
     customWidth.value = data.dimensions.width_mm ?? 100
     customThickness.value = data.dimensions.thickness_mm ?? 30
     await Promise.all([loadSimilar(data.essence, data.id), loadReviews(data.id)])
     if (auth.isAuthenticated) await checkFavorite(data.id)
+  } catch {
+    product.value = null
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 
 async function loadSimilar(essence: string, excludeId: string) {
-  const { data } = await supabase.from('products').select('*').eq('essence', essence).eq('is_active', true).neq('id', excludeId).limit(3)
-  if (data) similar.value = data as Product[]
+  const res = await api.products.list({ essence: essence as ProductEssence, active: true, exclude: excludeId, limit: 3 })
+  similar.value = res.items
 }
 
 async function loadReviews(productId: string) {
-  const { data } = await supabase.from('product_reviews').select('*').eq('product_id', productId).eq('is_approved', true).order('created_at', { ascending: false })
-  if (data) reviews.value = data as ProductReview[]
+  reviews.value = await api.products.reviews(productId)
 }
 
 async function checkFavorite(productId: string) {
-  const { data } = await supabase.from('favorites').select('id').eq('product_id', productId).eq('user_id', auth.user!.id).maybeSingle()
-  isFavorite.value = !!data
+  const favorites = await api.favorites.list()
+  isFavorite.value = favorites.some(f => f.product_id === productId)
 }
 
 async function toggleFavorite() {
   if (!auth.isAuthenticated || !product.value) return
   if (isFavorite.value) {
-    await supabase.from('favorites').delete().eq('product_id', product.value.id).eq('user_id', auth.user!.id)
+    await api.favorites.remove(product.value.id)
     isFavorite.value = false
   } else {
-    await supabase.from('favorites').insert({ product_id: product.value.id, user_id: auth.user!.id })
+    await api.favorites.add(product.value.id)
     isFavorite.value = true
   }
 }

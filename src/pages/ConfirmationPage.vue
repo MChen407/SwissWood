@@ -3,24 +3,25 @@ import { ref, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { CheckCircle, Mail, Download, ArrowRight } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
-import { supabase, type Order, type OrderItem } from '@/lib/supabase'
+import { api, type OrderDetailDto } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 
 const route = useRoute()
 const currency = useCurrencyStore()
-const order = ref<Order | null>(null)
-const items = ref<OrderItem[]>([])
+const order = ref<OrderDetailDto | null>(null)
 const loading = ref(true)
 const isTransfer = route.query.method === 'transfer'
 
 onMounted(async () => {
   const orderId = route.query.order as string
-  if (!orderId) return
-  const { data: od } = await supabase.from('orders').select('*').eq('id', orderId).maybeSingle()
-  if (od) order.value = od as Order
-  const { data: it } = await supabase.from('order_items').select('*').eq('order_id', orderId)
-  if (it) items.value = it as OrderItem[]
-  loading.value = false
+  if (!orderId) { loading.value = false; return }
+  try {
+    order.value = await api.orders.getMine(orderId)
+  } catch {
+    order.value = null
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -40,7 +41,7 @@ onMounted(async () => {
             <div class="text-right"><p class="text-xs text-wood-400">Statut</p><p class="font-medium" :class="isTransfer ? 'text-warning-500' : 'text-success-500'">{{ isTransfer ? 'En attente' : 'Confirmée' }}</p></div>
           </div>
           <div class="border-t border-wood-100 pt-4 space-y-2">
-            <div v-for="item in items" :key="item.id" class="flex justify-between text-sm">
+            <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
               <span class="text-wood-500">{{ item.quantity }} × {{ (item.unit_price_eur / 100).toFixed(2) }} €</span>
               <span class="font-medium">{{ ((item.quantity as number) * item.unit_price_eur / 100).toFixed(2) }} €</span>
             </div>

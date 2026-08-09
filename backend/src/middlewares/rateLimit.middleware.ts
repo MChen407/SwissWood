@@ -2,7 +2,7 @@ import rateLimit, { type Options } from 'express-rate-limit'
 import { env } from '@/config/env'
 import { RateLimitError } from '@/utils/httpErrors'
 
-const handleRateLimit: Options['handler'] = (_req, res, options) => {
+const handleRateLimit: Options['handler'] = (_req, res, _next, options) => {
   const err = new RateLimitError(options.message)
   res.status(err.status).json({
     success: false,

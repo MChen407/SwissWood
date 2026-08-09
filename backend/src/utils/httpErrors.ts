@@ -18,7 +18,7 @@ export class HttpError extends Error {
     this.status = status
     this.code = options.code ?? String(status)
     this.details = options.details
-    this.expose = options.expose ?? status >= 400 && status < 500
+    this.expose = options.expose ?? (status >= 400 && status < 500)
     Error.captureStackTrace(this, this.constructor)
   }
 }

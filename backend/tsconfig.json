@@ -30,7 +30,7 @@
     "declaration": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*.ts", "./src/*/index.ts", "./src/*"]
     },
     "types": ["node"]
   },

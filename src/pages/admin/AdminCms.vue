@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Save, Check } from 'lucide-vue-next'
-import { supabase } from '@/lib/supabase'
+import { api, type CmsContentDto } from '@/lib/api'
 
-const contents = ref<{ id: string; key: string; value: string; label: string }[]>([])
+const contents = ref<CmsContentDto[]>([])
 const loading = ref(true)
 const savedKey = ref<string | null>(null)
 
 onMounted(async () => {
-  const { data } = await supabase.from('cms_content').select('*').order('key')
-  if (data) contents.value = data as typeof contents.value
+  contents.value = await api.admin.getCms()
   loading.value = false
 })
 
-async function save(item: { id: string; key: string; value: string }) {
-  await supabase.from('cms_content').update({ value: item.value, updated_at: new Date().toISOString() }).eq('id', item.id)
+async function save(item: CmsContentDto) {
+  await api.admin.updateCms(item.id, { value: item.value })
   savedKey.value = item.key
   setTimeout(() => savedKey.value = null, 2000)
 }

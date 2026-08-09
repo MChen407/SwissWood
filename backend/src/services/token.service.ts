@@ -11,7 +11,7 @@ export interface AccessTokenPayload {
 
 export function generateAccessToken(user: { id: string; email: string; role: Role }): string {
   const payload: AccessTokenPayload = { sub: user.id, email: user.email, role: user.role }
-  const options: SignOptions = { expiresIn: env.JWT_ACCESS_EXPIRES_IN }
+  const options: SignOptions = { expiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'] }
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, options)
 }
 

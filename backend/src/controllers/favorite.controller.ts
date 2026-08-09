@@ -10,11 +10,11 @@ export const listFavorites = asyncHandler(async (req: Request, res: Response) =>
 })
 
 export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const favorite = await favoriteService.add(req.user!.id, req.params.productId)
+  const favorite = await favoriteService.add(req.user!.id, req.params.productId!)
   ApiResponse.success(res, favorite, StatusCodes.CREATED)
 })
 
 export const removeFavorite = asyncHandler(async (req: Request, res: Response) => {
-  await favoriteService.remove(req.user!.id, req.params.productId)
+  await favoriteService.remove(req.user!.id, req.params.productId!)
   ApiResponse.success(res, null)
 })

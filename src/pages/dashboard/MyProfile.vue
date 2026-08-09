@@ -11,8 +11,8 @@ onMounted(() => {
   if (auth.profile) {
     form.value = {
       first_name: auth.profile.first_name, last_name: auth.profile.last_name,
-      phone: auth.profile.phone, address: auth.profile.address,
-      city: auth.profile.city, country: auth.profile.country,
+      phone: auth.profile.phone ?? '', address: auth.profile.address ?? '',
+      city: auth.profile.city ?? '', country: auth.profile.country,
     }
   }
 })

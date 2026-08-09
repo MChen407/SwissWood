@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { api, type AdminPaymentDto } from '@/lib/api'
 
-const payments = ref<{ id: string; reference: string; method: string; status: string; amount_eur: number; created_at: string; orders?: { order_number: string } }[]>([])
+const payments = ref<AdminPaymentDto[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const { data } = await supabase.from('payments').select('*, orders(order_number)').order('created_at', { ascending: false })
-  if (data) payments.value = data as typeof payments.value
+  payments.value = await api.admin.payments()
   loading.value = false
 })
 </script>
@@ -25,7 +24,7 @@ onMounted(async () => {
         <tbody class="divide-y divide-wood-100">
           <tr v-for="p in payments" :key="p.id" class="hover:bg-wood-50">
             <td class="px-4 py-3 font-medium text-primary-500">{{ p.reference || '—' }}</td>
-            <td class="px-4 py-3 text-wood-500">{{ p.orders?.order_number || '—' }}</td>
+            <td class="px-4 py-3 text-wood-500">{{ p.order_number || '—' }}</td>
             <td class="px-4 py-3 text-wood-500">{{ p.method === 'card' ? 'Carte' : 'Virement' }}</td>
             <td class="px-4 py-3 font-medium">{{ (p.amount_eur / 100).toFixed(2) }} €</td>
             <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded-full capitalize" :class="{

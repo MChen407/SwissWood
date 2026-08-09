@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { ShoppingCart, Star } from 'lucide-vue-next'
-import type { Product } from '@/lib/supabase'
+import type { ProductDto } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 
-const props = defineProps<{ product: Product }>()
+const props = defineProps<{ product: ProductDto }>()
 const currency = useCurrencyStore()
 const cart = useCartStore()
 

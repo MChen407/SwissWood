@@ -34,7 +34,7 @@ export const orderRepository = {
           notes: data.notes,
           subtotalEur: data.subtotalEur,
           totalEur: data.totalEur,
-          orderItems: {
+          items: {
             createMany: {
               data: data.items.map((item) => ({
                 productId: item.productId,

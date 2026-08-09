@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { api, type UserPublicDto } from '@/lib/api'
 
-const clients = ref<{ id: string; first_name: string; last_name: string; phone: string; role: string; created_at: string }[]>([])
+const clients = ref<UserPublicDto[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
-  if (data) clients.value = data as typeof clients.value
+  clients.value = await api.admin.clients()
   loading.value = false
 })
 </script>

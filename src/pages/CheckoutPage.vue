@@ -6,7 +6,7 @@ import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { useAuthStore } from '@/stores/auth'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 
 const cart = useCartStore()
 const currency = useCurrencyStore()
@@ -27,21 +27,17 @@ async function placeOrder() {
   if (cart.items.length === 0) return
   error.value = ''; loading.value = true
   try {
-    const subtotal = cart.subtotal
-    const { data: order, error: err } = await supabase.from('orders').insert({
-      user_id: auth.user!.id, status: 'pending', payment_method: 'card', payment_status: 'pending',
-      subtotal_eur: subtotal, total_eur: subtotal, currency: currency.currency,
-      shipping_address: { ...shipping.value }, notes: shipping.value.notes,
-    }).select().maybeSingle()
-    if (err) throw err
-    if (!order) throw new Error('Échec de création de commande')
-
-    const items = cart.items.map(i => ({
-      order_id: order.id, product_id: i.product.id, quantity: i.quantity,
-      unit: i.unit, unit_price_eur: i.product.price_eur, customization: i.customization,
-    }))
-    const { error: ie } = await supabase.from('order_items').insert(items)
-    if (ie) throw ie
+    const order = await api.orders.create({
+      items: cart.items.map(i => ({
+        productId: i.product.id,
+        quantity: i.quantity,
+        unit: i.unit,
+        customization: i.customization,
+      })),
+      currency: currency.currency as 'EUR' | 'USD' | 'FCFA',
+      shipping_address: { ...shipping.value },
+      notes: shipping.value.notes,
+    })
 
     cart.clear()
     router.push({ name: 'payment', query: { order: order.id } })

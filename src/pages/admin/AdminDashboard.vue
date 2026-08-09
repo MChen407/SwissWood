@@ -1,26 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { TrendingUp, Package, Users, Euro, ShoppingCart, ArrowUpRight, Clock, CheckCircle2, Truck, XCircle, AlertCircle } from 'lucide-vue-next'
-import { supabase } from '@/lib/supabase'
+import { api, type OrderDto } from '@/lib/api'
 import { STATUS_LABELS, STATUS_COLORS } from '@/types/index'
 
 const stats = ref({ revenue: 0, orders: 0, customers: 0, products: 0 })
-const recentOrders = ref<{ order_number: string; total_eur: number; status: string; created_at: string }[]>([])
+const recentOrders = ref<OrderDto[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const [{ data: orders }, { count: oc }, { count: cc }, { count: pc }] = await Promise.all([
-    supabase.from('orders').select('order_number, total_eur, status, created_at').order('created_at', { ascending: false }).limit(6),
-    supabase.from('orders').select('*', { count: 'exact', head: true }),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'customer'),
-    supabase.from('products').select('*', { count: 'exact', head: true }),
-  ])
-  stats.value.orders = oc || 0
-  stats.value.customers = cc || 0
-  stats.value.products = pc || 0
-  recentOrders.value = (orders || []) as { order_number: string; total_eur: number; status: string; created_at: string }[]
-  const { data: allOrders } = await supabase.from('orders').select('total_eur').eq('payment_status', 'paid')
-  stats.value.revenue = allOrders?.reduce((s, o) => s + (o.total_eur || 0), 0) || 0
+  const data = await api.admin.stats()
+  stats.value.revenue = data.revenue
+  stats.value.orders = data.orders
+  stats.value.customers = data.customers
+  stats.value.products = data.products
+  recentOrders.value = data.recent_orders
   loading.value = false
 })
 

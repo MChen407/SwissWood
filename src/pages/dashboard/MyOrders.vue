@@ -2,17 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Package, ChevronRight } from 'lucide-vue-next'
-import { supabase, type Order } from '@/lib/supabase'
-import { useAuthStore } from '@/stores/auth'
+import { api, type OrderDto } from '@/lib/api'
 import { STATUS_LABELS, STATUS_COLORS } from '@/types/index'
 
-const auth = useAuthStore()
-const orders = ref<Order[]>([])
+const orders = ref<OrderDto[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const { data } = await supabase.from('orders').select('*').eq('user_id', auth.user!.id).order('created_at', { ascending: false })
-  if (data) orders.value = data as Order[]
+  orders.value = await api.orders.listMine()
   loading.value = false
 })
 </script>

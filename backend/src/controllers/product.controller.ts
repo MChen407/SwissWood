@@ -26,12 +26,12 @@ export const featuredProducts = asyncHandler(async (req: Request, res: Response)
 })
 
 export const getProductBySlug = asyncHandler(async (req: Request, res: Response) => {
-  const product = await productService.getBySlug(req.params.slug)
+  const product = await productService.getBySlug(req.params.slug!)
   ApiResponse.success(res, product)
 })
 
 export const productReviews = asyncHandler(async (req: Request, res: Response) => {
-  const reviews = await reviewService.getApprovedByProduct(req.params.id)
+  const reviews = await reviewService.getApprovedByProduct(req.params.id!)
   ApiResponse.success(res, reviews, StatusCodes.OK)
 })
 
@@ -46,11 +46,11 @@ export const adminCreateProduct = asyncHandler(async (req: Request, res: Respons
 })
 
 export const adminUpdateProduct = asyncHandler(async (req: Request, res: Response) => {
-  const product = await adminProductService.update(req.params.id, req.body as Partial<AdminProductInput>)
+  const product = await adminProductService.update(req.params.id!, req.body as Partial<AdminProductInput>)
   ApiResponse.success(res, product)
 })
 
 export const adminDeleteProduct = asyncHandler(async (req: Request, res: Response) => {
-  await adminProductService.remove(req.params.id)
+  await adminProductService.remove(req.params.id!)
   ApiResponse.success(res, null)
 })

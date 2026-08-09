@@ -3,16 +3,14 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CreditCard, Building2, Mail, Loader2, ShieldCheck, ArrowRight, Check, Lock, Info } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
-import { supabase, type Order } from '@/lib/supabase'
+import { api, type OrderDto } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
-import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
 const currency = useCurrencyStore()
-const auth = useAuthStore()
 
-const order = ref<Order | null>(null)
+const order = ref<OrderDto | null>(null)
 const loading = ref(true)
 const step = ref<'method' | 'bank_instructions' | 'card_security' | 'card_processing' | 'card_validation'>('method')
 const securityCode = ref('')
@@ -21,9 +19,12 @@ const errorMsg = ref('')
 onMounted(async () => {
   const orderId = route.query.order as string
   if (!orderId) { router.push('/panier'); return }
-  const { data } = await supabase.from('orders').select('*').eq('id', orderId).maybeSingle()
-  if (!data) { router.push('/panier'); return }
-  order.value = data as Order
+  try {
+    order.value = await api.orders.getMine(orderId)
+  } catch {
+    router.push('/panier')
+    return
+  }
   loading.value = false
 })
 
@@ -31,18 +32,10 @@ async function selectMethod(method: 'card' | 'bank_transfer') {
   if (!order.value) return
   if (method === 'bank_transfer') {
     step.value = 'bank_instructions'
-    await supabase.from('orders').update({ payment_method: 'bank_transfer', payment_status: 'awaiting_transfer' }).eq('id', order.value.id)
-    await supabase.from('payments').insert({
-      order_id: order.value.id, user_id: auth.user!.id, method: 'bank_transfer',
-      status: 'pending', amount_eur: order.value.total_eur, reference: 'VIR-' + order.value.order_number,
-    })
+    await api.orders.initPayment(order.value.id, { method: 'bank_transfer' })
   } else {
     step.value = 'card_security'
-    await supabase.from('orders').update({ payment_method: 'card', payment_status: 'pending' }).eq('id', order.value.id)
-    await supabase.from('payments').insert({
-      order_id: order.value.id, user_id: auth.user!.id, method: 'card',
-      status: 'processing', amount_eur: order.value.total_eur, reference: 'CB-' + order.value.order_number,
-    })
+    await api.orders.initPayment(order.value.id, { method: 'card' })
     setTimeout(() => { step.value = 'card_processing' }, 2000)
     setTimeout(() => { step.value = 'card_validation' }, 4500)
   }
@@ -52,9 +45,7 @@ async function validateCode() {
   if (securityCode.value.length < 4) { errorMsg.value = 'Veuillez saisir le code complet'; return }
   errorMsg.value = ''
   if (!order.value) return
-  const { data: payment } = await supabase.from('payments').select('id').eq('order_id', order.value.id).order('created_at', { ascending: false }).limit(1).maybeSingle()
-  if (payment) await supabase.from('payments').update({ status: 'completed' }).eq('id', payment.id)
-  await supabase.from('orders').update({ payment_status: 'paid', status: 'confirmed' }).eq('id', order.value.id)
+  await api.orders.confirmPayment(order.value.id)
   router.push({ name: 'confirmation', query: { order: order.value.id } })
 }
 

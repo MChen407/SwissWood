@@ -2,22 +2,20 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Heart, Trash2 } from 'lucide-vue-next'
-import { supabase, type Product } from '@/lib/supabase'
-import { useAuthStore } from '@/stores/auth'
+import { api, type ProductDto } from '@/lib/api'
 import ProductCard from '@/components/ui/ProductCard.vue'
 
-const auth = useAuthStore()
-const favorites = ref<Product[]>([])
+const favorites = ref<ProductDto[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const { data } = await supabase.from('favorites').select('product_id, products(*)').eq('user_id', auth.user!.id)
-  if (data) favorites.value = (data as unknown as { products: Product }[]).map(f => f.products)
+  const favs = await api.favorites.list()
+  favorites.value = favs.map(f => f.product)
   loading.value = false
 })
 
 async function remove(productId: string) {
-  await supabase.from('favorites').delete().eq('product_id', productId).eq('user_id', auth.user!.id)
+  await api.favorites.remove(productId)
   favorites.value = favorites.value.filter(p => p.id !== productId)
 }
 </script>

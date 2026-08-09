@@ -1,67 +1,65 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User, Session } from '@supabase/supabase-js'
-import { supabase, type Profile } from '@/lib/supabase'
+import { api } from '@/lib/api'
+import { getAccessToken, getRefreshToken, setTokens, clearTokens } from '@/lib/api'
+import type { UserPublicDto, UpdateProfileInput } from '@/lib/api'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>(null)
-  const profile = ref<Profile | null>(null)
-  const session = ref<Session | null>(null)
+  const user = ref<UserPublicDto | null>(null)
+  const profile = ref<UserPublicDto | null>(null)
   const loading = ref(true)
 
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => profile.value?.role === 'admin' || profile.value?.role === 'super_admin')
   const fullName = computed(() => `${profile.value?.first_name ?? ''} ${profile.value?.last_name ?? ''}`.trim())
 
-  async function fetchProfile() {
-    if (!user.value) return
-    const { data } = await supabase.from('profiles').select('*').eq('id', user.value.id).maybeSingle()
-    if (data) profile.value = data as Profile
-  }
-
   async function init() {
-    const { data: { session: s } } = await supabase.auth.getSession()
-    session.value = s; user.value = s?.user ?? null
-    if (user.value) await fetchProfile()
-    loading.value = false
-
-    supabase.auth.onAuthStateChange((_e: string, s: Session | null) => {
-      (async () => {
-        session.value = s; user.value = s?.user ?? null
-        if (user.value) await fetchProfile()
-        else profile.value = null
-      })()
-    })
+    if (!getAccessToken()) {
+      loading.value = false
+      return
+    }
+    try {
+      const me = await api.auth.me()
+      user.value = me
+      profile.value = me
+    } catch {
+      clearTokens()
+      user.value = null
+      profile.value = null
+    } finally {
+      loading.value = false
+    }
   }
 
   async function signUp(email: string, password: string, firstName: string, lastName: string) {
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { first_name: firstName, last_name: lastName } }
-    })
-    if (error) throw error
-    return data
+    const result = await api.auth.register({ email, password, firstName, lastName })
+    setTokens(result.tokens.accessToken, result.tokens.refreshToken)
+    user.value = result.user
+    profile.value = result.user
+    return result
   }
 
   async function signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    return data
+    const result = await api.auth.login({ email, password })
+    setTokens(result.tokens.accessToken, result.tokens.refreshToken)
+    user.value = result.user
+    profile.value = result.user
+    return result
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
-    user.value = null; profile.value = null; session.value = null
+    await api.auth.logout(getRefreshToken() ?? undefined)
+    clearTokens()
+    user.value = null
+    profile.value = null
   }
 
-  async function updateProfile(updates: Partial<Profile>) {
-    if (!user.value) return
-    const { data, error } = await supabase.from('profiles')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', user.value.id).select().maybeSingle()
-    if (error) throw error
-    if (data) profile.value = data as Profile
+  async function updateProfile(updates: UpdateProfileInput) {
+    const updated = await api.auth.updateProfile(updates)
+    user.value = updated
+    profile.value = updated
+    return updated
   }
 
-  return { user, profile, session, loading, isAuthenticated, isAdmin, fullName, init, signUp, signIn, signOut, updateProfile }
+  return { user, profile, loading, isAuthenticated, isAdmin, fullName, init, signUp, signIn, signOut, updateProfile }
 })

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Plus, Edit, Trash2, X, Save, Package } from 'lucide-vue-next'
-import { supabase, type Product } from '@/lib/supabase'
+import { api, type ProductDto, type ProductEssence } from '@/lib/api'
 
-const products = ref<Product[]>([])
+const products = ref<ProductDto[]>([])
 const loading = ref(true)
 const showForm = ref(false)
-const editing = ref<Product | null>(null)
+const editing = ref<ProductDto | null>(null)
 
 const emptyForm = {
-  name: '', slug: '', essence: 'Teck' as Product['essence'], description: '',
+  name: '', slug: '', essence: 'Teck' as ProductEssence, description: '',
   price_eur: 0, price_usd: 0, price_fcfa: 0, stock: 0,
   length_mm: 4000, width_mm: 100, thickness_mm: 30, weight_kg_m3: 500,
   images: '', certification: 'FSC', class_emploi: 'Classe 3', origine: '', traitement: 'Naturel', is_active: true,
@@ -20,14 +20,13 @@ onMounted(load)
 
 async function load() {
   loading.value = true
-  const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false })
-  if (data) products.value = data as Product[]
+  products.value = await api.admin.listProducts()
   loading.value = false
 }
 
 function openCreate() { editing.value = null; form.value = { ...emptyForm }; showForm.value = true }
 
-function openEdit(p: Product) {
+function openEdit(p: ProductDto) {
   editing.value = p
   form.value = {
     name: p.name, slug: p.slug, essence: p.essence, description: p.description,
@@ -52,15 +51,15 @@ async function save() {
     characteristics: { certification: form.value.certification, class_emploi: form.value.class_emploi, origine: form.value.origine, traitement: form.value.traitement },
     is_active: form.value.is_active,
   }
-  if (editing.value) await supabase.from('products').update(payload).eq('id', editing.value.id)
-  else await supabase.from('products').insert(payload)
+  if (editing.value) await api.admin.updateProduct(editing.value.id, payload)
+  else await api.admin.createProduct(payload)
   showForm.value = false
   await load()
 }
 
 async function remove(id: string) {
   if (!confirm('Supprimer ce produit ?')) return
-  await supabase.from('products').delete().eq('id', id)
+  await api.admin.deleteProduct(id)
   await load()
 }
 </script>

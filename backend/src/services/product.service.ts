@@ -18,10 +18,10 @@ function normalizeFilters(query: ProductListQuery): ProductListFilters {
   filters.active = query.active ?? true // l'API publique n'expose que les produits actifs
 
   if (query.essence) {
-    if (!PRODUCT_ESSENCES.includes(query.essence)) {
+    if (!PRODUCT_ESSENCES.includes(query.essence as ProductEssence)) {
       throw new BadRequestError('Essence de bois invalide')
     }
-    filters.essence = query.essence
+    filters.essence = query.essence as ProductEssence
   }
 
   if (query.exclude) filters.excludeId = query.exclude
@@ -74,7 +74,7 @@ export const productService = {
   },
 
   async related(productId: string, essence?: string, limit = 3) {
-    if (essence && !PRODUCT_ESSENCES.includes(essence)) {
+    if (essence && !PRODUCT_ESSENCES.includes(essence as ProductEssence)) {
       throw new BadRequestError('Essence de bois invalide')
     }
     const items = await productRepository.findMany({

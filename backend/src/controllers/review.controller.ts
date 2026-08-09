@@ -21,11 +21,11 @@ export const listAllReviews = asyncHandler(async (_req: Request, res: Response) 
 })
 
 export const approveReview = asyncHandler(async (req: Request, res: Response) => {
-  const review = await reviewService.approve(req.params.id)
+  const review = await reviewService.approve(req.params.id!)
   ApiResponse.success(res, review)
 })
 
 export const rejectReview = asyncHandler(async (req: Request, res: Response) => {
-  const review = await reviewService.reject(req.params.id)
+  const review = await reviewService.reject(req.params.id!)
   ApiResponse.success(res, review)
 })

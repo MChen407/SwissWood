@@ -4,14 +4,14 @@ import { RouterLink } from 'vue-router'
 import { ArrowRight, Shield, Leaf, Award, Truck, Flame, Check } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
-import { supabase, type Product } from '@/lib/supabase'
+import { api, type ProductDto } from '@/lib/api'
 
-const products = ref<Product[]>([])
+const products = ref<ProductDto[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const { data } = await supabase.from('products').select('*').eq('is_active', true).order('price_eur', { ascending: false })
-  if (data) products.value = data as Product[]
+  const res = await api.products.list({ active: true, sort: 'price_desc' })
+  products.value = res.items
   loading.value = false
 })
 

@@ -17,17 +17,17 @@ export const listMyOrders = asyncHandler(async (req: Request, res: Response) => 
 })
 
 export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
-  const order = await orderService.getMine(req.user!.id, req.params.id)
+  const order = await orderService.getMine(req.user!.id, req.params.id!)
   ApiResponse.success(res, order)
 })
 
 export const initPayment = asyncHandler(async (req: Request, res: Response) => {
-  const result = await paymentService.initialize(req.user!.id, req.params.id, req.body.method)
+  const result = await paymentService.initialize(req.user!.id, req.params.id!, req.body.method)
   ApiResponse.success(res, result)
 })
 
 export const confirmPayment = asyncHandler(async (req: Request, res: Response) => {
-  const order = await paymentService.confirm(req.user!.id, req.params.id)
+  const order = await paymentService.confirm(req.user!.id, req.params.id!)
   ApiResponse.success(res, order)
 })
 
@@ -37,11 +37,11 @@ export const adminListOrders = asyncHandler(async (_req: Request, res: Response)
 })
 
 export const adminUpdateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
-  const order = await orderService.updateStatus(req.params.id, req.body.status)
+  const order = await orderService.updateStatus(req.params.id!, req.body.status)
   ApiResponse.success(res, order)
 })
 
 export const adminUpdateOrderPayment = asyncHandler(async (req: Request, res: Response) => {
-  const order = await orderService.updatePaymentStatus(req.params.id, req.body.payment_status)
+  const order = await orderService.updatePaymentStatus(req.params.id!, req.body.payment_status)
   ApiResponse.success(res, order)
 })

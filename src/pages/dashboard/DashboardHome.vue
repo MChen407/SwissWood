@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Package, Heart, TrendingUp, ShoppingBag } from 'lucide-vue-next'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const stats = ref({ orders: 0, favorites: 0, totalSpent: 0 })
 
 onMounted(async () => {
-  const [{ data: orders }, { count: favCount }] = await Promise.all([
-    supabase.from('orders').select('total_eur').eq('user_id', auth.user!.id),
-    supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', auth.user!.id),
+  const [orders, favs] = await Promise.all([
+    api.orders.listMine(),
+    api.favorites.list(),
   ])
-  stats.value.orders = orders?.length || 0
-  stats.value.favorites = favCount || 0
-  stats.value.totalSpent = orders?.reduce((s, o) => s + (o.total_eur || 0), 0) || 0
+  stats.value.orders = orders.length
+  stats.value.favorites = favs.length
+  stats.value.totalSpent = orders.reduce((s, o) => s + (o.total_eur || 0), 0)
 })
 
 const cards = [

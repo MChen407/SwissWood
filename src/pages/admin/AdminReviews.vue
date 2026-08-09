@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Check, X, Star } from 'lucide-vue-next'
-import { supabase } from '@/lib/supabase'
+import { api, type AdminReviewDto } from '@/lib/api'
 
-type Review = { id: string; rating: number; comment: string; is_approved: boolean; is_rejected: boolean; created_at: string; products?: { name: string } }
-
-const reviews = ref<Review[]>([])
+const reviews = ref<AdminReviewDto[]>([])
 const loading = ref(true)
 const filter = ref<'pending' | 'approved' | 'all'>('pending')
 
@@ -13,16 +11,15 @@ onMounted(load)
 
 async function load() {
   loading.value = true
-  let q = supabase.from('product_reviews').select('*, products(name)').order('created_at', { ascending: false })
-  if (filter.value === 'pending') q = q.eq('is_approved', false).eq('is_rejected', false)
-  else if (filter.value === 'approved') q = q.eq('is_approved', true)
-  const { data } = await q
-  if (data) reviews.value = data as Review[]
+  const all = await api.admin.listReviews()
+  if (filter.value === 'pending') reviews.value = all.filter(r => !r.is_approved && !r.is_rejected)
+  else if (filter.value === 'approved') reviews.value = all.filter(r => r.is_approved)
+  else reviews.value = all
   loading.value = false
 }
 
-async function approve(id: string) { await supabase.from('product_reviews').update({ is_approved: true, is_rejected: false }).eq('id', id); await load() }
-async function reject(id: string) { await supabase.from('product_reviews').update({ is_rejected: true, is_approved: false }).eq('id', id); await load() }
+async function approve(id: string) { await api.admin.approveReview(id); await load() }
+async function reject(id: string) { await api.admin.rejectReview(id); await load() }
 </script>
 
 <template>
@@ -39,7 +36,7 @@ async function reject(id: string) { await supabase.from('product_reviews').updat
       <div v-for="r in reviews" :key="r.id" class="bg-white rounded-xl border border-wood-200 p-5">
         <div class="flex items-start justify-between">
           <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /><span class="text-xs text-wood-400">{{ r.products?.name || 'Produit' }}</span></div>
+            <div class="flex items-center gap-2 mb-1"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /><span class="text-xs text-wood-400">{{ r.product.name || 'Produit' }}</span></div>
             <p class="text-sm text-wood-600">{{ r.comment }}</p>
             <p class="text-xs text-wood-300 mt-2">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</p>
           </div>
