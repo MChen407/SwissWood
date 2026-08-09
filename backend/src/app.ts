@@ -3,7 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { StatusCodes } from 'http-status-codes'
-import { env, corsOrigins } from '@/config/env'
+import { env } from '@/config/env'
 import { UPLOAD_DIR } from '@/config/upload'
 import { prisma } from '@/config/db'
 import routes from '@/routes'
@@ -32,7 +32,13 @@ export function createApp(): Express {
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     })
   )
-  app.use(cors({ origin: corsOrigins, credentials: true }))
+  // app.use(cors({ origin: corsOrigins, credentials: true }))
+  app.use(
+  cors({
+    origin: 'https://swiss-wood.vercel.app',
+    credentials: true,
+  })
+)
   app.use(generalLimiter)
   app.use(express.json({ limit: '1mb' }))
   app.use(express.urlencoded({ extended: true }))
