@@ -9,9 +9,9 @@ const envSchema = z.object({
   API_PREFIX: z.string().default('/api'),
   HOST: z.string().default('0.0.0.0'),
 
-  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  CORS_ORIGIN: z.string().default('https://swiss-wood.vercel.app'),
 
-  FRONTEND_URL: z.string().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().default('https://swiss-wood.vercel.app'),
 
   API_PUBLIC_URL: z.string().default('http://localhost:4000'),
 
