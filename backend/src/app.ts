@@ -16,22 +16,30 @@ export function createApp(): Express {
   app.set('trust proxy', 1)
 
   app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:'],
-          fontSrc: ["'self'", 'data:'],
-          connectSrc: ["'self'"],
-          objectSrc: ["'none'"],
-          frameAncestors: ["'self'"],
-        },
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        fontSrc: ["'self'", "data:"],
+
+        connectSrc: [
+          "'self'",
+          "https://swisswood-production.up.railway.app",
+        ],
+
+        objectSrc: ["'none'"],
+        frameAncestors: ["'self'"],
       },
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
-    })
-  )
+    },
+
+    crossOriginResourcePolicy: {
+      policy: "cross-origin",
+    },
+  })
+)
   // app.use(cors({ origin: corsOrigins, credentials: true }))
   app.use(
   cors({
