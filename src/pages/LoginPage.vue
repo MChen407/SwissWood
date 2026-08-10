@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { Mail, Lock, AlertCircle } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -12,6 +13,7 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const showErrorModal = ref(false)
 
 async function handleSubmit() {
   error.value = ''; loading.value = true
@@ -20,6 +22,7 @@ async function handleSubmit() {
     router.push((route.query.redirect as string) || '/mon-compte')
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : 'Identifiants incorrects'
+    showErrorModal.value = true
   } finally { loading.value = false }
 }
 </script>
@@ -81,5 +84,15 @@ async function handleSubmit() {
         </form>
       </div>
     </div>
+
+    <ConfirmModal
+      :open="showErrorModal"
+      variant="danger"
+      confirm-only
+      confirm-label="Fermer"
+      title="Connexion échouée"
+      :message="error || 'Vérifiez vos identifiants et réessayez.'"
+      @confirm="showErrorModal = false"
+    />
   </DefaultLayout>
 </template>

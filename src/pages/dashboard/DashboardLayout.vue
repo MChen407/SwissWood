@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { LayoutDashboard, Package, Heart, User, LogOut } from 'lucide-vue-next'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const showLogoutModal = ref(false)
+const signOutPending = ref(false)
 
 const links = [
   { to: '/mon-compte', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -13,7 +17,13 @@ const links = [
   { to: '/mon-compte/profil', label: 'Mon profil', icon: User },
 ]
 
-async function signOut() { await auth.signOut(); router.push('/') }
+async function signOut() {
+  signOutPending.value = true
+  await auth.signOut()
+  signOutPending.value = false
+  showLogoutModal.value = false
+  router.push('/')
+}
 </script>
 
 <template>
@@ -24,7 +34,7 @@ async function signOut() { await auth.signOut(); router.push('/') }
           <img src="/logo.jpg" alt="SwissWood" class="w-9 h-9 rounded-lg object-cover" />
           <span class="font-display text-xl font-semibold">SwissWood</span>
         </RouterLink>
-        <button @click="signOut" class="flex items-center gap-2 text-sm text-wood-200 hover:text-white"><LogOut class="w-4 h-4" /> Déconnexion</button>
+        <button @click="showLogoutModal = true" class="flex items-center gap-2 text-sm text-wood-200 hover:text-white"><LogOut class="w-4 h-4" /> Déconnexion</button>
       </div>
     </header>
 
@@ -49,4 +59,15 @@ async function signOut() { await auth.signOut(); router.push('/') }
       </div>
     </div>
   </div>
+
+  <ConfirmModal
+    :open="showLogoutModal"
+    variant="danger"
+    title="Se déconnecter"
+    message="Voulez-vous vraiment vous déconnecter de votre compte SwissWood ?"
+    confirm-label="Se déconnecter"
+    :loading="signOutPending"
+    @confirm="signOut"
+    @cancel="showLogoutModal = false"
+  />
 </template>

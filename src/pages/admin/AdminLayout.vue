@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { LayoutDashboard, Package, Users, CreditCard, Star, FileText, LogOut, ShieldCheck } from 'lucide-vue-next'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const showLogoutModal = ref(false)
+const signOutPending = ref(false)
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,7 +20,13 @@ const links = [
   { to: '/admin/contenu', label: 'Contenu CMS', icon: FileText },
 ]
 
-async function signOut() { await auth.signOut(); router.push('/') }
+async function signOut() {
+  signOutPending.value = true
+  await auth.signOut()
+  signOutPending.value = false
+  showLogoutModal.value = false
+  router.push('/')
+}
 </script>
 
 <template>
@@ -36,7 +46,7 @@ async function signOut() { await auth.signOut(); router.push('/') }
         </RouterLink>
       </nav>
       <div class="p-3 border-t border-primary-700">
-        <button @click="signOut" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-wood-200 hover:bg-wood-100/5"><LogOut class="w-4 h-4" /> Déconnexion</button>
+        <button @click="showLogoutModal = true" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-wood-200 hover:bg-wood-100/5"><LogOut class="w-4 h-4" /> Déconnexion</button>
       </div>
     </aside>
 
@@ -48,4 +58,15 @@ async function signOut() { await auth.signOut(); router.push('/') }
       <main class="p-4 sm:p-6 lg:p-8"><RouterView /></main>
     </div>
   </div>
+
+  <ConfirmModal
+    :open="showLogoutModal"
+    variant="danger"
+    title="Se déconnecter"
+    message="Voulez-vous vraiment vous déconnecter de l'administration SwissWood ?"
+    confirm-label="Se déconnecter"
+    :loading="signOutPending"
+    @confirm="signOut"
+    @cancel="showLogoutModal = false"
+  />
 </template>

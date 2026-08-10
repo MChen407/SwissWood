@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Plus, Edit, Trash2, X, Save, Package, Upload } from 'lucide-vue-next'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { api, type ProductDto, type ProductEssence } from '@/lib/api'
 
 const products = ref<ProductDto[]>([])
@@ -10,6 +11,10 @@ const editing = ref<ProductDto | null>(null)
 const uploading = ref(false)
 const uploadError = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
+
+const deleting = ref<ProductDto | null>(null)
+const deletingPending = ref(false)
+const deleteError = ref('')
 
 const emptyForm = {
   name: '', slug: '', essence: 'Teck' as ProductEssence, description: '',
@@ -83,9 +88,17 @@ async function save() {
 }
 
 async function remove(id: string) {
-  if (!confirm('Supprimer ce produit ?')) return
-  await api.admin.deleteProduct(id)
-  await load()
+  deletingPending.value = true
+  deleteError.value = ''
+  try {
+    await api.admin.deleteProduct(id)
+    deleting.value = null
+    await load()
+  } catch (err) {
+    deleteError.value = err instanceof Error ? err.message : 'Échec de la suppression'
+  } finally {
+    deletingPending.value = false
+  }
 }
 </script>
 
@@ -114,7 +127,7 @@ async function remove(id: string) {
             <td class="px-4 py-3 text-wood-500">{{ (p.price_eur / 100).toFixed(2) }} €</td>
             <td class="px-4 py-3 text-wood-500">{{ p.stock }}</td>
             <td class="px-4 py-3"><span :class="['text-xs px-2 py-1 rounded-full', p.is_active ? 'bg-success-100 text-success-500' : 'bg-wood-100 text-wood-400']">{{ p.is_active ? 'Actif' : 'Inactif' }}</span></td>
-            <td class="px-4 py-3 text-right"><button @click="openEdit(p)" class="p-1.5 text-wood-500 hover:text-primary-500"><Edit class="w-4 h-4" /></button><button @click="remove(p.id)" class="p-1.5 text-wood-500 hover:text-error-500"><Trash2 class="w-4 h-4" /></button></td>
+            <td class="px-4 py-3 text-right"><button @click="openEdit(p)" class="p-1.5 text-wood-500 hover:text-primary-500"><Edit class="w-4 h-4" /></button><button @click="deleting = p" class="p-1.5 text-wood-500 hover:text-error-500"><Trash2 class="w-4 h-4" /></button></td>
           </tr>
         </tbody>
       </table>
@@ -179,5 +192,16 @@ async function remove(id: string) {
         </div>
       </div>
     </div>
+
+    <ConfirmModal
+      :open="!!deleting"
+      variant="danger"
+      title="Supprimer ce produit ?"
+      :message="deleteError || `« ${deleting?.name} » sera définitivement supprimé. Cette action est irréversible.`"
+      confirm-label="Supprimer"
+      :loading="deletingPending"
+      @confirm="deleting && remove(deleting.id)"
+      @cancel="deleting = null; deleteError = ''"
+    />
   </div>
 </template>

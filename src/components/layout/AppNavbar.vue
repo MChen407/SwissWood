@@ -5,6 +5,7 @@ import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard, ShieldCheck } fro
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useCurrencyStore } from '@/stores/currency'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { navLinks } from '@/types/index'
 
 const cart = useCartStore()
@@ -12,9 +13,19 @@ const auth = useAuthStore()
 const currency = useCurrencyStore()
 const mobileOpen = ref(false)
 const userMenuOpen = ref(false)
+const showLogoutModal = ref(false)
+const signOutPending = ref(false)
 
 function closeAll() { mobileOpen.value = false; userMenuOpen.value = false }
-async function handleSignOut() { await auth.signOut(); closeAll() }
+
+function requestSignOut() { closeAll(); showLogoutModal.value = true }
+
+async function handleSignOut() {
+  signOutPending.value = true
+  await auth.signOut()
+  signOutPending.value = false
+  showLogoutModal.value = false
+}
 
 const currencies = ['EUR', 'USD', 'FCFA'] as const
 </script>
@@ -72,7 +83,7 @@ const currencies = ['EUR', 'USD', 'FCFA'] as const
                 </div>
                 <RouterLink to="/mon-compte" @click="closeAll" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-wood-50 transition-colors" style="color:#6B4226;"><LayoutDashboard class="w-4 h-4" /> Tableau de bord</RouterLink>
                 <RouterLink v-if="auth.isAdmin" to="/admin" @click="closeAll" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-wood-50 transition-colors" style="color:#6B4226;"><ShieldCheck class="w-4 h-4" /> Administration</RouterLink>
-                <button @click="handleSignOut" class="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 transition-colors" style="color:#B23A2E;"><LogOut class="w-4 h-4" /> Déconnexion</button>
+                <button @click="requestSignOut" class="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 transition-colors" style="color:#B23A2E;"><LogOut class="w-4 h-4" /> Déconnexion</button>
               </template>
               <template v-else>
                 <RouterLink to="/connexion" @click="closeAll" class="block px-4 py-2 text-sm hover:bg-wood-50 transition-colors" style="color:#6B4226;">Connexion</RouterLink>
@@ -103,5 +114,16 @@ const currencies = ['EUR', 'USD', 'FCFA'] as const
         </div>
       </nav>
     </div>
+
+    <ConfirmModal
+      :open="showLogoutModal"
+      variant="danger"
+      title="Se déconnecter"
+      message="Voulez-vous vraiment vous déconnecter de votre compte SwissWood ?"
+      confirm-label="Se déconnecter"
+      :loading="signOutPending"
+      @confirm="handleSignOut"
+      @cancel="showLogoutModal = false"
+    />
   </header>
 </template>
