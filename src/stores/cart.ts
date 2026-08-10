@@ -1,13 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { CartItem, ProductDto } from '@/lib/api'
+import { itemLinePrice } from '@/lib/pricing'
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>([])
   const isOpen = ref(false)
 
   const itemCount = computed(() => items.value.reduce((s, i) => s + i.quantity, 0))
-  const subtotal = computed(() => items.value.reduce((s, i) => s + i.product.price_eur * i.quantity, 0))
+  const linePrices = computed(() => items.value.map(itemLinePrice))
+  const subtotal = computed(() => linePrices.value.reduce((s, p) => s + p.eur, 0))
+  const subtotalUsd = computed(() => linePrices.value.reduce((s, p) => s + p.usd, 0))
+  const subtotalFcfa = computed(() => linePrices.value.reduce((s, p) => s + p.fcfa, 0))
 
   function addItem(product: ProductDto, quantity = 1, unit = 'pcs', customization: Record<string, string | number> = {}) {
     const key = JSON.stringify(customization)
@@ -30,5 +34,5 @@ export const useCartStore = defineStore('cart', () => {
   function clear() { items.value = [] }
   function toggleCart() { isOpen.value = !isOpen.value }
 
-  return { items, isOpen, itemCount, subtotal, addItem, removeItem, updateQuantity, clear, toggleCart }
+  return { items, isOpen, itemCount, linePrices, subtotal, subtotalUsd, subtotalFcfa, addItem, removeItem, updateQuantity, clear, toggleCart }
 }, { persist: true })

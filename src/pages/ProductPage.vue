@@ -8,6 +8,7 @@ import { api, type ProductDto, type ProductReviewDto, type ProductEssence } from
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
+import { dimensionMultiplier } from '@/lib/pricing'
 
 const route = useRoute()
 const currency = useCurrencyStore()
@@ -86,9 +87,11 @@ const avgRating = computed(() => reviews.value.length === 0 ? 0 : (reviews.value
 
 const priceMultiplier = computed(() => {
   if (!product.value) return 1
-  const base = (product.value.dimensions.length_mm ?? 4000) * (product.value.dimensions.width_mm ?? 100) * (product.value.dimensions.thickness_mm ?? 30)
-  const custom = customLength.value * customWidth.value * customThickness.value
-  return base === 0 ? 1 : Math.max(0.5, custom / base)
+  return dimensionMultiplier(product.value, {
+    longueur_mm: customLength.value,
+    largeur_mm: customWidth.value,
+    epaisseur_mm: customThickness.value,
+  })
 })
 
 const computedPrice = computed(() => {
@@ -99,6 +102,27 @@ const computedPrice = computed(() => {
     fcfa: Math.round(product.value.price_fcfa * priceMultiplier.value * quantity.value),
   }
 })
+
+const reviewRating = ref(5)
+const reviewComment = ref('')
+const reviewSubmitting = ref(false)
+const reviewError = ref('')
+const reviewSubmitted = ref(false)
+
+async function submitReview() {
+  if (!product.value || !auth.isAuthenticated) return
+  reviewError.value = ''
+  reviewSubmitting.value = true
+  try {
+    await api.reviews.create({ productId: product.value.id, rating: reviewRating.value, comment: reviewComment.value })
+    reviewSubmitted.value = true
+    reviewComment.value = ''
+  } catch (e: unknown) {
+    reviewError.value = e instanceof Error ? e.message : 'Une erreur est survenue'
+  } finally {
+    reviewSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -195,15 +219,46 @@ const computedPrice = computed(() => {
           </div>
         </div>
 
-        <div v-else>
-          <div v-if="reviews.length === 0" class="text-center py-10 text-wood-400"><p>Aucun avis pour le moment.</p></div>
-          <div v-else class="space-y-4">
-            <div v-for="r in reviews" :key="r.id" class="bg-white rounded-xl border border-wood-200 p-5">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-1"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /></div>
-                <span class="text-xs text-wood-400">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</span>
+        <div v-else class="space-y-8">
+          <div v-if="auth.isAuthenticated" class="bg-white rounded-xl border border-wood-200 p-5 max-w-2xl">
+            <h3 class="font-medium text-primary-500 mb-3">Donner votre avis</h3>
+            <p v-if="reviewSubmitted" class="text-sm text-success-500 mb-2">Merci ! Votre avis sera publié après validation par notre équipe.</p>
+            <template v-else>
+              <div class="flex items-center gap-1 mb-3">
+                <button v-for="n in 5" :key="n" type="button" @click="reviewRating = n" class="p-0.5">
+                  <Star class="w-6 h-6 transition-colors" :class="n <= reviewRating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" />
+                </button>
+                <span class="ml-2 text-sm text-wood-500">{{ reviewRating }}/5</span>
               </div>
-              <p class="text-wood-600 text-sm leading-relaxed">{{ r.comment }}</p>
+              <textarea v-model="reviewComment" rows="3" maxlength="1000" placeholder="Partagez votre expérience avec ce produit..."
+                class="w-full px-3 py-2.5 border border-wood-200 rounded-lg text-sm resize-none focus:outline-none focus:border-primary-500"></textarea>
+              <p v-if="reviewError" class="text-sm text-error-500 mt-2">{{ reviewError }}</p>
+              <div class="mt-3 flex items-center gap-3">
+                <button @click="submitReview" :disabled="reviewSubmitting"
+                  class="bg-primary-500 text-wood-100 px-5 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors disabled:opacity-50">
+                  {{ reviewSubmitting ? 'Envoi...' : 'Publier mon avis' }}
+                </button>
+                <p class="text-xs text-wood-400">Votre avis sera modéré avant publication.</p>
+              </div>
+            </template>
+          </div>
+          <div v-else class="bg-white rounded-xl border border-wood-200 p-5 max-w-2xl">
+            <p class="text-wood-600 text-sm">
+              <RouterLink :to="{ name: 'login', query: { redirect: route.fullPath } }" class="text-primary-500 hover:underline font-medium">Connectez-vous</RouterLink>
+              pour laisser votre avis sur ce produit.
+            </p>
+          </div>
+
+          <div>
+            <div v-if="reviews.length === 0" class="text-center py-10 text-wood-400"><p>Aucun avis pour le moment.</p></div>
+            <div v-else class="space-y-4">
+              <div v-for="r in reviews" :key="r.id" class="bg-white rounded-xl border border-wood-200 p-5">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-1"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /></div>
+                  <span class="text-xs text-wood-400">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</span>
+                </div>
+                <p class="text-wood-600 text-sm leading-relaxed">{{ r.comment }}</p>
+              </div>
             </div>
           </div>
         </div>

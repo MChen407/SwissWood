@@ -5,6 +5,7 @@ import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { useAuthStore } from '@/stores/auth'
+import { itemLinePrice } from '@/lib/pricing'
 
 const cart = useCartStore()
 const currency = useCurrencyStore()
@@ -80,7 +81,7 @@ function checkout() {
                     class="text-xs px-2 py-0.5 rounded" style="background:#FAF7F2; color:#7A7167;">{{ key }}: {{ val }}</span>
                 </div>
                 <p class="text-xs mt-1.5 font-semibold sm:hidden" style="color:#4A2C1A;">
-                  {{ currency.formatPrice(item.product.price_eur, item.product.price_usd, item.product.price_fcfa) }} / unité
+                  {{ currency.formatPrice(itemLinePrice(item).eur / item.quantity, itemLinePrice(item).usd / item.quantity, itemLinePrice(item).fcfa / item.quantity) }} / unité
                 </p>
               </div>
             </div>
@@ -109,7 +110,7 @@ function checkout() {
             <!-- Subtotal -->
             <div class="col-span-5 sm:col-span-3 text-right">
               <span class="font-bold text-base" style="color:#4A2C1A;">
-                {{ currency.formatPrice(item.product.price_eur * item.quantity, 0, 0) }}
+                {{ currency.formatPrice(itemLinePrice(item).eur, itemLinePrice(item).usd, itemLinePrice(item).fcfa) }}
               </span>
             </div>
           </div>
@@ -122,7 +123,7 @@ function checkout() {
           <div class="space-y-3 text-sm">
             <div class="flex justify-between">
               <span style="color:#7A7167;">Sous-total</span>
-              <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+              <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
             </div>
             <div class="flex justify-between">
               <span style="color:#7A7167;">Livraison</span>
@@ -134,7 +135,7 @@ function checkout() {
 
           <div class="flex justify-between items-center mb-6">
             <span class="font-semibold text-base" style="color:#4A2C1A;">Total estimé</span>
-            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
           </div>
 
           <button @click="checkout"

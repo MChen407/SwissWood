@@ -1,20 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CreditCard, Building2, Mail, Loader2, ShieldCheck, ArrowRight, Check, Lock, Info } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
-import { api, type OrderDto } from '@/lib/api'
+import { api, type OrderDetailDto } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 
 const route = useRoute()
 const router = useRouter()
 const currency = useCurrencyStore()
 
-const order = ref<OrderDto | null>(null)
+const order = ref<OrderDetailDto | null>(null)
 const loading = ref(true)
 const step = ref<'method' | 'bank_instructions' | 'card_security' | 'card_processing' | 'card_validation'>('method')
 const securityCode = ref('')
 const errorMsg = ref('')
+
+const orderTotals = computed(() => {
+  const o = order.value
+  if (!o) return { eur: 0, usd: 0, fcfa: 0 }
+  const usd = o.items.reduce((s, i) => s + (i.unit_price_usd ?? 0) * Number(i.quantity), 0)
+  const fcfa = o.items.reduce((s, i) => s + (i.unit_price_fcfa ?? 0) * Number(i.quantity), 0)
+  return { eur: o.total_eur, usd, fcfa }
+})
 
 onMounted(async () => {
   const orderId = route.query.order as string
@@ -63,7 +71,7 @@ function finishBankTransfer() {
       <div v-else-if="order">
         <h1 class="font-display text-3xl font-medium text-primary-500 mb-2">Paiement</h1>
         <p class="text-wood-500 mb-2">Commande <span class="font-medium text-primary-500">{{ order.order_number }}</span></p>
-        <p class="text-2xl font-semibold text-primary-500 mb-8">{{ currency.formatPrice(order.total_eur, 0, 0) }}</p>
+        <p class="text-2xl font-semibold text-primary-500 mb-8">{{ currency.formatPriceWithFallback(orderTotals.eur, orderTotals.usd, orderTotals.fcfa) }}</p>
 
         <!-- Step: Choose method -->
         <div v-if="step === 'method'" class="space-y-4">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { CheckCircle, Mail, Download, ArrowRight } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
@@ -11,6 +11,14 @@ const currency = useCurrencyStore()
 const order = ref<OrderDetailDto | null>(null)
 const loading = ref(true)
 const isTransfer = route.query.method === 'transfer'
+
+const orderTotals = computed(() => {
+  const o = order.value
+  if (!o) return { eur: 0, usd: 0, fcfa: 0 }
+  const usd = o.items.reduce((s, i) => s + (i.unit_price_usd ?? 0) * Number(i.quantity), 0)
+  const fcfa = o.items.reduce((s, i) => s + (i.unit_price_fcfa ?? 0) * Number(i.quantity), 0)
+  return { eur: o.total_eur, usd, fcfa }
+})
 
 onMounted(async () => {
   const orderId = route.query.order as string
@@ -42,13 +50,13 @@ onMounted(async () => {
           </div>
           <div class="border-t border-wood-100 pt-4 space-y-2">
             <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-              <span class="text-wood-500">{{ item.quantity }} × {{ (item.unit_price_eur / 100).toFixed(2) }} €</span>
-              <span class="font-medium">{{ ((item.quantity as number) * item.unit_price_eur / 100).toFixed(2) }} €</span>
+              <span class="text-wood-500">{{ item.quantity }} × {{ currency.formatPriceWithFallback(item.unit_price_eur, item.unit_price_usd ?? 0, item.unit_price_fcfa ?? 0) }}</span>
+              <span class="font-medium">{{ currency.formatPriceWithFallback(item.unit_price_eur * Number(item.quantity), (item.unit_price_usd ?? 0) * Number(item.quantity), (item.unit_price_fcfa ?? 0) * Number(item.quantity)) }}</span>
             </div>
           </div>
           <div class="border-t border-wood-200 mt-4 pt-4 flex justify-between">
             <span class="font-medium text-primary-500">Total</span>
-            <span class="text-xl font-semibold text-primary-500">{{ currency.formatPrice(order.total_eur, 0, 0) }}</span>
+            <span class="text-xl font-semibold text-primary-500">{{ currency.formatPriceWithFallback(orderTotals.eur, orderTotals.usd, orderTotals.fcfa) }}</span>
           </div>
         </div>
 

@@ -169,6 +169,8 @@ export interface OrderItemDto {
   quantity: number
   unit: string
   unit_price_eur: number
+  unit_price_usd?: number
+  unit_price_fcfa?: number
   customization: Record<string, unknown>
   created_at: string
   product?: { id: string; name: string; slug: string; images: string[] }

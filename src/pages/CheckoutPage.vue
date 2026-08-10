@@ -6,6 +6,8 @@ import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { useAuthStore } from '@/stores/auth'
+import { itemLinePrice } from '@/lib/pricing'
+import { COUNTRIES } from '@/lib/countries'
 import { api } from '@/lib/api'
 
 const cart = useCartStore()
@@ -104,9 +106,7 @@ async function placeOrder() {
                   class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors"
                   style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
                   onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'">
-                  <option>Suisse</option><option>France</option><option>Belgique</option><option>Luxembourg</option>
-                  <option>Allemagne</option><option>Espagne</option><option>Italie</option>
-                  <option>Portugal</option><option>Pays-Bas</option><option>Royaume-Uni</option>
+                  <option v-for="c in COUNTRIES" :key="c" :value="c">{{ c }}</option>
                 </select>
               </div>
               <div>
@@ -136,11 +136,11 @@ async function placeOrder() {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold truncate" style="color:#4A2C1A;">{{ item.product.name }}</p>
                   <p class="text-xs mt-0.5" style="color:#7A7167;">
-                    {{ item.quantity }} × {{ currency.formatPrice(item.product.price_eur, item.product.price_usd, item.product.price_fcfa) }}
+                    {{ item.quantity }} × {{ currency.formatPrice(itemLinePrice(item).eur / item.quantity, itemLinePrice(item).usd / item.quantity, itemLinePrice(item).fcfa / item.quantity) }}
                   </p>
                 </div>
                 <span class="text-sm font-bold flex-shrink-0" style="color:#4A2C1A;">
-                  {{ currency.formatPrice(item.product.price_eur * item.quantity, 0, 0) }}
+                  {{ currency.formatPrice(itemLinePrice(item).eur, itemLinePrice(item).usd, itemLinePrice(item).fcfa) }}
                 </span>
               </div>
             </div>
@@ -154,7 +154,7 @@ async function placeOrder() {
           <div class="space-y-3 text-sm">
             <div class="flex justify-between">
               <span style="color:#7A7167;">Sous-total</span>
-              <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+              <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
             </div>
             <div class="flex justify-between">
               <span style="color:#7A7167;">Livraison</span>
@@ -166,7 +166,7 @@ async function placeOrder() {
 
           <div class="flex justify-between items-center mb-6">
             <span class="font-semibold" style="color:#4A2C1A;">Total</span>
-            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
           </div>
 
           <div v-if="error" class="mb-4 p-3 rounded-lg text-sm" style="background:#fde8e6; color:#C0392B;">{{ error }}</div>

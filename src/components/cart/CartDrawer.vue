@@ -3,6 +3,7 @@ import { X, ShoppingCart, Trash2, Plus, Minus } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
+import { itemLinePrice } from '@/lib/pricing'
 
 const cart = useCartStore()
 const currency = useCurrencyStore()
@@ -44,7 +45,7 @@ function goToCart() { cart.toggleCart(); router.push('/panier') }
                   <span class="text-sm font-medium w-6 text-center">{{ item.quantity }}</span>
                   <button @click="cart.updateQuantity(item.product.id, item.quantity + 1)" class="p-1 text-wood-500 hover:text-primary-500"><Plus class="w-3.5 h-3.5" /></button>
                 </div>
-                <span class="text-sm font-semibold text-primary-500">{{ currency.formatPrice(item.product.price_eur, item.product.price_usd, item.product.price_fcfa) }}</span>
+                <span class="text-sm font-semibold text-primary-500">{{ currency.formatPrice(itemLinePrice(item).eur, itemLinePrice(item).usd, itemLinePrice(item).fcfa) }}</span>
               </div>
             </div>
             <button @click="cart.removeItem(item.product.id)" class="p-1 text-wood-400 hover:text-error-500 self-start"><Trash2 class="w-4 h-4" /></button>
@@ -54,7 +55,7 @@ function goToCart() { cart.toggleCart(); router.push('/panier') }
         <div v-if="cart.items.length > 0" class="border-t border-wood-200 p-4 space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-sm text-wood-600">Sous-total</span>
-            <span class="text-lg font-semibold text-primary-500">{{ currency.formatPrice(cart.subtotal, 0, 0) }}</span>
+            <span class="text-lg font-semibold text-primary-500">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
           </div>
           <button @click="goToCart" class="w-full bg-primary-500 text-wood-100 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">Voir le panier</button>
         </div>

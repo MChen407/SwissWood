@@ -13,7 +13,13 @@ export const useCurrencyStore = defineStore('currency', () => {
     return `${(fcfa / 100).toLocaleString('fr-FR')} FCFA`
   }
 
+  function formatPriceWithFallback(eur: number, usd: number, fcfa: number) {
+    if (currency.value === 'USD' && !usd) return `${(eur / 100).toFixed(2)} €`
+    if (currency.value === 'FCFA' && !fcfa) return `${(eur / 100).toFixed(2)} €`
+    return formatPrice(eur, usd, fcfa)
+  }
+
   function setCurrency(c: Currency) { currency.value = c }
 
-  return { currency, symbol, formatPrice, setCurrency }
+  return { currency, symbol, formatPrice, formatPriceWithFallback, setCurrency }
 }, { persist: true })
