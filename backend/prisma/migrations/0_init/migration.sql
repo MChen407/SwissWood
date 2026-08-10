@@ -44,7 +44,7 @@ CREATE TABLE `products` (
     `name` VARCHAR(200) NOT NULL,
     `slug` VARCHAR(200) NOT NULL,
     `essence` ENUM('Teck', 'Iroko', 'Pin', 'Sapin') NOT NULL,
-    `description` TEXT NOT NULL DEFAULT '',
+    `description` TEXT NOT NULL,
     `price_eur` INTEGER NOT NULL DEFAULT 0,
     `price_usd` INTEGER NOT NULL DEFAULT 0,
     `price_fcfa` INTEGER NOT NULL DEFAULT 0,
@@ -69,7 +69,7 @@ CREATE TABLE `product_reviews` (
     `product_id` CHAR(36) NOT NULL,
     `user_id` CHAR(36) NOT NULL,
     `rating` INTEGER NOT NULL,
-    `comment` TEXT NOT NULL DEFAULT '',
+    `comment` TEXT NOT NULL,
     `is_approved` BOOLEAN NOT NULL DEFAULT false,
     `is_rejected` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -151,10 +151,10 @@ CREATE TABLE `payments` (
 CREATE TABLE `cms_content` (
     `id` CHAR(36) NOT NULL,
     `key` VARCHAR(100) NOT NULL,
-    `value` TEXT NOT NULL DEFAULT '',
+    `value` TEXT NOT NULL,
     `type` VARCHAR(20) NOT NULL DEFAULT 'text',
     `label` VARCHAR(200) NOT NULL DEFAULT '',
-    `updated_at` DATETIME(6) NOT NULL,
+    `updated_at` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `cms_content_key_key`(`key`),
     PRIMARY KEY (`id`)
