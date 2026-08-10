@@ -9,6 +9,8 @@ export interface OrderItemDto {
   quantity: number
   unit: string
   unit_price_eur: number
+  unit_price_usd: number
+  unit_price_fcfa: number
   customization: unknown
   created_at: Date
   product?: {
@@ -41,6 +43,10 @@ export interface OrderDetailDto extends OrderDto {
 }
 
 export function toOrderItemDto(item: OrderItem & { product?: Product }): OrderItemDto {
+  const rawCustomization = (item.customization ?? {}) as Record<string, unknown>
+  const customization = Object.fromEntries(
+    Object.entries(rawCustomization).filter(([key]) => !key.startsWith('__'))
+  )
   return {
     id: item.id,
     order_id: item.orderId,
@@ -48,7 +54,9 @@ export function toOrderItemDto(item: OrderItem & { product?: Product }): OrderIt
     quantity: Number(item.quantity),
     unit: item.unit,
     unit_price_eur: item.unitPriceEur,
-    customization: item.customization,
+    unit_price_usd: typeof rawCustomization.__price_usd === 'number' ? rawCustomization.__price_usd : 0,
+    unit_price_fcfa: typeof rawCustomization.__price_fcfa === 'number' ? rawCustomization.__price_fcfa : 0,
+    customization,
     created_at: item.createdAt,
     ...(item.product
       ? {

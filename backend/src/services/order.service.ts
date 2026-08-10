@@ -1,6 +1,7 @@
 import { orderRepository } from '../repositories/order.repository.js'
 import { productRepository } from '../repositories/product.repository.js'
 import { BadRequestError, NotFoundError } from '../utils/httpErrors.js'
+import { customDimensionMultiplier } from '../utils/pricing.js'
 import { toOrderDetailDto, toOrderDto, type OrderDetailDto, type OrderDto } from '../dto/order.dto.js'
 import type { OrderPaymentStatus, OrderStatus } from '@prisma/client'
 
@@ -42,12 +43,24 @@ export const orderService = {
       if (product.stock < line.quantity) {
         throw new BadRequestError(`Stock insuffisant pour « ${product.name} »`)
       }
+      const customization = (line.customization ?? {}) as Record<string, unknown>
+      const multiplier = customDimensionMultiplier(
+        (product.dimensions ?? {}) as Record<string, unknown>,
+        customization
+      )
+      const unitPriceEur = Math.round(product.priceEur * multiplier)
+      const unitPriceUsd = Math.round(product.priceUsd * multiplier)
+      const unitPriceFcfa = Math.round(product.priceFcfa * multiplier)
       return {
         productId: product.id,
         quantity: line.quantity,
         unit: line.unit,
-        unitPriceEur: product.priceEur,
-        customization: line.customization ?? {},
+        unitPriceEur,
+        customization: {
+          ...customization,
+          __price_usd: unitPriceUsd,
+          __price_fcfa: unitPriceFcfa,
+        },
       }
     })
 
