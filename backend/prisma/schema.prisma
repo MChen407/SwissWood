@@ -1,4 +1,3 @@
-
 // =====================================================================
 // SwissWood — Modèle de données (MySQL)
 // Port du schéma PostgreSQL (Supabase) vers Prisma + MySQL.
@@ -103,7 +102,6 @@ model User {
 
 // =====================================================================
 // TOKENS DE RAFRAÎCHISSEMENT
-// Rotation et révocabilité
 // =====================================================================
 
 model RefreshToken {
@@ -133,7 +131,8 @@ model Product {
 
   essence ProductEssence
 
-  // TEXT : pas de DEFAULT pour compatibilité MySQL
+  // IMPORTANT :
+  // TEXT ne doit pas avoir de DEFAULT sur MySQL Railway.
   description String @db.Text
 
   priceEur  Int @default(0) @map("price_eur")
@@ -141,10 +140,10 @@ model Product {
   priceFcfa Int @default(0) @map("price_fcfa")
   stock     Int @default(0)
 
-  // JSON : pas de DEFAULT pour compatibilité MySQL
-  dimensions      Json
-  images          Json
-  characteristics Json
+  // JSON : on conserve les defaults.
+  dimensions      Json @default("{}")
+  images          Json @default("[]")
+  characteristics Json @default("{}")
 
   isActive Boolean @default(true) @map("is_active")
 
@@ -172,7 +171,7 @@ model ProductReview {
 
   rating Int
 
-  // TEXT : pas de DEFAULT pour compatibilité MySQL
+  // TEXT : pas de DEFAULT.
   comment String @db.Text
 
   isApproved Boolean @default(false) @map("is_approved")
@@ -190,7 +189,6 @@ model ProductReview {
 
 // =====================================================================
 // FAVORITES
-// Wishlist
 // =====================================================================
 
 model Favorite {
@@ -226,8 +224,8 @@ model Order {
 
   currency String @default("EUR") @db.VarChar(10)
 
-  // JSON : pas de DEFAULT pour compatibilité MySQL
-  shippingAddress Json @map("shipping_address")
+  // JSON : on conserve le default.
+  shippingAddress Json @default("{}") @map("shipping_address")
 
   notes String? @db.Text
 
@@ -258,8 +256,8 @@ model OrderItem {
   unit        String @default("pcs") @db.VarChar(20)
   unitPriceEur Int    @default(0) @map("unit_price_eur")
 
-  // JSON : pas de DEFAULT pour compatibilité MySQL
-  customization Json
+  // JSON : on conserve le default.
+  customization Json @default("{}")
 
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
 
@@ -285,8 +283,10 @@ model Payment {
   amountEur Int    @default(0) @map("amount_eur")
   reference String @default("") @db.VarChar(80)
 
-  // JSON : pas de DEFAULT pour compatibilité MySQL
-  metadata Json
+  // JSON : on conserve le default.
+  // Cela permet à ton code existant de créer un Payment
+  // sans fournir explicitement metadata.
+  metadata Json @default("{}")
 
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
@@ -304,10 +304,10 @@ model Payment {
 // =====================================================================
 
 model CmsContent {
-  id    String @id @default(uuid()) @db.Char(36)
-  key   String @unique @db.VarChar(100)
+  id  String @id @default(uuid()) @db.Char(36)
+  key String @unique @db.VarChar(100)
 
-  // TEXT : pas de DEFAULT pour compatibilité MySQL
+  // TEXT : pas de DEFAULT.
   value String @db.Text
 
   type  String @default("text") @db.VarChar(20)
@@ -342,4 +342,3 @@ model ContactMessage {
 // STATS VUE AGRÉGÉE
 // Dashboard admin — optionnelle via requêtes
 // =====================================================================
-
