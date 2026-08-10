@@ -39,7 +39,7 @@ router.get('/stats', getStats)
 router.get('/payments', listPayments)
 
 router.get('/clients', listClients)
-router.patch('/clients/:id/role', validate(updateUserRoleSchema), updateClientRole)
+router.patch('/clients/:id/role', requireRole(ROLES.SUPER_ADMIN), validate(updateUserRoleSchema), updateClientRole)
 
 router.get('/products', adminListProducts)
 router.post('/products', validate(createProductSchema), adminCreateProduct)

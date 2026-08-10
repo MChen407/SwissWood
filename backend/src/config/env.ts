@@ -13,7 +13,7 @@ const envSchema = z.object({
 
   FRONTEND_URL: z.string().default('https://swiss-wood.vercel.app'),
 
-  API_PUBLIC_URL: z.string().default('https://swiss-wood.vercel.app'),
+  API_PUBLIC_URL: z.string().default('https://swisswood-production.up.railway.app'),
 
   DATABASE_URL: z.string().min(1, 'DATABASE_URL est requis'),
 

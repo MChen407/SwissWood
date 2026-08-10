@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { adminService } from '../services/admin.service.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { ForbiddenError } from '../utils/httpErrors.js'
 
 export const getStats = asyncHandler(async (_req: Request, res: Response) => {
   const stats = await adminService.stats()
@@ -19,6 +20,9 @@ export const listClients = asyncHandler(async (_req: Request, res: Response) => 
 })
 
 export const updateClientRole = asyncHandler(async (req: Request, res: Response) => {
+  if (req.params.id === req.user?.id) {
+    throw new ForbiddenError('Vous ne pouvez pas modifier votre propre rôle')
+  }
   const client = await adminService.updateRole(req.params.id!, req.body.role)
   ApiResponse.success(res, client)
 })

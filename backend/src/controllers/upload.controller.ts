@@ -25,7 +25,8 @@ export const uploadImagesController = asyncHandler(async (req: Request, res: Res
     )
   }
 
-  const urls = files.map((file) => `${env.API_PUBLIC_URL.replace(/\/$/, '')}/uploads/${file.filename}`)
+  const publicBase = env.API_PUBLIC_URL.trim() || `${req.protocol}://${req.get('host')}`
+  const urls = files.map((file) => `${publicBase.replace(/\/$/, '')}/uploads/${file.filename}`)
 
   ApiResponse.success(res, { urls }, StatusCodes.CREATED)
 })
