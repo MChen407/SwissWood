@@ -9,8 +9,9 @@
     "node": ">=20"
   },
  "scripts": { "dev": "tsx watch src/server.ts", 
- "build": "prisma generate && tsc -p tsconfig.build.json", 
- "start": "prisma migrate deploy && node dist/server.js", 
+ "build": "prisma generate && tsc -p tsconfig.build.json && npm run prisma:copy", 
+ "start": "prisma migrate deploy --schema=dist/prisma/schema.prisma && node dist/server.js", 
+ "prisma:copy": "node scripts/copy-prisma.mjs",
  "typecheck": "tsc -p tsconfig.json --noEmit", 
  "lint": "eslint \"src/**/*.ts\"", 
  "lint:fix": "eslint \"src/**/*.ts\" --fix", 
