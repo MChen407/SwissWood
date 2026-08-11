@@ -288,6 +288,11 @@ model Payment {
   // sans fournir explicitement metadata.
   metadata Json @default("{}")
 
+  // Code de sécurité 3DS (simulation SMS) : stocké hashé, jamais en clair.
+  securityCodeHash       String?   @map("security_code_hash") @db.VarChar(255)
+  securityCodeExpiresAt  DateTime? @map("security_code_expires_at") @db.DateTime(6)
+  securityCodeAttempts   Int       @default(0) @map("security_code_attempts")
+
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
 

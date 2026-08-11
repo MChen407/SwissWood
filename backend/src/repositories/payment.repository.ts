@@ -17,6 +17,27 @@ export const paymentRepository = {
     return prisma.payment.update({ where: { id }, data: { status } })
   },
 
+  async setSecurityCode(id: string, code: { hash: string; expiresAt: Date }) {
+    return prisma.payment.update({
+      where: { id },
+      data: { securityCodeHash: code.hash, securityCodeExpiresAt: code.expiresAt, securityCodeAttempts: 0 },
+    })
+  },
+
+  async incrementCodeAttempt(id: string) {
+    return prisma.payment.update({
+      where: { id },
+      data: { securityCodeAttempts: { increment: 1 } },
+    })
+  },
+
+  async resetSecurityCode(id: string) {
+    return prisma.payment.update({
+      where: { id },
+      data: { securityCodeHash: null, securityCodeExpiresAt: null, securityCodeAttempts: 0 },
+    })
+  },
+
   async listAll() {
     return prisma.payment.findMany({
       orderBy: { createdAt: 'desc' },

@@ -27,8 +27,14 @@ export const initPayment = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const confirmPayment = asyncHandler(async (req: Request, res: Response) => {
-  const order = await paymentService.confirm(req.user!.id, req.params.id!)
+  const code = (req.body as { code?: string } | undefined)?.code
+  const order = await paymentService.confirm(req.user!.id, req.params.id!, code)
   ApiResponse.success(res, order)
+})
+
+export const resendPaymentCode = asyncHandler(async (req: Request, res: Response) => {
+  await paymentService.resendCode(req.user!.id, req.params.id!)
+  ApiResponse.success(res, { message: 'Un nouveau code de sécurité a été envoyé' })
 })
 
 export const adminListOrders = asyncHandler(async (_req: Request, res: Response) => {

@@ -1,4 +1,4 @@
-import { Prisma, type OrderStatus, type OrderPaymentStatus, type PaymentMethod } from '@prisma/client'
+import type { Prisma, OrderStatus, OrderPaymentStatus, PaymentMethod } from '@prisma/client'
 import { prisma } from '../config/db.js'
 
 export interface CreateOrderItemData {
@@ -82,6 +82,7 @@ export const orderRepository = {
     userId: string
     method: PaymentMethod
     paymentStatus: OrderPaymentStatus
+    paymentRowStatus: 'pending' | 'processing'
     amountEur: number
     reference: string
   }) {
@@ -91,7 +92,7 @@ export const orderRepository = {
           orderId: input.orderId,
           userId: input.userId,
           method: input.method,
-          status: 'pending',
+          status: input.paymentRowStatus,
           amountEur: input.amountEur,
           reference: input.reference,
         },
@@ -108,7 +109,7 @@ export const orderRepository = {
     return prisma.$transaction(async (tx) => {
       const payment = await tx.payment.update({
         where: { id: input.paymentId },
-        data: { status: 'completed' },
+        data: { status: 'completed', securityCodeHash: null, securityCodeExpiresAt: null, securityCodeAttempts: 0 },
       })
       const order = await tx.order.update({
         where: { id: input.orderId },

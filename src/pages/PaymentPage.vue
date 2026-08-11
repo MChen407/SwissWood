@@ -53,8 +53,24 @@ async function validateCode() {
   if (securityCode.value.length < 4) { errorMsg.value = 'Veuillez saisir le code complet'; return }
   errorMsg.value = ''
   if (!order.value) return
-  await api.orders.confirmPayment(order.value.id)
-  router.push({ name: 'confirmation', query: { order: order.value.id } })
+  try {
+    await api.orders.confirmPayment(order.value.id, securityCode.value)
+    router.push({ name: 'confirmation', query: { order: order.value.id } })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Code invalide. Veuillez réessayer.'
+    errorMsg.value = message
+  }
+}
+
+async function resendCode() {
+  errorMsg.value = ''
+  if (!order.value) return
+  try {
+    await api.orders.resendCode(order.value.id)
+    errorMsg.value = 'Un nouveau code vous a été envoyé.'
+  } catch (err) {
+    errorMsg.value = err instanceof Error ? err.message : 'Impossible de renvoyer le code.'
+  }
 }
 
 function finishBankTransfer() {
@@ -132,6 +148,7 @@ function finishBankTransfer() {
             <p class="text-sm text-wood-500 mb-4">Saisissez le code de confirmation que vous venez de recevoir.</p>
             <input v-model="securityCode" type="text" maxlength="6" placeholder="Code à 4-6 chiffres" class="w-full text-center text-2xl tracking-[0.5em] px-4 py-3 border border-wood-200 rounded-lg focus:outline-none focus:border-primary-500" @keyup.enter="validateCode" />
             <p v-if="errorMsg" class="text-sm text-error-500 mt-2">{{ errorMsg }}</p>
+            <p class="text-sm text-wood-400 mt-2"><button type="button" class="underline hover:text-primary-500" @click="resendCode">Renvoyer le code</button></p>
           </div>
           <button @click="validateCode" class="w-full bg-primary-500 text-wood-100 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"><Lock class="w-5 h-5" /> Valider le paiement</button>
         </div>

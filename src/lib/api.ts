@@ -483,7 +483,10 @@ export const api = {
     getMine: (id: string) => request<OrderDetailDto>(`/orders/${encodeURIComponent(id)}`),
     initPayment: (id: string, input: InitPaymentInput) =>
       request<{ order: OrderDto; payment: PaymentDto }>(`/orders/${encodeURIComponent(id)}/payment`, { method: 'POST', body: input }),
-    confirmPayment: (id: string) => request<OrderDto>(`/orders/${encodeURIComponent(id)}/payment/confirm`, { method: 'POST', body: {} }),
+    confirmPayment: (id: string, code?: string) =>
+      request<OrderDto>(`/orders/${encodeURIComponent(id)}/payment/confirm`, { method: 'POST', body: code ? { code } : {} }),
+    resendCode: (id: string) =>
+      request<{ message: string }>(`/orders/${encodeURIComponent(id)}/payment/resend-code`, { method: 'POST' }),
   },
 
   // ---------- Favorites ----------

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { registerSchema, loginSchema, refreshTokenSchema } from '../../src/validators/auth.validator.js'
 import { changePasswordSchema, updateProfileSchema } from '../../src/validators/user.validator.js'
-import { createOrderSchema, initPaymentSchema, orderByIdSchema } from '../../src/validators/order.validator.js'
+import { createOrderSchema, initPaymentSchema, orderByIdSchema, confirmPaymentSchema } from '../../src/validators/order.validator.js'
 import { createReviewSchema } from '../../src/validators/review.validator.js'
 import { contactMessageSchema } from '../../src/validators/contact.validator.js'
 import { createProductSchema } from '../../src/validators/admin.validator.js'
@@ -80,6 +80,14 @@ describe('order.validators', () => {
     const id = '11111111-1111-1111-1111-111111111111'
     expect(orderByIdSchema.safeParse({ params: { id } }).success).toBe(true)
     expect(orderByIdSchema.safeParse({ params: { id: 'zz' } }).success).toBe(false)
+  })
+
+  it('confirme un paiement avec un code valide (4-6 chiffres)', () => {
+    const id = '11111111-1111-1111-1111-111111111111'
+    expect(confirmPaymentSchema.safeParse({ params: { id } }).success).toBe(true)
+    expect(confirmPaymentSchema.safeParse({ params: { id }, body: { code: '123456' } }).success).toBe(true)
+    expect(confirmPaymentSchema.safeParse({ params: { id }, body: { code: '12' } }).success).toBe(false)
+    expect(confirmPaymentSchema.safeParse({ params: { id }, body: { code: 'abc' } }).success).toBe(false)
   })
 })
 

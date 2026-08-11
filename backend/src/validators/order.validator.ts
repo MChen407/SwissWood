@@ -44,6 +44,11 @@ export const confirmPaymentSchema = z.object({
   params: z.object({
     id: z.string().uuid('Identifiant de commande invalide'),
   }),
+  body: z
+    .object({
+      code: z.string().regex(/^\d{4,6}$/, 'Code de confirmation invalide (4 à 6 chiffres)').optional(),
+    })
+    .optional(),
 })
 
 export type CreateOrderDto = z.infer<typeof createOrderSchema>['body']

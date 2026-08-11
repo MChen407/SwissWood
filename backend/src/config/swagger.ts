@@ -873,10 +873,22 @@ export const swaggerDocument = {
     '/orders/{id}/payment/confirm': {
       post: {
         tags: ['Orders'],
-        summary: 'Confirmer le paiement (fin de flux simulation)',
+        summary: 'Confirmer le paiement (code de sécurité requis pour la carte)',
         operationId: 'confirmPayment',
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  code: { type: 'string', description: 'Code de sécurité (carte, 4-6 chiffres)' },
+                },
+              },
+            },
+          },
+        },
         responses: {
           '200': {
             description: 'Paiement confirmé, commande passée à “paid / confirmed”',
@@ -893,7 +905,30 @@ export const swaggerDocument = {
             },
           },
           '400': {
-            description: 'Aucun paiement initialisé ou commande déjà confirmée',
+            description: 'Aucun paiement initialisé, commande déjà confirmée, code invalide/expiré ou virement refusé',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } },
+          },
+        },
+      },
+    },
+    '/orders/{id}/payment/resend-code': {
+      post: {
+        tags: ['Orders'],
+        summary: 'Renvoyer un nouveau code de sécurité (carte)',
+        operationId: 'resendPaymentCode',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: {
+          '200': {
+            description: 'Nouveau code émis',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiSuccess' } } },
+          },
+          '400': {
+            description: 'Paiement non initialisé ou méthode non compatible',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } },
+          },
+          '404': {
+            description: 'Commande introuvable',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiError' } } },
           },
         },

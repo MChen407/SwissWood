@@ -29,6 +29,25 @@ const envSchema = z.object({
   LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
 
+  // ===== E-mail (SMTP) : si SMTP_HOST absent, les e-mails sont simulés (console) =====
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().default('SwissWood <no-reply@swisswood.ch>'),
+
+  // ===== Coordonnées bancaires pour les instructions de virement =====
+  BANK_OWNER: z.string().default('SwissWood SA'),
+  BANK_IBAN: z.string().default('CH00 0000 0000 0000 0000 0'),
+  BANK_BIC: z.string().default('SWISCHZZ'),
+
+  // ===== Code de sécurité 3DS (simulation SMS) =====
+  PAYMENT_CODE_SECRET: z
+    .string()
+    .default('dev-insecure-payment-code-secret'),
+  PAYMENT_CODE_TTL_MINUTES: z.coerce.number().int().positive().default(10),
+  PAYMENT_CODE_MAX_ATTEMPTS: z.coerce.number().int().min(1).default(3),
+
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
 })
 

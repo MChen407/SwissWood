@@ -7,6 +7,7 @@ import {
   getMyOrder,
   initPayment,
   listMyOrders,
+  resendPaymentCode,
 } from '../controllers/order.controller.js'
 import {
   confirmPaymentSchema,
@@ -22,5 +23,6 @@ router.get('/', authenticate, listMyOrders)
 router.get('/:id', authenticate, validate(orderByIdSchema), getMyOrder)
 router.post('/:id/payment', authenticate, validate(initPaymentSchema), initPayment)
 router.post('/:id/payment/confirm', authenticate, validate(confirmPaymentSchema), confirmPayment)
+router.post('/:id/payment/resend-code', authenticate, validate(orderByIdSchema), resendPaymentCode)
 
 export default router
