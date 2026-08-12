@@ -14,6 +14,8 @@ const router = createRouter({
     { path: '/confirmation', name: 'confirmation', component: () => import('@/pages/ConfirmationPage.vue'), meta: { requiresAuth: true } },
     { path: '/a-propos', name: 'about', component: () => import('@/pages/AboutPage.vue') },
     { path: '/contact', name: 'contact', component: () => import('@/pages/ContactPage.vue') },
+    { path: '/mentions-legales', name: 'legal-notice', component: () => import('@/pages/LegalNoticePage.vue') },
+    { path: '/confidentialite', name: 'privacy-policy', component: () => import('@/pages/PrivacyPolicyPage.vue') },
     { path: '/connexion', name: 'login', component: () => import('@/pages/LoginPage.vue') },
     { path: '/inscription', name: 'register', component: () => import('@/pages/RegisterPage.vue') },
     {

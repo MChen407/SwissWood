@@ -61,8 +61,8 @@ const year = new Date().getFullYear()
       <div class="mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top: 1px solid #6B4226;">
         <p class="text-xs" style="color:#C89B5D;">© {{ year }} SwissWood. Tous droits réservés.</p>
         <div class="flex items-center gap-6">
-          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Mentions légales</RouterLink>
-          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Confidentialité</RouterLink>
+          <RouterLink to="/mentions-legales" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Mentions légales</RouterLink>
+          <RouterLink to="/confidentialite" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Confidentialité</RouterLink>
           <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">CGV</RouterLink>
         </div>
       </div>
