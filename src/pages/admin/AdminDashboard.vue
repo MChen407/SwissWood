@@ -120,51 +120,53 @@ function fmtEur(v: number) {
           <p class="text-sm" style="color:#7A7167;">Aucune commande pour le moment</p>
         </div>
 
-        <!-- Mobile cards -->
-        <div v-else class="sm:hidden space-y-2">
-          <div v-for="order in recentOrders" :key="order.order_number"
-            class="rounded-xl px-3 py-3 transition-colors hover:bg-neutral-50"
-            style="border:1px solid #E2DCD1;">
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-semibold text-sm truncate" style="color:#4A2C1A;">{{ order.order_number }}</span>
-              <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
-                :class="STATUS_COLORS[order.status]">
-                <component :is="statusIcon[order.status]" class="w-3 h-3" />
-                {{ STATUS_LABELS[order.status] }}
-              </span>
-            </div>
-            <div class="flex items-center justify-between mt-2">
-              <span class="text-xs" style="color:#7A7167;">{{ fmtDate(order.created_at) }}</span>
-              <span class="text-sm font-bold" style="color:#4A2C1A;">{{ fmtEur(order.total_eur) }}</span>
+        <div v-else>
+          <!-- Mobile cards -->
+          <div class="sm:hidden space-y-2">
+            <div v-for="order in recentOrders" :key="order.order_number"
+              class="rounded-xl px-3 py-3 transition-colors hover:bg-neutral-50"
+              style="border:1px solid #E2DCD1;">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-sm truncate" style="color:#4A2C1A;">{{ order.order_number }}</span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+                  :class="STATUS_COLORS[order.status]">
+                  <component :is="statusIcon[order.status]" class="w-3 h-3" />
+                  {{ STATUS_LABELS[order.status] }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-xs" style="color:#7A7167;">{{ fmtDate(order.created_at) }}</span>
+                <span class="text-sm font-bold" style="color:#4A2C1A;">{{ fmtEur(order.total_eur) }}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Desktop rows -->
-        <div v-else class="hidden sm:block space-y-2">
-          <!-- Header -->
-          <div class="grid grid-cols-12 gap-3 px-3 pb-2 text-xs font-semibold uppercase tracking-wider" style="color:#7A7167;">
-            <span class="col-span-4">Référence</span>
-            <span class="col-span-3">Date</span>
-            <span class="col-span-3">Statut</span>
-            <span class="col-span-2 text-right">Total</span>
-          </div>
-          <div v-for="order in recentOrders" :key="order.order_number"
-            class="grid grid-cols-12 gap-3 items-center px-3 py-3 rounded-xl transition-colors hover:bg-neutral-50"
-            style="border:1px solid transparent;"
-            onmouseover="this.style.borderColor='#E2DCD1'" onmouseout="this.style.borderColor='transparent'">
-            <span class="col-span-4 font-semibold text-sm truncate" style="color:#4A2C1A;">{{ order.order_number }}</span>
-            <span class="col-span-3 text-sm" style="color:#7A7167;">{{ fmtDate(order.created_at) }}</span>
-            <span class="col-span-3">
-              <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
-                :class="STATUS_COLORS[order.status]">
-                <component :is="statusIcon[order.status]" class="w-3 h-3" />
-                {{ STATUS_LABELS[order.status] }}
+          <!-- Desktop rows -->
+          <div class="hidden sm:block space-y-2">
+            <!-- Header -->
+            <div class="grid grid-cols-12 gap-3 px-3 pb-2 text-xs font-semibold uppercase tracking-wider" style="color:#7A7167;">
+              <span class="col-span-4">Référence</span>
+              <span class="col-span-3">Date</span>
+              <span class="col-span-3">Statut</span>
+              <span class="col-span-2 text-right">Total</span>
+            </div>
+            <div v-for="order in recentOrders" :key="order.order_number"
+              class="grid grid-cols-12 gap-3 items-center px-3 py-3 rounded-xl transition-colors hover:bg-neutral-50"
+              style="border:1px solid transparent;"
+              onmouseover="this.style.borderColor='#E2DCD1'" onmouseout="this.style.borderColor='transparent'">
+              <span class="col-span-4 font-semibold text-sm truncate" style="color:#4A2C1A;">{{ order.order_number }}</span>
+              <span class="col-span-3 text-sm" style="color:#7A7167;">{{ fmtDate(order.created_at) }}</span>
+              <span class="col-span-3">
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
+                  :class="STATUS_COLORS[order.status]">
+                  <component :is="statusIcon[order.status]" class="w-3 h-3" />
+                  {{ STATUS_LABELS[order.status] }}
+                </span>
               </span>
-            </span>
-            <span class="col-span-2 text-right font-bold text-sm" style="color:#4A2C1A;">
-              {{ fmtEur(order.total_eur) }}
-            </span>
+              <span class="col-span-2 text-right font-bold text-sm" style="color:#4A2C1A;">
+                {{ fmtEur(order.total_eur) }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
