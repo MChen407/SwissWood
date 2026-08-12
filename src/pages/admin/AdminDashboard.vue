@@ -34,7 +34,7 @@ function fmtEur(v: number) {
 <template>
   <div>
     <!-- Page header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:#C89B5D;">Vue d'ensemble</p>
         <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">Tableau de bord</h1>
@@ -120,7 +120,28 @@ function fmtEur(v: number) {
           <p class="text-sm" style="color:#7A7167;">Aucune commande pour le moment</p>
         </div>
 
-        <div v-else class="space-y-2">
+        <!-- Mobile cards -->
+        <div v-else class="sm:hidden space-y-2">
+          <div v-for="order in recentOrders" :key="order.order_number"
+            class="rounded-xl px-3 py-3 transition-colors hover:bg-neutral-50"
+            style="border:1px solid #E2DCD1;">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-semibold text-sm truncate" style="color:#4A2C1A;">{{ order.order_number }}</span>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+                :class="STATUS_COLORS[order.status]">
+                <component :is="statusIcon[order.status]" class="w-3 h-3" />
+                {{ STATUS_LABELS[order.status] }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs" style="color:#7A7167;">{{ fmtDate(order.created_at) }}</span>
+              <span class="text-sm font-bold" style="color:#4A2C1A;">{{ fmtEur(order.total_eur) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop rows -->
+        <div v-else class="hidden sm:block space-y-2">
           <!-- Header -->
           <div class="grid grid-cols-12 gap-3 px-3 pb-2 text-xs font-semibold uppercase tracking-wider" style="color:#7A7167;">
             <span class="col-span-4">Référence</span>
@@ -132,7 +153,7 @@ function fmtEur(v: number) {
             class="grid grid-cols-12 gap-3 items-center px-3 py-3 rounded-xl transition-colors hover:bg-neutral-50"
             style="border:1px solid transparent;"
             onmouseover="this.style.borderColor='#E2DCD1'" onmouseout="this.style.borderColor='transparent'">
-            <span class="col-span-4 font-semibold text-sm" style="color:#4A2C1A;">{{ order.order_number }}</span>
+            <span class="col-span-4 font-semibold text-sm truncate" style="color:#4A2C1A;">{{ order.order_number }}</span>
             <span class="col-span-3 text-sm" style="color:#7A7167;">{{ fmtDate(order.created_at) }}</span>
             <span class="col-span-3">
               <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"

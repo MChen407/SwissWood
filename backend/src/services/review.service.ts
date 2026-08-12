@@ -19,6 +19,14 @@ export const reviewService = {
     return reviews.map(toProductReviewDto)
   },
 
+  async listLatestApproved(limit: number) {
+    const reviews = await reviewRepository.findLatestApproved(limit)
+    return reviews.map((review) => ({
+      ...toProductReviewDto(review),
+      product: review.product,
+    }))
+  },
+
   async create(userId: string, input: CreateReviewInput) {
     const product = await productRepository.findById(input.productId)
     if (!product || !product.isActive) {

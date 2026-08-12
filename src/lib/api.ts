@@ -137,6 +137,10 @@ export interface ProductReviewDto {
   created_at: string
 }
 
+export interface LatestReviewDto extends ProductReviewDto {
+  product: { id: string; name: string; slug: string }
+}
+
 export interface CmsContentDto {
   id: string
   key: string
@@ -500,6 +504,7 @@ export const api = {
   reviews: {
     create: (input: CreateReviewInput) => request<ProductReviewDto>('/reviews', { method: 'POST', body: input }),
     listMine: () => request<ProductReviewDto[]>('/reviews/mine'),
+    latest: (limit = 5) => request<LatestReviewDto[]>('/reviews/latest', { query: { limit }, auth: false }),
   },
 
   // ---------- Contact ----------

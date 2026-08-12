@@ -20,6 +20,12 @@ export const listAllReviews = asyncHandler(async (_req: Request, res: Response) 
   ApiResponse.success(res, reviews)
 })
 
+export const listLatestReviews = asyncHandler(async (req: Request, res: Response) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 5, 1), 20)
+  const reviews = await reviewService.listLatestApproved(limit)
+  ApiResponse.success(res, reviews)
+})
+
 export const approveReview = asyncHandler(async (req: Request, res: Response) => {
   const review = await reviewService.approve(req.params.id!)
   ApiResponse.success(res, review)

@@ -50,33 +50,63 @@ async function confirmRoleChange() {
     <div class="bg-white rounded-xl border border-wood-200 overflow-hidden">
       <div v-if="loading" class="p-10 text-center text-wood-400">Chargement...</div>
       <div v-else-if="clients.length === 0" class="p-10 text-center text-wood-400">Aucun client</div>
-      <table v-else class="w-full text-sm">
-        <thead class="bg-wood-100 text-wood-500 text-left">
-          <tr><th class="px-4 py-3 font-medium">Nom</th><th class="px-4 py-3 font-medium">Téléphone</th><th class="px-4 py-3 font-medium">Rôle</th><th class="px-4 py-3 font-medium">Inscrit le</th></tr>
-        </thead>
-        <tbody class="divide-y divide-wood-100">
-          <tr v-for="c in clients" :key="c.id" class="hover:bg-wood-50">
-            <td class="px-4 py-3 font-medium text-primary-500">{{ c.first_name }} {{ c.last_name }}</td>
-            <td class="px-4 py-3 text-wood-500">{{ c.phone || '—' }}</td>
-            <td class="px-4 py-3">
-              <select v-if="canManageRoles && c.id !== auth.profile?.id"
-                :value="c.role"
-                :disabled="rolePending"
-                @change="requestRoleChange(c, ($event.target as HTMLSelectElement).value as UserPublicDto['role'])"
-                class="text-xs px-2 py-1 rounded-lg border border-wood-200 bg-white focus:outline-none focus:border-primary-500 disabled:opacity-50">
-                <option value="customer">Client</option>
-                <option value="admin">Admin</option>
-                <option value="super_admin">Super Admin</option>
-              </select>
-              <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
-                'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
-                'bg-wood-100 text-wood-500': c.role === 'customer',
-              }">{{ roleLabels[c.role] || c.role }}</span>
-            </td>
-            <td class="px-4 py-3 text-wood-500">{{ new Date(c.created_at).toLocaleDateString('fr-FR') }}</td>
-          </tr>
-        </tbody>
-      </table>
+
+      <!-- Mobile cards -->
+      <div v-else class="sm:hidden divide-y divide-wood-100">
+        <div v-for="c in clients" :key="c.id" class="p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-medium text-primary-500 text-sm break-all">{{ c.first_name }} {{ c.last_name }}</p>
+            <select v-if="canManageRoles && c.id !== auth.profile?.id"
+              :value="c.role"
+              :disabled="rolePending"
+              @change="requestRoleChange(c, ($event.target as HTMLSelectElement).value as UserPublicDto['role'])"
+              class="text-xs px-2 py-1.5 rounded-lg border border-wood-200 bg-white focus:outline-none focus:border-primary-500 disabled:opacity-50">
+              <option value="customer">Client</option>
+              <option value="admin">Admin</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+            <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
+              'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
+              'bg-wood-100 text-wood-500': c.role === 'customer',
+            }">{{ roleLabels[c.role] || c.role }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-2 text-sm">
+            <span class="text-wood-500">{{ c.phone || '—' }}</span>
+            <span class="text-xs text-wood-400">{{ new Date(c.created_at).toLocaleDateString('fr-FR') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop table -->
+      <div v-else class="hidden sm:block overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-wood-100 text-wood-500 text-left">
+            <tr><th class="px-4 py-3 font-medium">Nom</th><th class="px-4 py-3 font-medium">Téléphone</th><th class="px-4 py-3 font-medium">Rôle</th><th class="px-4 py-3 font-medium">Inscrit le</th></tr>
+          </thead>
+          <tbody class="divide-y divide-wood-100">
+            <tr v-for="c in clients" :key="c.id" class="hover:bg-wood-50">
+              <td class="px-4 py-3 font-medium text-primary-500">{{ c.first_name }} {{ c.last_name }}</td>
+              <td class="px-4 py-3 text-wood-500">{{ c.phone || '—' }}</td>
+              <td class="px-4 py-3">
+                <select v-if="canManageRoles && c.id !== auth.profile?.id"
+                  :value="c.role"
+                  :disabled="rolePending"
+                  @change="requestRoleChange(c, ($event.target as HTMLSelectElement).value as UserPublicDto['role'])"
+                  class="text-xs px-2 py-1 rounded-lg border border-wood-200 bg-white focus:outline-none focus:border-primary-500 disabled:opacity-50">
+                  <option value="customer">Client</option>
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super Admin</option>
+                </select>
+                <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
+                  'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
+                  'bg-wood-100 text-wood-500': c.role === 'customer',
+                }">{{ roleLabels[c.role] || c.role }}</span>
+              </td>
+              <td class="px-4 py-3 text-wood-500">{{ new Date(c.created_at).toLocaleDateString('fr-FR') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <ConfirmModal

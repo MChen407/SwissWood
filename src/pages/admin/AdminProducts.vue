@@ -104,7 +104,7 @@ async function remove(id: string) {
 
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <h1 class="font-display text-2xl font-medium text-primary-500">Gestion des produits</h1>
       <button @click="openCreate" class="bg-primary-500 text-wood-100 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-600 flex items-center gap-2"><Plus class="w-4 h-4" /> Ajouter</button>
     </div>
@@ -112,25 +112,50 @@ async function remove(id: string) {
     <div class="bg-white rounded-xl border border-wood-200 overflow-hidden">
       <div v-if="loading" class="p-10 text-center text-wood-400">Chargement...</div>
       <div v-else-if="products.length === 0" class="p-10 text-center"><Package class="w-12 h-12 text-wood-300 mx-auto mb-2" /><p class="text-wood-400">Aucun produit</p></div>
-      <table v-else class="w-full text-sm">
-        <thead class="bg-wood-100 text-wood-500 text-left">
-          <tr>
-            <th class="px-4 py-3 font-medium">Produit</th><th class="px-4 py-3 font-medium">Essence</th>
-            <th class="px-4 py-3 font-medium">Prix</th><th class="px-4 py-3 font-medium">Stock</th>
-            <th class="px-4 py-3 font-medium">Statut</th><th class="px-4 py-3 font-medium text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-wood-100">
-          <tr v-for="p in products" :key="p.id" class="hover:bg-wood-50">
-            <td class="px-4 py-3"><div class="flex items-center gap-3"><img v-if="p.images[0]" :src="p.images[0]" :alt="p.name" class="w-10 h-10 rounded-md object-cover" /><span class="font-medium text-primary-500">{{ p.name }}</span></div></td>
-            <td class="px-4 py-3 text-wood-500">{{ p.essence }}</td>
-            <td class="px-4 py-3 text-wood-500">{{ (p.price_eur / 100).toFixed(2) }} €</td>
-            <td class="px-4 py-3 text-wood-500">{{ p.stock }}</td>
-            <td class="px-4 py-3"><span :class="['text-xs px-2 py-1 rounded-full', p.is_active ? 'bg-success-100 text-success-500' : 'bg-wood-100 text-wood-400']">{{ p.is_active ? 'Actif' : 'Inactif' }}</span></td>
-            <td class="px-4 py-3 text-right"><button @click="openEdit(p)" class="p-1.5 text-wood-500 hover:text-primary-500"><Edit class="w-4 h-4" /></button><button @click="deleting = p" class="p-1.5 text-wood-500 hover:text-error-500"><Trash2 class="w-4 h-4" /></button></td>
-          </tr>
-        </tbody>
-      </table>
+
+      <!-- Mobile cards -->
+      <div v-else class="sm:hidden divide-y divide-wood-100">
+        <div v-for="p in products" :key="p.id" class="p-4 space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <img v-if="p.images[0]" :src="p.images[0]" :alt="p.name" class="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+              <span class="font-medium text-primary-500 text-sm break-words">{{ p.name }}</span>
+            </div>
+            <span :class="['text-xs px-2 py-1 rounded-full whitespace-nowrap', p.is_active ? 'bg-success-100 text-success-500' : 'bg-wood-100 text-wood-400']">{{ p.is_active ? 'Actif' : 'Inactif' }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-2 text-sm">
+            <span class="text-wood-500">{{ p.essence }} · {{ (p.price_eur / 100).toFixed(2) }} €</span>
+            <span class="text-wood-500">Stock : {{ p.stock }}</span>
+          </div>
+          <div class="flex items-center justify-end gap-1 pt-1">
+            <button @click="openEdit(p)" class="px-3 py-1.5 text-xs font-medium text-primary-500 border border-wood-200 rounded-lg hover:bg-wood-50 flex items-center gap-1"><Edit class="w-3.5 h-3.5" /> Modifier</button>
+            <button @click="deleting = p" class="px-3 py-1.5 text-xs font-medium text-error-500 border border-wood-200 rounded-lg hover:bg-wood-50 flex items-center gap-1"><Trash2 class="w-3.5 h-3.5" /> Supprimer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop table -->
+      <div v-else class="hidden sm:block overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-wood-100 text-wood-500 text-left">
+            <tr>
+              <th class="px-4 py-3 font-medium">Produit</th><th class="px-4 py-3 font-medium">Essence</th>
+              <th class="px-4 py-3 font-medium">Prix</th><th class="px-4 py-3 font-medium">Stock</th>
+              <th class="px-4 py-3 font-medium">Statut</th><th class="px-4 py-3 font-medium text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-wood-100">
+            <tr v-for="p in products" :key="p.id" class="hover:bg-wood-50">
+              <td class="px-4 py-3"><div class="flex items-center gap-3"><img v-if="p.images[0]" :src="p.images[0]" :alt="p.name" class="w-10 h-10 rounded-md object-cover" /><span class="font-medium text-primary-500">{{ p.name }}</span></div></td>
+              <td class="px-4 py-3 text-wood-500">{{ p.essence }}</td>
+              <td class="px-4 py-3 text-wood-500">{{ (p.price_eur / 100).toFixed(2) }} €</td>
+              <td class="px-4 py-3 text-wood-500">{{ p.stock }}</td>
+              <td class="px-4 py-3"><span :class="['text-xs px-2 py-1 rounded-full', p.is_active ? 'bg-success-100 text-success-500' : 'bg-wood-100 text-wood-400']">{{ p.is_active ? 'Actif' : 'Inactif' }}</span></td>
+              <td class="px-4 py-3 text-right"><button @click="openEdit(p)" class="p-1.5 text-wood-500 hover:text-primary-500"><Edit class="w-4 h-4" /></button><button @click="deleting = p" class="p-1.5 text-wood-500 hover:text-error-500"><Trash2 class="w-4 h-4" /></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div v-if="showForm" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" @click.self="showForm = false">

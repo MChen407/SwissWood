@@ -1,18 +1,31 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ArrowRight, Shield, Leaf, Award, Truck, Flame, Check } from 'lucide-vue-next'
+import { ArrowRight, Shield, Leaf, Award, Truck, Flame, Check, Star, Quote, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
-import { api, type ProductDto } from '@/lib/api'
+import { api, type ProductDto, type LatestReviewDto } from '@/lib/api'
 
 const products = ref<ProductDto[]>([])
 const loading = ref(true)
+const reviews = ref<LatestReviewDto[]>([])
+const reviewsLoading = ref(true)
+const reviewsTrack = ref<HTMLElement | null>(null)
+
+function scrollReviews(direction: 1 | -1) {
+  const track = reviewsTrack.value
+  if (!track) return
+  const card = track.querySelector<HTMLElement>('[data-review-card]')
+  track.scrollBy({ left: direction * (card ? card.offsetWidth + 24 : 320), behavior: 'smooth' })
+}
 
 onMounted(async () => {
   const res = await api.products.list({ active: true, sort: 'price_desc' })
   products.value = res.items
   loading.value = false
+  api.reviews.latest(5)
+    .then((list) => { reviews.value = list })
+    .finally(() => { reviewsLoading.value = false })
 })
 
 const trustItems = [
@@ -197,6 +210,70 @@ const features = [
             style="background:#B23A2E; box-shadow: 0 4px 12px rgba(178,58,46,0.3);"
             onmouseover="this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
             Parcourir le catalogue <ArrowRight class="w-4 h-4" />
+          </RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- Client reviews carousel -->
+    <section class="py-16" style="background:#FAF7F2; border-top:1px solid #E2DCD1;">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-10">
+          <div>
+            <p class="text-sm font-medium uppercase tracking-widest mb-2" style="color:#C89B5D;">Ils nous font confiance</p>
+            <h2 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">Avis de nos clients</h2>
+            <p class="mt-2 text-sm" style="color:#7A7167;">Les derniers avis publiés sur nos produits</p>
+          </div>
+          <div class="hidden sm:flex items-center gap-2">
+            <button type="button" aria-label="Précédent" @click="scrollReviews(-1)"
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+              style="background:#E8D4A8; color:#6B4226;" onmouseover="this.style.background='#D9BF8F'" onmouseout="this.style.background='#E8D4A8'">
+              <ChevronLeft class="w-5 h-5" />
+            </button>
+            <button type="button" aria-label="Suivant" @click="scrollReviews(1)"
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+              style="background:#E8D4A8; color:#6B4226;" onmouseover="this.style.background='#D9BF8F'" onmouseout="this.style.background='#E8D4A8'">
+              <ChevronRight class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Skeleton -->
+        <div v-if="reviewsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="n in 3" :key="n" class="bg-white rounded-xl border p-6 animate-pulse" style="border-color:#E2DCD1;">
+            <div class="h-4 rounded w-1/3 mb-4" style="background:#E8D4A8;"></div>
+            <div class="h-4 rounded mb-2" style="background:#E8D4A8;"></div>
+            <div class="h-4 rounded w-2/3" style="background:#E8D4A8;"></div>
+          </div>
+        </div>
+
+        <div v-else-if="reviews.length === 0" class="text-center py-10">
+          <p class="text-sm" style="color:#7A7167;">Aucun avis publié pour le moment.</p>
+        </div>
+
+        <!-- Carousel track -->
+        <div v-else ref="reviewsTrack"
+          class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2"
+          style="scrollbar-width:thin;">
+          <RouterLink v-for="r in reviews" :key="r.id" :to="`/produits/${r.product.slug}`" data-review-card
+            class="block bg-white rounded-xl border p-6 snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[30.5%] transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            style="border-color:#E2DCD1; box-shadow:0 2px 8px rgba(43,36,32,0.05);">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:#E8D4A8;">
+                <Quote class="w-5 h-5" style="color:#6B4226;" />
+              </div>
+              <div class="flex items-center gap-0.5">
+                <Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'fill-wood-400 text-wood-400' : 'text-wood-200'" />
+              </div>
+            </div>
+            <p class="text-sm leading-relaxed mb-5 line-clamp-4" style="color:#4A2C1A;">{{ r.comment }}</p>
+            <div class="flex items-center justify-between pt-4 border-t" style="border-color:#E2DCD1;">
+              <p class="text-sm font-semibold flex items-center gap-1.5" style="color:#6B4226;">
+                {{ r.product.name }}
+                <ArrowRight class="w-3.5 h-3.5" />
+              </p>
+              <p class="text-xs" style="color:#7A7167;">{{ new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) }}</p>
+            </div>
           </RouterLink>
         </div>
       </div>

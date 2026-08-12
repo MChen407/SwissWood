@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { LayoutDashboard, Package, Users, CreditCard, Star, FileText, LogOut, ShieldCheck } from 'lucide-vue-next'
+import { LayoutDashboard, Package, Users, CreditCard, Star, FileText, LogOut, ShieldCheck, Menu, X } from 'lucide-vue-next'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -9,6 +9,7 @@ const auth = useAuthStore()
 const router = useRouter()
 const showLogoutModal = ref(false)
 const signOutPending = ref(false)
+const mobileOpen = ref(false)
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,8 +54,25 @@ async function signOut() {
     <div class="flex-1 md:ml-64">
       <header class="bg-white border-b border-wood-200 h-16 flex items-center px-4 sm:px-6 sticky top-0 z-20">
         <div class="md:hidden flex items-center gap-2 mr-4"><img src="/logo.jpg" alt="SwissWood" class="w-7 h-7 rounded-lg object-cover" /><span class="font-display text-lg font-semibold text-primary-500">Admin</span></div>
-        <p class="text-sm text-wood-500">{{ auth.fullName }}</p>
+        <div class="flex-1"></div>
+        <p class="text-sm text-wood-500 hidden sm:block mr-3">{{ auth.fullName }}</p>
+        <button @click="mobileOpen = !mobileOpen" class="md:hidden p-2 rounded-lg hover:bg-wood-100 text-primary-500" aria-label="Menu">
+          <component :is="mobileOpen ? X : Menu" class="w-5 h-5" />
+        </button>
       </header>
+
+      <!-- Mobile nav -->
+      <div v-if="mobileOpen" class="md:hidden bg-primary-500 text-wood-100">
+        <nav class="p-3 space-y-1">
+          <RouterLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false"
+            :class="['flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors',
+              $route.path === link.to ? 'bg-wood-100/10 text-white' : 'text-wood-200 hover:bg-wood-100/5']">
+            <component :is="link.icon" class="w-4 h-4" /> {{ link.label }}
+          </RouterLink>
+          <button @click="showLogoutModal = true" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-wood-200 hover:bg-wood-100/5"><LogOut class="w-4 h-4" /> Déconnexion</button>
+        </nav>
+      </div>
+
       <main class="p-4 sm:p-6 lg:p-8"><RouterView /></main>
     </div>
   </div>

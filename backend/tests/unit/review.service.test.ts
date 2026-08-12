@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../src/repositories/review.repository', () => ({
   reviewRepository: {
     findApprovedByProduct: vi.fn(),
+    findLatestApproved: vi.fn(),
     create: vi.fn(),
     findByUser: vi.fn(),
     listAll: vi.fn(),
@@ -59,6 +60,17 @@ describe('reviewService', () => {
       isActive: false,
     } as never)
     await expect(reviewService.getApprovedByProduct(UUID)).rejects.toBeInstanceOf(NotFoundError)
+  })
+
+  it('liste les derniers avis approuvés avec leur produit', async () => {
+    vi.mocked(reviewRepository.findLatestApproved).mockResolvedValue([
+      makeReview({ isApproved: true, product: { id: UUID, name: 'Teck', slug: 'teck' } }),
+    ] as never)
+    const reviews = await reviewService.listLatestApproved(5)
+    expect(reviews).toHaveLength(1)
+    expect(reviews[0]?.is_approved).toBe(true)
+    expect(reviews[0]?.product.name).toBe('Teck')
+    expect(reviewRepository.findLatestApproved).toHaveBeenCalledWith(5)
   })
 
   it('crée un avis', async () => {

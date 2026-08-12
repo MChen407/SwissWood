@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { api } from '@/lib/api'
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from '@/lib/api'
 import type { UserPublicDto, UpdateProfileInput } from '@/lib/api'
+import { useCartStore } from './cart'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserPublicDto | null>(null)
@@ -48,10 +49,16 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signOut() {
-    await api.auth.logout(getRefreshToken() ?? undefined)
-    clearTokens()
-    user.value = null
-    profile.value = null
+    try {
+      await api.auth.logout(getRefreshToken() ?? undefined)
+    } finally {
+      clearTokens()
+      user.value = null
+      profile.value = null
+      const cart = useCartStore()
+      cart.clear()
+      cart.isOpen = false
+    }
   }
 
   async function updateProfile(updates: UpdateProfileInput) {

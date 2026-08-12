@@ -1072,6 +1072,53 @@ export const swaggerDocument = {
         },
       },
     },
+    '/reviews/latest': {
+      get: {
+        tags: ['Reviews'],
+        summary: 'Derniers avis approuvés (public, carrousel accueil)',
+        operationId: 'listLatestReviews',
+        security: [],
+        parameters: [
+          { name: 'limit', in: 'query', required: false, schema: { type: 'integer', minimum: 1, maximum: 20, default: 5 } },
+        ],
+        responses: {
+          '200': {
+            description: 'Avis approuvés avec le produit associé',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'array',
+                      items: {
+                        allOf: [
+                          { $ref: '#/components/schemas/ProductReview' },
+                          {
+                            type: 'object',
+                            properties: {
+                              product: {
+                                type: 'object',
+                                properties: {
+                                  id: { type: 'string', format: 'uuid' },
+                                  name: { type: 'string' },
+                                  slug: { type: 'string' },
+                                },
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
 
     // ============================= CONTACT =============================
     '/contact': {

@@ -15,6 +15,15 @@ export const reviewRepository = {
     })
   },
 
+  async findLatestApproved(limit: number) {
+    return prisma.productReview.findMany({
+      where: { isApproved: true, isRejected: false },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { product: { select: { id: true, name: true, slug: true } } },
+    })
+  },
+
   async create(data: CreateReviewData) {
     return prisma.productReview.create({
       data: {
