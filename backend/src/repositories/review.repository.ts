@@ -12,6 +12,7 @@ export const reviewRepository = {
     return prisma.productReview.findMany({
       where: { productId, isApproved: true, isRejected: false },
       orderBy: { createdAt: 'desc' },
+      include: { user: { select: { id: true, firstName: true, lastName: true } } },
     })
   },
 
@@ -20,7 +21,10 @@ export const reviewRepository = {
       where: { isApproved: true, isRejected: false },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      include: { product: { select: { id: true, name: true, slug: true } } },
+      include: {
+        product: { select: { id: true, name: true, slug: true } },
+        user: { select: { id: true, firstName: true, lastName: true } },
+      },
     })
   },
 
@@ -42,7 +46,10 @@ export const reviewRepository = {
   async listAll() {
     return prisma.productReview.findMany({
       orderBy: { createdAt: 'desc' },
-      include: { product: { select: { id: true, name: true, slug: true } } },
+      include: {
+        product: { select: { id: true, name: true, slug: true } },
+        user: { select: { id: true, firstName: true, lastName: true } },
+      },
     })
   },
 

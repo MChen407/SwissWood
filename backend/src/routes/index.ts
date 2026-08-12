@@ -7,6 +7,7 @@ import orderRoutes from './order.routes.js'
 import favoriteRoutes from './favorite.routes.js'
 import reviewRoutes from './review.routes.js'
 import contactRoutes from './contact.routes.js'
+import mediaRoutes from './media.routes.js'
 import adminRoutes from './admin.routes.js'
 import swaggerRoutes from './swagger.routes.js'
 
@@ -20,6 +21,7 @@ router.use('/orders', orderRoutes)
 router.use('/favorites', favoriteRoutes)
 router.use('/reviews', reviewRoutes)
 router.use('/contact', contactRoutes)
+router.use('/media', mediaRoutes)
 router.use('/admin', adminRoutes)
 router.use('/docs', swaggerRoutes)
 

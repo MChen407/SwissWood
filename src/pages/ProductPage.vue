@@ -258,6 +258,7 @@ async function submitReview() {
                   <span class="text-xs text-wood-400">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</span>
                 </div>
                 <p class="text-wood-600 text-sm leading-relaxed">{{ r.comment }}</p>
+                <p class="mt-2 text-xs font-medium" style="color:#6B4226;">{{ r.user ? `${r.user.first_name} ${r.user.last_name}`.trim() : 'Client SwissWood' }}</p>
               </div>
             </div>
           </div>

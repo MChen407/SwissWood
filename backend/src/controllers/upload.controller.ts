@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '../config/env.js'
 import { MAX_IMAGE_COUNT, MAX_IMAGE_SIZE } from '../config/upload.js'
+import { storeImageFiles } from '../services/media.service.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { BadRequestError } from '../utils/httpErrors.js'
@@ -25,8 +25,7 @@ export const uploadImagesController = asyncHandler(async (req: Request, res: Res
     )
   }
 
-  const publicBase = env.API_PUBLIC_URL.trim() || `${req.protocol}://${req.get('host')}`
-  const urls = files.map((file) => `${publicBase.replace(/\/$/, '')}/uploads/${file.filename}`)
+  const urls = await storeImageFiles(files)
 
   ApiResponse.success(res, { urls }, StatusCodes.CREATED)
 })

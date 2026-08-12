@@ -126,10 +126,17 @@ export interface ProductListResponse {
   offset: number
 }
 
+export interface ReviewAuthorDto {
+  id: string
+  first_name: string
+  last_name: string
+}
+
 export interface ProductReviewDto {
   id: string
   product_id: string
   user_id: string
+  user?: ReviewAuthorDto
   rating: number
   comment: string
   is_approved: boolean
@@ -138,6 +145,7 @@ export interface ProductReviewDto {
 }
 
 export interface LatestReviewDto extends ProductReviewDto {
+  user: ReviewAuthorDto
   product: { id: string; name: string; slug: string }
 }
 

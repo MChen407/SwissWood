@@ -268,11 +268,14 @@ const features = [
             </div>
             <p class="text-sm leading-relaxed mb-5 line-clamp-4" style="color:#4A2C1A;">{{ r.comment }}</p>
             <div class="flex items-center justify-between pt-4 border-t" style="border-color:#E2DCD1;">
-              <p class="text-sm font-semibold flex items-center gap-1.5" style="color:#6B4226;">
-                {{ r.product.name }}
-                <ArrowRight class="w-3.5 h-3.5" />
-              </p>
-              <p class="text-xs" style="color:#7A7167;">{{ new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) }}</p>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold truncate" style="color:#4A2C1A;">{{ r.user ? `${r.user.first_name} ${r.user.last_name}`.trim() : 'Client SwissWood' }}</p>
+                <p class="text-xs flex items-center gap-1" style="color:#6B4226;">
+                  {{ r.product.name }}
+                  <ArrowRight class="w-3 h-3" />
+                </p>
+              </div>
+              <p class="text-xs flex-shrink-0" style="color:#7A7167;">{{ new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) }}</p>
             </div>
           </RouterLink>
         </div>

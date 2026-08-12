@@ -9,6 +9,16 @@ export interface CreateReviewInput {
   comment?: string
 }
 
+interface ReviewAuthor {
+  id: string
+  firstName: string
+  lastName: string
+}
+
+function toReviewAuthor(user: ReviewAuthor) {
+  return { id: user.id, first_name: user.firstName, last_name: user.lastName }
+}
+
 export const reviewService = {
   async getApprovedByProduct(productId: string) {
     const product = await productRepository.findById(productId)
@@ -16,7 +26,10 @@ export const reviewService = {
       throw new NotFoundError('Produit introuvable')
     }
     const reviews = await reviewRepository.findApprovedByProduct(productId)
-    return reviews.map(toProductReviewDto)
+    return reviews.map((review) => ({
+      ...toProductReviewDto(review),
+      user: toReviewAuthor(review.user),
+    }))
   },
 
   async listLatestApproved(limit: number) {
@@ -24,6 +37,7 @@ export const reviewService = {
     return reviews.map((review) => ({
       ...toProductReviewDto(review),
       product: review.product,
+      user: toReviewAuthor(review.user),
     }))
   },
 
@@ -51,6 +65,7 @@ export const reviewService = {
     return reviews.map((review) => ({
       ...toProductReviewDto(review),
       product: review.product,
+      user: toReviewAuthor(review.user),
     }))
   },
 

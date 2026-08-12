@@ -27,6 +27,7 @@ function makeReview(overrides: Record<string, unknown> = {}) {
     id: 'rev-1',
     productId: UUID,
     userId: UUID,
+    user: { id: UUID, firstName: 'Jean', lastName: 'Dupont' },
     rating: 5,
     comment: 'Excellent',
     isApproved: false,
@@ -52,6 +53,8 @@ describe('reviewService', () => {
     const reviews = await reviewService.getApprovedByProduct(UUID)
     expect(reviews).toHaveLength(1)
     expect(reviews[0]?.is_approved).toBe(true)
+    expect(reviews[0]?.user?.first_name).toBe('Jean')
+    expect(reviews[0]?.user?.last_name).toBe('Dupont')
   })
 
   it('lève NotFoundError si le produit est inactif', async () => {
@@ -70,6 +73,7 @@ describe('reviewService', () => {
     expect(reviews).toHaveLength(1)
     expect(reviews[0]?.is_approved).toBe(true)
     expect(reviews[0]?.product.name).toBe('Teck')
+    expect(reviews[0]?.user.first_name).toBe('Jean')
     expect(reviewRepository.findLatestApproved).toHaveBeenCalledWith(5)
   })
 

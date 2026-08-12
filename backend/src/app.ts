@@ -4,7 +4,6 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import { StatusCodes } from 'http-status-codes'
 import { env } from './config/env.js'
-import { UPLOAD_DIR } from './config/upload.js'
 import { prisma } from './config/db.js'
 import routes from './routes/index.js'
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js'
@@ -50,8 +49,6 @@ export function createApp(): Express {
   app.use(generalLimiter)
   app.use(express.json({ limit: '1mb' }))
   app.use(express.urlencoded({ extended: true }))
-
-  app.use('/uploads', express.static(UPLOAD_DIR))
 
   if (env.NODE_ENV !== 'test') {
     app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'))

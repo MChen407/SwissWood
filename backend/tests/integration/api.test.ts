@@ -1,10 +1,15 @@
 import request from 'supertest'
-import { afterAll, describe, expect, it } from 'vitest'
-import { rmSync, readdirSync } from 'node:fs'
+import { describe, expect, it, vi } from 'vitest'
 import { createApp } from '../../src/app.js'
 import { generateAccessToken } from '../../src/services/token.service.js'
 import { ROLES } from '../../src/constants/index.js'
-import { UPLOAD_DIR } from '../../src/config/upload.js'
+
+vi.mock('../../src/services/media.service.js', () => ({
+  storeImageFiles: vi.fn(async () => [
+    'https://swisswood-production.up.railway.app/api/media/11111111-1111-1111-1111-111111111111',
+  ]),
+  findMediaById: vi.fn(),
+}))
 
 const app = createApp()
 
@@ -134,12 +139,6 @@ describe('Admin — upload d’images', () => {
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
     expect(Array.isArray(res.body.data.urls)).toBe(true)
-    expect(res.body.data.urls[0]).toMatch(/\/uploads\/.+\.jpg$/)
-  })
-
-  afterAll(() => {
-    for (const file of readdirSync(UPLOAD_DIR)) {
-      rmSync(`${UPLOAD_DIR}/${file}`, { force: true })
-    }
+    expect(res.body.data.urls[0]).toMatch(/\/api\/media\/[0-9a-f-]{36}$/)
   })
 })
