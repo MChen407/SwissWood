@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { ShoppingCart, Star } from 'lucide-vue-next'
-import type { ProductDto } from '@/lib/api'
+import { resolveImageUrl, PRODUCT_ESSENCE_LABELS, type ProductDto } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 
@@ -20,12 +20,12 @@ function quickAdd() { cart.addItem(props.product, 1); cart.toggleCart() }
 
     <!-- Image -->
     <RouterLink :to="`/produits/${product.slug}`" class="block relative overflow-hidden" style="aspect-ratio:4/3; background:#FAF7F2;">
-      <img :src="product.images[0]" :alt="product.name"
+      <img :src="resolveImageUrl(product.images[0])" :alt="product.name"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy" />
       <!-- Essence badge -->
       <span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded text-white uppercase tracking-wider"
-        style="background:#6B4226; letter-spacing:0.04em;">{{ product.essence }}</span>
+        style="background:#6B4226; letter-spacing:0.04em;">{{ product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[product.essence] ?? product.essence }}</span>
       <!-- Out of stock overlay -->
       <div v-if="product.stock === 0" class="absolute inset-0 flex items-center justify-center" style="background:rgba(250,247,242,0.75);">
         <span class="text-xs font-semibold px-3 py-1 rounded" style="color:#7A7167; background:#F0EDE7; border:1px solid #E2DCD1;">Rupture de stock</span>

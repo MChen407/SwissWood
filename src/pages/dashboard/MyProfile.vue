@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { User, Save, Check } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { COUNTRIES } from '@/lib/countries'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const auth = useAuthStore()
 const form = ref({ first_name: '', last_name: '', phone: '', address: '', city: '', country: '' })
@@ -45,9 +46,7 @@ async function save() {
           <div><label class="text-sm text-wood-500">Ville</label><input v-model="form.city" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
           <div>
             <label class="text-sm text-wood-500">Pays</label>
-            <select v-model="form.country" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500">
-              <option v-for="c in COUNTRIES" :key="c" :value="c">{{ c }}</option>
-            </select>
+            <div class="mt-1"><SearchableSelect v-model="form.country" :options="COUNTRIES.map(c => ({ value: c, label: c }))" /></div>
           </div>
         </div>
         <button type="submit" class="bg-primary-500 text-wood-100 px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"><Save class="w-4 h-4" /> Enregistrer</button>

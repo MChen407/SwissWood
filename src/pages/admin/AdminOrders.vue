@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { api, type OrderDto } from '@/lib/api'
 import { STATUS_LABELS } from '@/types/index'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const orders = ref<OrderDto[]>([])
 const loading = ref(true)
@@ -45,7 +46,9 @@ async function updateStatus(order: OrderDto, status: string) {
                 }">{{ order.payment_status }}</span>
                 <span class="font-semibold text-primary-500">{{ (order.total_eur / 100).toFixed(2) }} €</span>
               </div>
-              <select :value="order.status" @change="updateStatus(order, ($event.target as HTMLSelectElement).value)" class="text-xs px-2 py-1.5 border border-wood-200 rounded-lg bg-white focus:outline-none focus:border-primary-500 max-w-[45%]"><option v-for="s in statuses" :key="s" :value="s">{{ STATUS_LABELS[s] }}</option></select>
+              <div class="max-w-[45%]">
+                <SearchableSelect size="sm" :model-value="order.status" :options="statuses.map(s => ({ value: s, label: STATUS_LABELS[s] }))" @update:model-value="updateStatus(order, $event)" />
+              </div>
             </div>
           </div>
         </div>
@@ -66,7 +69,7 @@ async function updateStatus(order: OrderDto, status: string) {
                   'bg-warning-100 text-warning-500': order.payment_status === 'pending' || order.payment_status === 'awaiting_transfer',
                   'bg-error-100 text-error-500': order.payment_status === 'failed',
                 }">{{ order.payment_status }}</span></td>
-                <td class="px-4 py-3"><select :value="order.status" @change="updateStatus(order, ($event.target as HTMLSelectElement).value)" class="text-xs px-2 py-1 border border-wood-200 rounded-lg focus:outline-none focus:border-primary-500"><option v-for="s in statuses" :key="s" :value="s">{{ STATUS_LABELS[s] }}</option></select></td>
+                <td class="px-4 py-3"><div class="min-w-[150px]"><SearchableSelect size="sm" :model-value="order.status" :options="statuses.map(s => ({ value: s, label: STATUS_LABELS[s] }))" @update:model-value="updateStatus(order, $event)" /></div></td>
               </tr>
             </tbody>
           </table>

@@ -8,7 +8,8 @@ import { useCurrencyStore } from '@/stores/currency'
 import { useAuthStore } from '@/stores/auth'
 import { itemLinePrice } from '@/lib/pricing'
 import { COUNTRIES } from '@/lib/countries'
-import { api } from '@/lib/api'
+import { api, resolveImageUrl } from '@/lib/api'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const cart = useCartStore()
 const currency = useCurrencyStore()
@@ -102,12 +103,7 @@ async function placeOrder() {
               </div>
               <div>
                 <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Pays</label>
-                <select v-model="shipping.country"
-                  class="w-full px-3 py-2.5 rounded-lg text-sm transition-colors"
-                  style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
-                  onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'">
-                  <option v-for="c in COUNTRIES" :key="c" :value="c">{{ c }}</option>
-                </select>
+                <SearchableSelect v-model="shipping.country" :options="COUNTRIES.map(c => ({ value: c, label: c }))" />
               </div>
               <div>
                 <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Téléphone</label>
@@ -132,7 +128,7 @@ async function placeOrder() {
             <div class="space-y-4">
               <div v-for="item in cart.items" :key="item.product.id"
                 class="flex items-center gap-4 pb-4 last:pb-0 last:border-0" style="border-bottom:1px solid #FAF7F2;">
-                <img :src="item.product.images[0]" :alt="item.product.name" class="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+                <img :src="resolveImageUrl(item.product.images[0])" :alt="item.product.name" class="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold truncate" style="color:#4A2C1A;">{{ item.product.name }}</p>
                   <p class="text-xs mt-0.5" style="color:#7A7167;">

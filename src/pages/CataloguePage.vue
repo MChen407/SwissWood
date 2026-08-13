@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { Search, SlidersHorizontal, X } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
-import { api, type ProductDto, type ProductEssence } from '@/lib/api'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
+import { api, ESSENCE_GROUPS, PRODUCT_ESSENCE_LABELS, type ProductDto, type ProductEssence } from '@/lib/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,7 +15,7 @@ const search = ref('')
 const selectedEssence = ref('')
 const sortBy = ref<'price-asc' | 'price-desc' | 'name'>('price-asc')
 
-const essences = ['Teck', 'Iroko', 'Pin', 'Sapin']
+const essences = ESSENCE_GROUPS
 
 onMounted(async () => {
   if (route.query.essence) selectedEssence.value = route.query.essence as string
@@ -67,10 +68,14 @@ const hasFilters = computed(() => !!search.value || !!selectedEssence.value)
                 class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
                 :style="!selectedEssence ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
                 :class="!selectedEssence ? '' : 'hover:bg-wood-50'">Toutes les essences</button>
-              <button v-for="e in essences" :key="e" @click="selectedEssence = e"
-                class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
-                :style="selectedEssence === e ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
-                :class="selectedEssence === e ? '' : 'hover:bg-wood-50'">{{ e }}</button>
+
+              <div v-for="group in essences" :key="group.id" class="pt-3">
+                <p class="text-[10px] font-semibold uppercase tracking-widest mb-1.5 mt-2 first:mt-0" style="color:#C89B5D;">{{ group.label }}</p>
+                <button v-for="e in group.essences" :key="e" @click="selectedEssence = e"
+                  class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
+                  :style="selectedEssence === e ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
+                  :class="selectedEssence === e ? '' : 'hover:bg-wood-50'">{{ PRODUCT_ESSENCE_LABELS[e] }}</button>
+              </div>
             </div>
           </div>
         </aside>
@@ -84,11 +89,15 @@ const hasFilters = computed(() => !!search.value || !!selectedEssence.value)
                 style="border:1px solid #E2DCD1; color:#2B2420; outline:none;"
                 onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
             </div>
-            <select v-model="sortBy" class="px-4 py-2.5 bg-white rounded-lg text-sm" style="border:1px solid #E2DCD1; color:#4A2C1A; outline:none;">
-              <option value="price-asc">Prix croissant</option>
-              <option value="price-desc">Prix décroissant</option>
-              <option value="name">Nom (A-Z)</option>
-            </select>
+            <SearchableSelect
+              v-model="sortBy"
+              className="sm:w-64"
+              :options="[
+                { value: 'price-asc', label: 'Prix croissant' },
+                { value: 'price-desc', label: 'Prix décroissant' },
+                { value: 'name', label: 'Nom (A-Z)' },
+              ]"
+            />
           </div>
 
           <p class="text-sm mb-4" style="color:#7A7167;">{{ products.length }} produit(s)</p>

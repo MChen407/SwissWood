@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { TrendingUp, Package, Users, Euro, ShoppingCart, ArrowUpRight, Clock, CheckCircle2, Truck, XCircle, AlertCircle } from 'lucide-vue-next'
 import { api, type OrderDto } from '@/lib/api'
@@ -177,24 +178,24 @@ function fmtEur(v: number) {
         <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg, #6B4226 0%, #4A2C1A 100%);">
           <h3 class="font-semibold text-sm mb-4" style="color:#E8D4A8;">Accès rapides</h3>
           <div class="space-y-3">
-            <a href="/admin/produits" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
+            <RouterLink to="/admin/produits" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
               onmouseover="this.style.background='rgba(232,212,168,0.18)'" onmouseout="this.style.background='rgba(232,212,168,0.1)'">
               <Package class="w-4 h-4" style="color:#C89B5D;" />
               <span class="text-sm">Gérer les produits</span>
               <ArrowUpRight class="w-3.5 h-3.5 ml-auto" style="color:#C89B5D;" />
-            </a>
-            <a href="/admin/commandes" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
+            </RouterLink>
+            <RouterLink to="/admin/commandes" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
               onmouseover="this.style.background='rgba(232,212,168,0.18)'" onmouseout="this.style.background='rgba(232,212,168,0.1)'">
               <ShoppingCart class="w-4 h-4" style="color:#C89B5D;" />
               <span class="text-sm">Voir les commandes</span>
               <ArrowUpRight class="w-3.5 h-3.5 ml-auto" style="color:#C89B5D;" />
-            </a>
-            <a href="/admin/clients" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
+            </RouterLink>
+            <RouterLink to="/admin/clients" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
               onmouseover="this.style.background='rgba(232,212,168,0.18)'" onmouseout="this.style.background='rgba(232,212,168,0.1)'">
               <Users class="w-4 h-4" style="color:#C89B5D;" />
               <span class="text-sm">Base clients</span>
               <ArrowUpRight class="w-3.5 h-3.5 ml-auto" style="color:#C89B5D;" />
-            </a>
+            </RouterLink>
           </div>
         </div>
 
@@ -203,10 +204,11 @@ function fmtEur(v: number) {
           <h3 class="font-semibold text-sm mb-5" style="color:#4A2C1A;">Répartition par essence</h3>
           <div class="space-y-3">
             <div v-for="(item, i) in [
-              { label: 'Chêne', pct: 38, color: '#4A2C1A' },
-              { label: 'Hêtre', pct: 29, color: '#6B4226' },
-              { label: 'Pin', pct: 21, color: '#C89B5D' },
-              { label: 'Sapin', pct: 12, color: '#E8D4A8' },
+              { label: 'Chêne', pct: 30, color: '#4A2C1A' },
+              { label: 'Hêtre', pct: 22, color: '#6B4226' },
+              { label: 'Charme', pct: 18, color: '#C89B5D' },
+              { label: 'Frêne', pct: 15, color: '#E8D4A8' },
+              { label: 'Autres', pct: 15, color: '#7A7167' },
             ]" :key="i">
               <div class="flex items-center justify-between text-xs mb-1">
                 <span class="font-medium" style="color:#4A2C1A;">{{ item.label }}</span>

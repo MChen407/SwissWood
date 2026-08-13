@@ -23,9 +23,9 @@ const UUID = '11111111-1111-1111-1111-111111111111'
 function makeProduct(): Product {
   return {
     id: UUID,
-    name: 'Pin',
-    slug: 'pin',
-    essence: 'Pin',
+    name: 'Chêne',
+    slug: 'chene',
+    essence: 'Chene',
     description: '',
     priceEur: 1000,
     priceUsd: 1200,
@@ -58,7 +58,7 @@ describe('favoriteService', () => {
     const items = await favoriteService.listForUser(UUID)
     expect(items).toHaveLength(1)
     expect(items[0]?.product_id).toBe(UUID)
-    expect(items[0]?.product.name).toBe('Pin')
+    expect(items[0]?.product.name).toBe('Chêne')
   })
 
   it('ajoute un favori si le produit existe', async () => {

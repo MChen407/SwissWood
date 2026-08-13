@@ -57,12 +57,95 @@ export function isAuthenticated(): boolean {
   return Boolean(getAccessToken())
 }
 
+export function resolveImageUrl(url: string): string {
+  if (url.startsWith('/')) return new URL(url, apiBaseUrl).toString()
+  return url
+}
+
 // =====================================================================
 // Types DTO (alignés sur le backend)
 // =====================================================================
 
 export type Role = 'customer' | 'admin' | 'super_admin'
-export type ProductEssence = 'Teck' | 'Iroko' | 'Pin' | 'Sapin'
+export const PRODUCT_ESSENCES = [
+  // Groupe 1 — Feuillus durs
+  'Chene',
+  'Charme',
+  'Hetre',
+  'Frene',
+  'Orme',
+  'Erable',
+  'Noyer',
+  'Olivier',
+  // Groupe 2 — Feuillus mi-durs / intermédiaires
+  'Chataignier',
+  'Acacia',
+  'Bouleau',
+  'Merisier',
+  'ArbresFruitiers',
+  'Robinier',
+  // Groupe 3 — Résineux & feuillus tendres
+  'Peuplier',
+  'Aulne',
+  'Tilleul',
+  'Saule',
+  'Platane',
+  'Pin',
+  'Sapin',
+  'Epicea',
+  'Meleze',
+] as const
+export type ProductEssence = (typeof PRODUCT_ESSENCES)[number]
+
+export interface EssenceGroup {
+  id: string
+  label: string
+  essences: ProductEssence[]
+}
+
+export const ESSENCE_GROUPS: EssenceGroup[] = [
+  {
+    id: 'feuillus_durs',
+    label: 'Feuillus durs',
+    essences: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier'],
+  },
+  {
+    id: 'feuillus_mi_durs',
+    label: 'Feuillus mi-durs / intermédiaires',
+    essences: ['Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier'],
+  },
+  {
+    id: 'resineux_tendres',
+    label: 'Résineux & feuillus tendres',
+    essences: ['Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'],
+  },
+]
+
+export const PRODUCT_ESSENCE_LABELS: Record<ProductEssence, string> = {
+  Chene: 'Chêne',
+  Charme: 'Charme',
+  Hetre: 'Hêtre',
+  Frene: 'Frêne',
+  Orme: 'Orme',
+  Erable: 'Érable',
+  Noyer: 'Noyer',
+  Olivier: 'Olivier',
+  Chataignier: 'Châtaignier',
+  Acacia: 'Acacia',
+  Bouleau: 'Bouleau',
+  Merisier: 'Merisier',
+  ArbresFruitiers: 'Arbres fruitiers',
+  Robinier: 'Robinier',
+  Peuplier: 'Peuplier',
+  Aulne: 'Aulne',
+  Tilleul: 'Tilleul',
+  Saule: 'Saule',
+  Platane: 'Platane',
+  Pin: 'Pin',
+  Sapin: 'Sapin',
+  Epicea: 'Epicéa',
+  Meleze: 'Mélèze',
+}
 export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled'
 export type OrderPaymentStatus = 'pending' | 'awaiting_transfer' | 'paid' | 'failed' | 'refunded'
 export type PaymentMethod = 'card' | 'bank_transfer'
@@ -96,11 +179,19 @@ export interface AuthResponse {
   tokens: TokenPair
 }
 
+export interface EssenceDataDto {
+  label: string
+  densite_vert_kg_m3: number
+  densite_sec_kg_m3: number
+  pouvoir_calorifique: number
+}
+
 export interface ProductDto {
   id: string
   name: string
   slug: string
   essence: ProductEssence
+  essence_data?: EssenceDataDto
   description: string
   price_eur: number
   price_usd: number

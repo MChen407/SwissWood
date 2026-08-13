@@ -1,11 +1,20 @@
 import type { Product, ProductReview, CmsContent } from '@prisma/client'
+import { ESSENCE_DATA } from '../constants/essences.js'
 import type { ProductEssence } from '../constants/index.js'
+
+export interface EssenceDataDto {
+  label: string
+  densite_vert_kg_m3: number
+  densite_sec_kg_m3: number
+  pouvoir_calorifique: number
+}
 
 export interface ProductDto {
   id: string
   name: string
   slug: string
   essence: ProductEssence
+  essence_data: EssenceDataDto
   description: string
   price_eur: number
   price_usd: number
@@ -25,6 +34,7 @@ export function toProductDto(product: Product): ProductDto {
     name: product.name,
     slug: product.slug,
     essence: product.essence,
+    essence_data: ESSENCE_DATA[product.essence] as EssenceDataDto,
     description: product.description,
     price_eur: product.priceEur,
     price_usd: product.priceUsd,

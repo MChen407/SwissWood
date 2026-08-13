@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { ArrowLeft } from 'lucide-vue-next'
-import { api, type OrderDetailDto } from '@/lib/api'
+import { api, resolveImageUrl, type OrderDetailDto } from '@/lib/api'
 import { STATUS_LABELS } from '@/types/index'
 
 const route = useRoute()
@@ -41,7 +41,7 @@ onMounted(async () => {
         <h2 class="font-medium text-primary-500 mb-4">Articles</h2>
         <div class="space-y-3">
           <div v-for="item in order.items" :key="item.id" class="flex items-center gap-4 pb-3 border-b border-wood-100 last:border-0">
-            <img v-if="item.product?.images?.[0]" :src="item.product.images[0]" :alt="item.product?.name" class="w-14 h-14 rounded-md object-cover" />
+            <img v-if="item.product?.images?.[0]" :src="resolveImageUrl(item.product.images[0])" :alt="item.product?.name" class="w-14 h-14 rounded-md object-cover" />
             <div class="flex-1">
               <p class="text-sm font-medium text-primary-500">{{ item.product?.name || 'Produit' }}</p>
               <p class="text-xs text-wood-400">{{ item.quantity }} × {{ (item.unit_price_eur / 100).toFixed(2) }} €</p>

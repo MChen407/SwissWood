@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { Mail, Phone, MapPin, Shield, Leaf, Truck } from 'lucide-vue-next'
+import { PRODUCT_ESSENCE_LABELS, ESSENCE_GROUPS } from '@/lib/api'
 
 const year = new Date().getFullYear()
 </script>
@@ -38,12 +39,12 @@ const year = new Date().getFullYear()
         <!-- Essences -->
         <div>
           <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Essences</h3>
-          <ul class="space-y-2.5">
-            <li><RouterLink to="/catalogue?essence=Teck" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Teck</RouterLink></li>
-            <li><RouterLink to="/catalogue?essence=Iroko" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Iroko</RouterLink></li>
-            <li><RouterLink to="/catalogue?essence=Pin" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Pin</RouterLink></li>
-            <li><RouterLink to="/catalogue?essence=Sapin" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Sapin</RouterLink></li>
-          </ul>
+          <div v-for="group in ESSENCE_GROUPS" :key="group.id" class="mb-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest mb-2" style="color:#8A6A3A;">{{ group.label }}</p>
+            <ul class="grid grid-cols-2 gap-x-4 gap-y-2.5">
+              <li v-for="e in group.essences" :key="e"><RouterLink :to="`/catalogue?essence=${e}`" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ PRODUCT_ESSENCE_LABELS[e] }}</RouterLink></li>
+            </ul>
+          </div>
         </div>
 
         <!-- Contact -->

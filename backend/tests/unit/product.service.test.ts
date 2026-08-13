@@ -24,7 +24,7 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
     id: UUID,
     name: 'Teck massif',
     slug: 'teck-massif',
-    essence: 'Teck',
+    essence: 'Chene',
     description: '',
     priceEur: 25000,
     priceUsd: 30000,
@@ -100,7 +100,7 @@ describe('adminProductService', () => {
 
     const product = await adminProductService.create({
       name: 'Teck Massif',
-      essence: 'Teck',
+      essence: 'Chene',
       price_eur: 25000,
       price_usd: 30000,
       price_fcfa: 150000,
@@ -121,7 +121,7 @@ describe('adminProductService', () => {
     await expect(
       adminProductService.create({
         name: 'Teck',
-        essence: 'Teck',
+        essence: 'Chene',
         price_eur: 1,
         price_usd: 1,
         price_fcfa: 1,

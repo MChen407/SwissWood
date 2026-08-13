@@ -33,7 +33,7 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
     id: UUID,
     name: 'Chêne premium',
     slug: 'chene-premium',
-    essence: 'Teck',
+    essence: 'Chene',
     description: '',
     priceEur: 10000,
     priceUsd: 12000,

@@ -2,7 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { Plus, Edit, Trash2, X, Save, Package, Upload } from 'lucide-vue-next'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
-import { api, type ProductDto, type ProductEssence } from '@/lib/api'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
+import { api, resolveImageUrl, ESSENCE_GROUPS, PRODUCT_ESSENCE_LABELS, type ProductDto, type ProductEssence } from '@/lib/api'
 
 const products = ref<ProductDto[]>([])
 const loading = ref(true)
@@ -17,7 +18,7 @@ const deletingPending = ref(false)
 const deleteError = ref('')
 
 const emptyForm = {
-  name: '', slug: '', essence: 'Teck' as ProductEssence, description: '',
+  name: '', slug: '', essence: 'Charme' as ProductEssence, description: '',
   price_eur: 0, price_usd: 0, price_fcfa: 0, stock: 0,
   length_mm: 4000, width_mm: 100, thickness_mm: 30, weight_kg_m3: 500,
   images: [] as string[], certification: 'FSC', class_emploi: 'Classe 3', origine: '', traitement: 'Naturel', is_active: true,
@@ -119,13 +120,13 @@ async function remove(id: string) {
           <div v-for="p in products" :key="p.id" class="p-4 space-y-3">
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
-                <img v-if="p.images[0]" :src="p.images[0]" :alt="p.name" class="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                <img v-if="p.images[0]" :src="resolveImageUrl(p.images[0])" :alt="p.name" class="w-10 h-10 rounded-md object-cover flex-shrink-0" />
                 <span class="font-medium text-primary-500 text-sm break-words">{{ p.name }}</span>
               </div>
               <span :class="['text-xs px-2 py-1 rounded-full whitespace-nowrap', p.is_active ? 'bg-success-100 text-success-500' : 'bg-wood-100 text-wood-400']">{{ p.is_active ? 'Actif' : 'Inactif' }}</span>
             </div>
             <div class="flex items-center justify-between gap-2 text-sm">
-              <span class="text-wood-500">{{ p.essence }} · {{ (p.price_eur / 100).toFixed(2) }} €</span>
+              <span class="text-wood-500">{{ p.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[p.essence] ?? p.essence }} · {{ (p.price_eur / 100).toFixed(2) }} €</span>
               <span class="text-wood-500">Stock : {{ p.stock }}</span>
             </div>
             <div class="flex items-center justify-end gap-1 pt-1">
@@ -147,8 +148,8 @@ async function remove(id: string) {
             </thead>
             <tbody class="divide-y divide-wood-100">
               <tr v-for="p in products" :key="p.id" class="hover:bg-wood-50">
-                <td class="px-4 py-3"><div class="flex items-center gap-3"><img v-if="p.images[0]" :src="p.images[0]" :alt="p.name" class="w-10 h-10 rounded-md object-cover" /><span class="font-medium text-primary-500">{{ p.name }}</span></div></td>
-                <td class="px-4 py-3 text-wood-500">{{ p.essence }}</td>
+                <td class="px-4 py-3"><div class="flex items-center gap-3"><img v-if="p.images[0]" :src="resolveImageUrl(p.images[0])" :alt="p.name" class="w-10 h-10 rounded-md object-cover" /><span class="font-medium text-primary-500">{{ p.name }}</span></div></td>
+                <td class="px-4 py-3 text-wood-500">{{ p.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[p.essence] ?? p.essence }}</td>
                 <td class="px-4 py-3 text-wood-500">{{ (p.price_eur / 100).toFixed(2) }} €</td>
                 <td class="px-4 py-3 text-wood-500">{{ p.stock }}</td>
                 <td class="px-4 py-3"><span :class="['text-xs px-2 py-1 rounded-full', p.is_active ? 'bg-success-100 text-success-500' : 'bg-wood-100 text-wood-400']">{{ p.is_active ? 'Actif' : 'Inactif' }}</span></td>
@@ -170,7 +171,12 @@ async function remove(id: string) {
           <div class="grid sm:grid-cols-2 gap-4">
             <div><label class="text-sm text-wood-500">Nom</label><input v-model="form.name" type="text" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
             <div><label class="text-sm text-wood-500">Slug</label><input v-model="form.slug" type="text" placeholder="auto-généré" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-            <div><label class="text-sm text-wood-500">Essence</label><select v-model="form.essence" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm"><option>Teck</option><option>Iroko</option><option>Pin</option><option>Sapin</option></select></div>
+            <div><label class="text-sm text-wood-500">Essence</label>
+              <div class="mt-1"><SearchableSelect
+                v-model="form.essence"
+                :groups="ESSENCE_GROUPS.map(g => ({ label: g.label, options: g.essences.map(e => ({ value: e, label: PRODUCT_ESSENCE_LABELS[e] })) }))"
+              /></div>
+            </div>
             <div><label class="text-sm text-wood-500">Stock</label><input v-model.number="form.stock" type="number" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
           </div>
           <div><label class="text-sm text-wood-500">Description</label><textarea v-model="form.description" rows="3" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"></textarea></div>

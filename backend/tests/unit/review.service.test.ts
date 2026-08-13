@@ -67,12 +67,12 @@ describe('reviewService', () => {
 
   it('liste les derniers avis approuvés avec leur produit', async () => {
     vi.mocked(reviewRepository.findLatestApproved).mockResolvedValue([
-      makeReview({ isApproved: true, product: { id: UUID, name: 'Teck', slug: 'teck' } }),
+      makeReview({ isApproved: true, product: { id: UUID, name: 'Chêne', slug: 'chene' } }),
     ] as never)
     const reviews = await reviewService.listLatestApproved(5)
     expect(reviews).toHaveLength(1)
     expect(reviews[0]?.is_approved).toBe(true)
-    expect(reviews[0]?.product.name).toBe('Teck')
+    expect(reviews[0]?.product.name).toBe('Chêne')
     expect(reviews[0]?.user.first_name).toBe('Jean')
     expect(reviewRepository.findLatestApproved).toHaveBeenCalledWith(5)
   })

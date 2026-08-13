@@ -2,7 +2,7 @@ import { prisma } from '../config/db.js'
 import { env } from '../config/env.js'
 
 export async function storeImageFiles(files: Express.Multer.File[]): Promise<string[]> {
-  const publicBase = env.API_PUBLIC_URL.trim().replace(/\/$/, '')
+  const publicBase = (env.API_PUBLIC_URL.trim().replace(/\/$/, '') || 'https://swisswood-production.up.railway.app')
   const urls: string[] = []
 
   for (const file of files) {

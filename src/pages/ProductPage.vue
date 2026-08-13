@@ -4,7 +4,8 @@ import { useRoute, RouterLink } from 'vue-router'
 import { Star, Heart, ShoppingCart, Minus, Plus, Check, Truck, Shield, ChevronRight, Ruler } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
-import { api, type ProductDto, type ProductReviewDto, type ProductEssence } from '@/lib/api'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
+import { api, resolveImageUrl, PRODUCT_ESSENCE_LABELS, type ProductDto, type ProductReviewDto, type ProductEssence } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
@@ -141,13 +142,13 @@ async function submitReview() {
       <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
         <div>
           <div class="aspect-square rounded-2xl overflow-hidden bg-wood-100 border border-wood-200">
-            <img :src="product.images[selectedImage]" :alt="product.name" class="w-full h-full object-cover" />
+            <img :src="resolveImageUrl(product.images[selectedImage])" :alt="product.name" class="w-full h-full object-cover" />
           </div>
         </div>
 
         <div>
           <div class="flex items-center gap-2 mb-2">
-            <span class="px-3 py-1 bg-primary-100 text-primary-500 text-xs font-medium rounded-md">{{ product.essence }}</span>
+            <span class="px-3 py-1 bg-primary-100 text-primary-500 text-xs font-medium rounded-md">{{ product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[product.essence] ?? product.essence }}</span>
             <div class="flex items-center gap-1">
               <Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= Math.round(Number(avgRating)) ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" />
               <span class="text-sm text-wood-400 ml-1">({{ reviews.length }} avis)</span>
@@ -165,7 +166,9 @@ async function submitReview() {
               <div><label class="text-xs text-wood-500">Longueur (mm)</label><input v-model.number="customLength" type="number" min="100" step="100" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
               <div><label class="text-xs text-wood-500">Largeur (mm)</label><input v-model.number="customWidth" type="number" min="10" step="10" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
               <div><label class="text-xs text-wood-500">Épaisseur (mm)</label><input v-model.number="customThickness" type="number" min="5" step="5" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-              <div><label class="text-xs text-wood-500">Traitement</label><select v-model="customTreatment" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"><option>Naturel</option><option>Autoclave Classe 3</option><option>Autoclave Classe 4</option><option>Saturateur</option></select></div>
+              <div><label class="text-xs text-wood-500">Traitement</label>
+                <div class="mt-1"><SearchableSelect v-model="customTreatment" :options="['Naturel','Autoclave Classe 3','Autoclave Classe 4','Saturateur'].map(t => ({ value: t, label: t }))" /></div>
+              </div>
             </div>
           </div>
 
@@ -206,7 +209,10 @@ async function submitReview() {
               <div class="flex justify-between"><dt class="text-wood-500">Longueur</dt><dd class="font-medium">{{ product.dimensions.length_mm }} mm</dd></div>
               <div class="flex justify-between"><dt class="text-wood-500">Largeur</dt><dd class="font-medium">{{ product.dimensions.width_mm }} mm</dd></div>
               <div class="flex justify-between"><dt class="text-wood-500">Épaisseur</dt><dd class="font-medium">{{ product.dimensions.thickness_mm }} mm</dd></div>
-              <div class="flex justify-between"><dt class="text-wood-500">Densité</dt><dd class="font-medium">{{ product.dimensions.weight_kg_m3 }} kg/m³</dd></div>
+              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">Densité (vert)</dt><dd class="font-medium">{{ product.essence_data.densite_vert_kg_m3 }} kg/m³</dd></div>
+              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">Densité (sec)</dt><dd class="font-medium">{{ product.essence_data.densite_sec_kg_m3 }} kg/m³</dd></div>
+              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">Pouvoir calorifique</dt><dd class="font-medium">{{ product.essence_data.pouvoir_calorifique }} <span class="text-wood-400">(base 100)</span></dd></div>
+              <div v-if="!product.essence_data" class="flex justify-between"><dt class="text-wood-500">Densité</dt><dd class="font-medium">{{ product.dimensions.weight_kg_m3 }} kg/m³</dd></div>
             </dl>
           </div>
           <div class="bg-white rounded-xl border border-wood-200 p-5">

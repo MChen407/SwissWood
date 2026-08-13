@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { itemLinePrice } from '@/lib/pricing'
+import { resolveImageUrl, PRODUCT_ESSENCE_LABELS } from '@/lib/api'
 
 const cart = useCartStore()
 const currency = useCurrencyStore()
@@ -32,10 +33,10 @@ function goToCart() { cart.toggleCart(); router.push('/panier') }
 
         <div v-else class="flex-1 overflow-y-auto p-4 space-y-4">
           <div v-for="item in cart.items" :key="item.product.id" class="flex gap-3 bg-white rounded-lg p-3 border border-wood-200">
-            <img :src="item.product.images[0]" :alt="item.product.name" class="w-16 h-16 rounded-md object-cover" />
+            <img :src="resolveImageUrl(item.product.images[0])" :alt="item.product.name" class="w-16 h-16 rounded-md object-cover" />
             <div class="flex-1 min-w-0">
               <h3 class="text-sm font-medium text-primary-500 truncate">{{ item.product.name }}</h3>
-              <p class="text-xs text-wood-500">{{ item.product.essence }}</p>
+              <p class="text-xs text-wood-500">{{ item.product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[item.product.essence] ?? item.product.essence }}</p>
               <div v-if="Object.keys(item.customization).length > 0" class="text-xs text-wood-400 mt-1">
                 <span v-for="(val, key) in item.customization" :key="String(key)" class="inline-block mr-2">{{ key }}: {{ val }}</span>
               </div>

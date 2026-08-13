@@ -100,7 +100,7 @@ export const swaggerDocument = {
           id: { type: 'string', format: 'uuid' },
           name: { type: 'string' },
           slug: { type: 'string' },
-          essence: { type: 'string', enum: ['Teck', 'Iroko', 'Pin', 'Sapin'] },
+          essence: { type: 'string', enum: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier', 'Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier', 'Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'] },
           description: { type: 'string' },
           price_eur: { type: 'number', description: 'En centimes' },
           price_usd: { type: 'number', description: 'En centimes' },
@@ -600,7 +600,7 @@ export const swaggerDocument = {
         operationId: 'listProducts',
         security: [],
         parameters: [
-          { name: 'essence', in: 'query', schema: { type: 'string', enum: ['Teck', 'Iroko', 'Pin', 'Sapin'] } },
+          { name: 'essence', in: 'query', schema: { type: 'string', enum: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier', 'Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier', 'Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'] } },
           { name: 'exclude', in: 'query', schema: { type: 'string', format: 'uuid' }, description: 'Exclure cet ID (produits similaires)' },
           { name: 'sort', in: 'query', schema: { type: 'string', enum: ['price_asc', 'price_desc'] } },
           { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 } },
@@ -1417,7 +1417,7 @@ export const swaggerDocument = {
                 properties: {
                   name: { type: 'string' },
                   slug: { type: 'string' },
-                  essence: { type: 'string', enum: ['Teck', 'Iroko', 'Pin', 'Sapin'] },
+                  essence: { type: 'string', enum: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier', 'Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier', 'Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'] },
                   description: { type: 'string' },
                   price_eur: { type: 'integer', minimum: 0 },
                   price_usd: { type: 'integer', minimum: 0 },
@@ -1468,7 +1468,7 @@ export const swaggerDocument = {
                 properties: {
                   name: { type: 'string' },
                   slug: { type: 'string' },
-                  essence: { type: 'string', enum: ['Teck', 'Iroko', 'Pin', 'Sapin'] },
+                  essence: { type: 'string', enum: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier', 'Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier', 'Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'] },
                   description: { type: 'string' },
                   price_eur: { type: 'integer', minimum: 0 },
                   price_usd: { type: 'integer', minimum: 0 },

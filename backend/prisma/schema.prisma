@@ -28,10 +28,34 @@ enum Role {
 }
 
 enum ProductEssence {
-  Teck
-  Iroko
+  // Groupe 1 — Feuillus durs
+  Chene
+  Charme
+  Hetre
+  Frene
+  Orme
+  Erable
+  Noyer
+  Olivier
+
+  // Groupe 2 — Feuillus mi-durs / intermédiaires
+  Chataignier
+  Acacia
+  Bouleau
+  Merisier
+  ArbresFruitiers
+  Robinier
+
+  // Groupe 3 — Résineux & feuillus tendres
+  Peuplier
+  Aulne
+  Tilleul
+  Saule
+  Platane
   Pin
   Sapin
+  Epicea
+  Meleze
 }
 
 enum OrderStatus {

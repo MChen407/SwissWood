@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ArrowRight, Shield, Leaf, Award, Truck, Flame, Check, Star, Quote, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
@@ -19,6 +19,24 @@ function scrollReviews(direction: 1 | -1) {
   track.scrollBy({ left: direction * (card ? card.offsetWidth + 24 : 320), behavior: 'smooth' })
 }
 
+const engagementSlides = ['/livraison.jfif', '/more-stock.jfif', '/stock.jfif']
+const engagementIndex = ref(0)
+let engagementTimer: ReturnType<typeof setInterval> | null = null
+
+function startEngagementCarousel() {
+  if (engagementTimer) return
+  engagementTimer = setInterval(() => {
+    engagementIndex.value = (engagementIndex.value + 1) % engagementSlides.length
+  }, 4000)
+}
+
+function stopEngagementCarousel() {
+  if (engagementTimer) {
+    clearInterval(engagementTimer)
+    engagementTimer = null
+  }
+}
+
 onMounted(async () => {
   const res = await api.products.list({ active: true, sort: 'price_desc' })
   products.value = res.items
@@ -26,7 +44,10 @@ onMounted(async () => {
   api.reviews.latest(5)
     .then((list) => { reviews.value = list })
     .finally(() => { reviewsLoading.value = false })
+  startEngagementCarousel()
 })
+
+onUnmounted(stopEngagementCarousel)
 
 const trustItems = [
   { icon: Shield, title: 'Qualité certifiée', text: 'Bois certifiés FSC et PEFC' },
@@ -160,12 +181,27 @@ const features = [
               En savoir plus <ArrowRight class="w-4 h-4" />
             </RouterLink>
           </div>
-          <div class="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-xl">
-            <img
-              src="https://images.pexels.com/photos/313776/pexels-photo-313776.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-              alt="Atelier de bois SwissWood"
-              class="w-full h-full object-cover"
-            />
+          <div class="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-xl" style="background:#6B4226;"
+            @mouseenter="stopEngagementCarousel" @mouseleave="startEngagementCarousel">
+            <template v-for="(src, i) in engagementSlides" :key="src">
+              <img
+                :src="src"
+                :alt="`Engagement SwissWood ${i + 1}`"
+                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                :class="i === engagementIndex ? 'opacity-100' : 'opacity-0'"
+              />
+            </template>
+            <div class="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
+              <button
+                v-for="(_, i) in engagementSlides"
+                :key="i"
+                type="button"
+                :aria-label="`Image ${i + 1}`"
+                class="w-2 h-2 rounded-full transition-all duration-300"
+                :style="i === engagementIndex ? 'width:1.25rem; background:#C89B5D;' : 'background:rgba(255,255,255,0.5);'"
+                @click="engagementIndex = i"
+              />
+            </div>
           </div>
         </div>
       </div>

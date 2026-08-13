@@ -6,6 +6,7 @@ import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { useAuthStore } from '@/stores/auth'
 import { itemLinePrice } from '@/lib/pricing'
+import { resolveImageUrl, PRODUCT_ESSENCE_LABELS } from '@/lib/api'
 
 const cart = useCartStore()
 const currency = useCurrencyStore()
@@ -69,13 +70,13 @@ function checkout() {
             <!-- Image + info -->
             <div class="col-span-12 sm:col-span-6 flex gap-4 items-start">
               <RouterLink :to="`/produits/${item.product.slug}`">
-                <img :src="item.product.images[0]" :alt="item.product.name" class="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
+                <img :src="resolveImageUrl(item.product.images[0])" :alt="item.product.name" class="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
               </RouterLink>
               <div class="flex-1 min-w-0">
                 <RouterLink :to="`/produits/${item.product.slug}`">
                   <h3 class="font-semibold text-sm leading-snug" style="color:#4A2C1A;">{{ item.product.name }}</h3>
                 </RouterLink>
-                <span class="inline-block text-xs px-2 py-0.5 rounded mt-1" style="background:#E8D4A8; color:#6B4226;">{{ item.product.essence }}</span>
+                <span class="inline-block text-xs px-2 py-0.5 rounded mt-1" style="background:#E8D4A8; color:#6B4226;">{{ item.product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[item.product.essence] ?? item.product.essence }}</span>
                 <div v-if="Object.keys(item.customization).length > 0" class="flex flex-wrap gap-1.5 mt-1.5">
                   <span v-for="(val, key) in item.customization" :key="String(key)"
                     class="text-xs px-2 py-0.5 rounded" style="background:#FAF7F2; color:#7A7167;">{{ key }}: {{ val }}</span>

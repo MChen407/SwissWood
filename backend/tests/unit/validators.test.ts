@@ -113,7 +113,7 @@ describe('contact.validators', () => {
 describe('admin.validators (produits)', () => {
   const base = {
     name: 'Chêne premium',
-    essence: 'Teck',
+    essence: 'Charme',
     price_eur: 10000,
     price_usd: 12000,
     price_fcfa: 60000,

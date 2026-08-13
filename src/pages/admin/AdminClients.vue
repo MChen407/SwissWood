@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { api, type UserPublicDto } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 
@@ -57,15 +58,11 @@ async function confirmRoleChange() {
           <div v-for="c in clients" :key="c.id" class="p-4 space-y-2">
             <div class="flex items-center justify-between gap-2">
               <p class="font-medium text-primary-500 text-sm break-all">{{ c.first_name }} {{ c.last_name }}</p>
-              <select v-if="canManageRoles && c.id !== auth.profile?.id"
-                :value="c.role"
-                :disabled="rolePending"
-                @change="requestRoleChange(c, ($event.target as HTMLSelectElement).value as UserPublicDto['role'])"
-                class="text-xs px-2 py-1.5 rounded-lg border border-wood-200 bg-white focus:outline-none focus:border-primary-500 disabled:opacity-50">
-                <option value="customer">Client</option>
-                <option value="admin">Admin</option>
-                <option value="super_admin">Super Admin</option>
-              </select>
+              <div v-if="canManageRoles && c.id !== auth.profile?.id" class="w-32">
+                <SearchableSelect size="sm" :model-value="c.role" :disabled="rolePending"
+                  :options="Object.entries(roleLabels).map(([value, label]) => ({ value, label }))"
+                  @update:model-value="requestRoleChange(c, $event as UserPublicDto['role'])" />
+              </div>
               <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
                 'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
                 'bg-wood-100 text-wood-500': c.role === 'customer',
@@ -89,15 +86,11 @@ async function confirmRoleChange() {
                 <td class="px-4 py-3 font-medium text-primary-500">{{ c.first_name }} {{ c.last_name }}</td>
                 <td class="px-4 py-3 text-wood-500">{{ c.phone || '—' }}</td>
                 <td class="px-4 py-3">
-                  <select v-if="canManageRoles && c.id !== auth.profile?.id"
-                    :value="c.role"
-                    :disabled="rolePending"
-                    @change="requestRoleChange(c, ($event.target as HTMLSelectElement).value as UserPublicDto['role'])"
-                    class="text-xs px-2 py-1 rounded-lg border border-wood-200 bg-white focus:outline-none focus:border-primary-500 disabled:opacity-50">
-                    <option value="customer">Client</option>
-                    <option value="admin">Admin</option>
-                    <option value="super_admin">Super Admin</option>
-                  </select>
+                  <div v-if="canManageRoles && c.id !== auth.profile?.id" class="w-36">
+                    <SearchableSelect size="sm" :model-value="c.role" :disabled="rolePending"
+                      :options="Object.entries(roleLabels).map(([value, label]) => ({ value, label }))"
+                      @update:model-value="requestRoleChange(c, $event as UserPublicDto['role'])" />
+                  </div>
                   <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
                     'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
                     'bg-wood-100 text-wood-500': c.role === 'customer',
