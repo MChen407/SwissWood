@@ -12,6 +12,7 @@ export const ACCESS_TOKEN_KEY = 'swisswood_access_token'
 export const REFRESH_TOKEN_KEY = 'swisswood_refresh_token'
 
 export const apiBaseUrl: string = (import.meta.env.VITE_API_URL as string | undefined) || DEFAULT_BASE_URL
+export const apiOrigin: string = apiBaseUrl.replace(/\/api\/?$/, '')
 
 // =====================================================================
 // Erreur d'API
@@ -60,13 +61,18 @@ export function isAuthenticated(): boolean {
 export function resolveImageUrl(image: string): string {
   if (!image) return ''
 
-  // Si c'est déjà une URL complète
-  if (image.startsWith('http://') || image.startsWith('https://')) {
-    return image
-  }
+  // URL complète contenant un média → on la reconstruit contre le vrai backend
+  const mediaMatch = image.match(/\/api\/media\/([0-9a-fA-F-]+)/)
+  if (mediaMatch) return `${apiOrigin}/api/media/${mediaMatch[1]}`
+
+  // URL relative du backend
+  if (image.startsWith('/api/media/')) return `${apiOrigin}${image}`
+
+  // Si c'est déjà une URL complète (ex. image externe)
+  if (image.startsWith('http://') || image.startsWith('https://')) return image
 
   // Sinon, image contient l'ID du média
-  return `${apiBaseUrl}/api/media/${image}`
+  return `${apiOrigin}/api/media/${image}`
 }
 
 
