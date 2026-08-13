@@ -57,10 +57,19 @@ export function isAuthenticated(): boolean {
   return Boolean(getAccessToken())
 }
 
-export function resolveImageUrl(url: string): string {
-  if (url.startsWith('/')) return new URL(url, apiBaseUrl).toString()
-  return url
+export function resolveImageUrl(image: string): string {
+  if (!image) return ''
+
+  // Si c'est déjà une URL complète
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image
+  }
+
+  // Sinon, image contient l'ID du média
+  return `${apiBaseUrl}/api/media/${image}`
 }
+
+
 
 // =====================================================================
 // Types DTO (alignés sur le backend)
