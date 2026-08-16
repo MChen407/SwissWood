@@ -17,6 +17,11 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1, 'DATABASE_URL est requis'),
 
+  CLOUDINARY_CLOUD_NAME: z.string().min(1, 'CLOUDINARY_CLOUD_NAME est requis'),
+  CLOUDINARY_API_KEY: z.string().min(1, 'CLOUDINARY_API_KEY est requis'),
+  CLOUDINARY_API_SECRET: z.string().min(1, 'CLOUDINARY_API_SECRET est requis'),
+  CLOUDINARY_FOLDER: z.string().default('swisswood'),
+
   JWT_ACCESS_SECRET: z.string().min(16, 'JWT_ACCESS_SECRET doit contenir au moins 16 caractères'),
   JWT_REFRESH_SECRET: z.string().min(16, 'JWT_REFRESH_SECRET doit contenir au moins 16 caractères'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),

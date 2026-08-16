@@ -38,7 +38,11 @@ Renseignez les variables obligatoires :
 | ---------------------- | --------------------------------------------- | ------------------------------------ |
 | `DATABASE_URL`         | Connexion MySQL (Prisma)                      | `mysql://root:password@localhost:3306/swisswood` |
 | `JWT_ACCESS_SECRET`    | Secret du token d'**accès** (≥ 16 caractères) | `...une longue chaîne aléatoire...`  |
-| `JWT_REFRESH_SECRET`   | Secret du token de **refresh**                | `...une autre longue chaîne...`      |
+| `JWT_REFRESH_SECRET`   | Secret du token de **refresh**                | `...une autre chaîne...`             |
+| `CLOUDINARY_CLOUD_NAME`| Nom du cloud Cloudinary (identifiant public)  | `swisswood`                          |
+| `CLOUDINARY_API_KEY`   | Clé API Cloudinary                            | `...`                                |
+| `CLOUDINARY_API_SECRET`| Secret API Cloudinary                         | `...`                                |
+| `CLOUDINARY_FOLDER`    | Dossier de destination des images (optionnel) | `swisswood`                          |
 | `LOGIN_RATE_LIMIT_MAX` | Tentatives de connexion autorisées            | `10`                                 |
 
 ⚠️ Ne commitez jamais le fichier `.env` (il est gitignoré).

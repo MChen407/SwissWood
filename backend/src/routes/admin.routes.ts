@@ -16,7 +16,7 @@ import {
   adminUpdateOrderStatus,
 } from '../controllers/order.controller.js'
 import { approveReview, listAllReviews, rejectReview } from '../controllers/review.controller.js'
-import { uploadImagesController } from '../controllers/upload.controller.js'
+import { deleteImageController, uploadImagesController } from '../controllers/upload.controller.js'
 import { uploadImages } from '../config/upload.js'
 import { getCmsContent, updateCmsContent } from '../controllers/cms.controller.js'
 import {
@@ -58,5 +58,6 @@ router.get('/cms', getCmsContent)
 router.patch('/cms/:id', validate(updateCmsSchema), updateCmsContent)
 
 router.post('/uploads/images', uploadImages.array('images'), uploadImagesController)
+router.delete('/uploads/images/*', deleteImageController)
 
 export default router

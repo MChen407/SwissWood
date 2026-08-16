@@ -6,9 +6,12 @@ import { ROLES } from '../../src/constants/index.js'
 
 vi.mock('../../src/services/media.service.js', () => ({
   storeImageFiles: vi.fn(async () => [
-    'https://swisswood-production.up.railway.app/api/media/11111111-1111-1111-1111-111111111111',
+    {
+      publicId: 'swisswood/photo.jpg',
+      url: 'https://res.cloudinary.com/test-cloud/image/upload/f_auto,q_auto/swisswood/photo.jpg',
+    },
   ]),
-  findMediaById: vi.fn(),
+  deleteImage: vi.fn(async () => undefined),
 }))
 
 const app = createApp()
@@ -139,6 +142,15 @@ describe('Admin — upload d’images', () => {
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
     expect(Array.isArray(res.body.data.urls)).toBe(true)
-    expect(res.body.data.urls[0]).toMatch(/\/api\/media\/[0-9a-f-]{36}$/)
+    expect(res.body.data.urls[0]).toMatch(/^https:\/\/res\.cloudinary\.com\/.+/)
+    expect(res.body.data.publicIds[0]).toBe('swisswood/photo.jpg')
+  })
+
+  it('supprime une image via son publicId', async () => {
+    const res = await request(app)
+      .delete('/api/admin/uploads/images/swisswood/photo.jpg')
+      .set('Authorization', `Bearer ${adminToken}`)
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
   })
 })

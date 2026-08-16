@@ -1,21 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('../../src/config/db', () => ({
-  prisma: {
-    media: {
-      create: vi.fn(),
-      findUnique: vi.fn(),
-    },
-  },
+vi.mock('../../src/config/cloudinary', () => ({
+  uploadBuffer: vi.fn(),
+  destroyImage: vi.fn(),
 }))
 vi.mock('../../src/config/env', () => ({
-  env: { API_PUBLIC_URL: 'https://swisswood-production.up.railway.app' },
+  env: { CLOUDINARY_FOLDER: 'swisswood' },
 }))
 
-import { storeImageFiles, findMediaById } from '../../src/services/media.service.js'
-import { prisma } from '../../src/config/db.js'
-
-const UUID = '11111111-1111-1111-1111-111111111111'
+import { deleteImage, storeImageFiles } from '../../src/services/media.service.js'
+import { destroyImage, uploadBuffer } from '../../src/config/cloudinary.js'
 
 function makeFile(overrides: Partial<Express.Multer.File> = {}): Express.Multer.File {
   return {
@@ -34,39 +28,36 @@ describe('mediaService', () => {
     vi.clearAllMocks()
   })
 
-  it('stocke les fichiers et renvoie leurs URLs publiques', async () => {
-    vi.mocked(prisma.media.create).mockResolvedValue({
-      id: UUID,
-      filename: 'photo.jpg',
-      mimetype: 'image/jpeg',
-      size: 4,
-      data: Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
-      createdAt: new Date(),
-    } as never)
-
-    const urls = await storeImageFiles([makeFile()])
-
-    expect(urls).toEqual([`https://swisswood-production.up.railway.app/api/media/${UUID}`])
-    expect(prisma.media.create).toHaveBeenCalledWith({
-      data: {
-        filename: 'photo.jpg',
-        mimetype: 'image/jpeg',
-        size: 4,
-        data: Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
-      },
+  it('uploade les fichiers sur Cloudinary et renvoie leurs URLs', async () => {
+    vi.mocked(uploadBuffer).mockResolvedValue({
+      publicId: 'swisswood/photo.jpg',
+      url: 'https://res.cloudinary.com/test-cloud/image/upload/f_auto,q_auto/swisswood/photo.jpg',
     })
+
+    const images = await storeImageFiles([makeFile()])
+
+    expect(images).toEqual([
+      {
+        publicId: 'swisswood/photo.jpg',
+        url: 'https://res.cloudinary.com/test-cloud/image/upload/f_auto,q_auto/swisswood/photo.jpg',
+      },
+    ])
+    expect(uploadBuffer).toHaveBeenCalledWith(expect.any(Buffer), { folder: 'swisswood' })
   })
 
-  it('stocke plusieurs fichiers', async () => {
-    vi.mocked(prisma.media.create).mockResolvedValue({ id: UUID } as never)
-    const urls = await storeImageFiles([makeFile(), makeFile({ originalname: 'a.png', mimetype: 'image/png' })])
-    expect(urls).toHaveLength(2)
-    expect(prisma.media.create).toHaveBeenCalledTimes(2)
+  it('uploade plusieurs fichiers', async () => {
+    vi.mocked(uploadBuffer).mockResolvedValue({
+      publicId: 'swisswood/photo.jpg',
+      url: 'https://res.cloudinary.com/test-cloud/image/upload/f_auto,q_auto/swisswood/photo.jpg',
+    })
+    const images = await storeImageFiles([makeFile(), makeFile({ originalname: 'a.png', mimetype: 'image/png' })])
+    expect(images).toHaveLength(2)
+    expect(uploadBuffer).toHaveBeenCalledTimes(2)
   })
 
-  it('retourne null si le média est introuvable', async () => {
-    vi.mocked(prisma.media.findUnique).mockResolvedValue(null)
-    await expect(findMediaById(UUID)).resolves.toBeNull()
-    expect(prisma.media.findUnique).toHaveBeenCalledWith({ where: { id: UUID } })
+  it('supprime une image via son publicId', async () => {
+    vi.mocked(destroyImage).mockResolvedValue()
+    await deleteImage('swisswood/photo.jpg')
+    expect(destroyImage).toHaveBeenCalledWith('swisswood/photo.jpg')
   })
 })

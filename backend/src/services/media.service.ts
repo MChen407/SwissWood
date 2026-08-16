@@ -1,25 +1,19 @@
-import { prisma } from '../config/db.js'
 import { env } from '../config/env.js'
+import { destroyImage, uploadBuffer } from '../config/cloudinary.js'
 
-export async function storeImageFiles(files: Express.Multer.File[]): Promise<string[]> {
-  const publicBase = (env.API_PUBLIC_URL.trim().replace(/\/$/, '') || 'https://swisswood-production.up.railway.app')
-  const urls: string[] = []
+export type UploadedImage = { publicId: string; url: string }
+
+export async function storeImageFiles(files: Express.Multer.File[]): Promise<UploadedImage[]> {
+  const images: UploadedImage[] = []
 
   for (const file of files) {
-    const media = await prisma.media.create({
-      data: {
-        filename: file.originalname,
-        mimetype: file.mimetype,
-        size: file.size,
-        data: file.buffer as unknown as Uint8Array<ArrayBuffer>,
-      },
-    })
-    urls.push(`${publicBase}/api/media/${media.id}`)
+    const uploaded = await uploadBuffer(file.buffer, { folder: env.CLOUDINARY_FOLDER })
+    images.push(uploaded)
   }
 
-  return urls
+  return images
 }
 
-export async function findMediaById(id: string) {
-  return prisma.media.findUnique({ where: { id } })
+export async function deleteImage(publicId: string): Promise<void> {
+  await destroyImage(publicId)
 }

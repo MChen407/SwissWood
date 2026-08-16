@@ -371,20 +371,3 @@ model ContactMessage {
 // STATS VUE AGRÉGÉE
 // Dashboard admin — optionnelle via requêtes
 // =====================================================================
-
-// =====================================================================
-// MEDIA (images uploadées, stockées en base — LONGBLOB)
-// =====================================================================
-
-model Media {
-  id       String   @id @default(uuid()) @db.Char(36)
-  filename String   @db.VarChar(255)
-  mimetype String   @db.VarChar(100)
-  size     Int
-  data     Bytes    @db.LongBlob
-
-  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
-
-  @@index([createdAt])
-  @@map("media")
-}

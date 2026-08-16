@@ -12,7 +12,6 @@ export const ACCESS_TOKEN_KEY = 'swisswood_access_token'
 export const REFRESH_TOKEN_KEY = 'swisswood_refresh_token'
 
 export const apiBaseUrl: string = (import.meta.env.VITE_API_URL as string | undefined) || DEFAULT_BASE_URL
-export const apiOrigin: string = apiBaseUrl.replace(/\/api\/?$/, '')
 
 // =====================================================================
 // Erreur d'API
@@ -61,18 +60,11 @@ export function isAuthenticated(): boolean {
 export function resolveImageUrl(image: string): string {
   if (!image) return ''
 
-  // URL complète contenant un média → on la reconstruit contre le vrai backend
-  const mediaMatch = image.match(/\/api\/media\/([0-9a-fA-F-]+)/)
-  if (mediaMatch) return `${apiOrigin}/api/media/${mediaMatch[1]}`
-
-  // URL relative du backend
-  if (image.startsWith('/api/media/')) return `${apiOrigin}${image}`
-
-  // Si c'est déjà une URL complète (ex. image externe)
+  // URL complète (ex. image externe ou Cloudinary)
   if (image.startsWith('http://') || image.startsWith('https://')) return image
 
-  // Sinon, image contient l'ID du média
-  return `${apiOrigin}/api/media/${image}`
+  // Sinon, l'URL est telle quelle
+  return image
 }
 
 
@@ -657,7 +649,12 @@ export const api = {
     uploadImages: (files: File[]) => {
       const formData = new FormData()
       for (const file of files) formData.append('images', file)
-      return request<{ urls: string[] }>('/admin/uploads/images', { method: 'POST', body: formData })
+      return request<{ urls: string[]; publicIds: string[] }>('/admin/uploads/images', {
+        method: 'POST',
+        body: formData,
+      })
     },
+    deleteImage: (publicId: string) =>
+      request<{ deleted: string }>(`/admin/uploads/images/${encodeURIComponent(publicId)}`, { method: 'DELETE' }),
   },
 }

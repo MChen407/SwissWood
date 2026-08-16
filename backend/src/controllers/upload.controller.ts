@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { MAX_IMAGE_COUNT, MAX_IMAGE_SIZE } from '../config/upload.js'
-import { storeImageFiles } from '../services/media.service.js'
+import { deleteImage, storeImageFiles } from '../services/media.service.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { BadRequestError } from '../utils/httpErrors.js'
@@ -25,7 +25,23 @@ export const uploadImagesController = asyncHandler(async (req: Request, res: Res
     )
   }
 
-  const urls = await storeImageFiles(files)
+  const images = await storeImageFiles(files)
 
-  ApiResponse.success(res, { urls }, StatusCodes.CREATED)
+  ApiResponse.success(
+    res,
+    { urls: images.map((image) => image.url), publicIds: images.map((image) => image.publicId) },
+    StatusCodes.CREATED
+  )
+})
+
+export const deleteImageController = asyncHandler(async (req: Request, res: Response) => {
+  const publicId = (req.params as Record<string, string | undefined>)['0']
+
+  if (!publicId) {
+    throw new BadRequestError('publicId manquant')
+  }
+
+  await deleteImage(publicId)
+
+  ApiResponse.success(res, { deleted: publicId }, StatusCodes.OK)
 })
