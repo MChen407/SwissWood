@@ -244,6 +244,8 @@ model Order {
   paymentStatus OrderPaymentStatus @default(pending) @map("payment_status")
 
   subtotalEur Int @default(0) @map("subtotal_eur")
+  shippingFeeEur Int @default(0) @map("shipping_fee_eur")
+  shippingWeightKg Decimal @default(0) @map("shipping_weight_kg") @db.Decimal(10, 2)
   totalEur    Int @default(0) @map("total_eur")
 
   currency String @default("EUR") @db.VarChar(10)
@@ -371,3 +373,19 @@ model ContactMessage {
 // STATS VUE AGRÉGÉE
 // Dashboard admin — optionnelle via requêtes
 // =====================================================================
+
+// =====================================================================
+// SHIPPING FEES (frais de livraison par pays, définis par l'admin)
+// =====================================================================
+
+model ShippingFee {
+  id      String @id @default(uuid()) @db.Char(36)
+  country String @unique @db.VarChar(80)
+  feeEur  Int    @default(0) @map("fee_eur")
+  active  Boolean @default(true)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  @@map("shipping_fees")
+}

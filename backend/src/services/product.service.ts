@@ -2,10 +2,16 @@ import { Prisma } from '@prisma/client'
 import { productRepository, type ProductListFilters } from '../repositories/product.repository.js'
 import { toProductDto, type ProductDto } from '../dto/public.dto.js'
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/httpErrors.js'
-import { PRODUCT_ESSENCES, type ProductEssence } from '../constants/index.js'
+import {
+  essenceGroupOf,
+  ESSENCE_GROUP_IDS,
+  PRODUCT_ESSENCES,
+  type ProductEssence,
+} from '../constants/index.js'
 
 export interface ProductListQuery {
   essence?: string
+  group?: string
   exclude?: string
   active?: boolean
   sort?: string
@@ -22,6 +28,11 @@ function normalizeFilters(query: ProductListQuery): ProductListFilters {
       throw new BadRequestError('Essence de bois invalide')
     }
     filters.essence = query.essence as ProductEssence
+  } else if (query.group) {
+    if (!ESSENCE_GROUP_IDS.includes(query.group as (typeof ESSENCE_GROUP_IDS)[number])) {
+      throw new BadRequestError('Catégorie d’essence invalide')
+    }
+    filters.essences = essenceGroupOf(query.group)
   }
 
   if (query.exclude) filters.excludeId = query.exclude
@@ -42,7 +53,7 @@ export const productService = {
     const filters = normalizeFilters(query)
     const [items, total] = await Promise.all([
       productRepository.findMany(filters),
-      productRepository.count(filters as Pick<ProductListFilters, 'essence' | 'active'>),
+      productRepository.count(filters as Pick<ProductListFilters, 'essence' | 'essences' | 'active'>),
     ])
     return {
       items: items.map(toProductDto),

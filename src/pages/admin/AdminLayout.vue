@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { LayoutDashboard, Package, Users, CreditCard, Star, FileText, LogOut, ShieldCheck, Menu, X } from 'lucide-vue-next'
+import { LayoutDashboard, Package, Users, CreditCard, Star, FileText, LogOut, ShieldCheck, Menu, X, Truck } from 'lucide-vue-next'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -19,6 +19,7 @@ const links = [
   { to: '/admin/paiements', label: 'Paiements', icon: CreditCard },
   { to: '/admin/avis', label: 'Avis', icon: Star },
   { to: '/admin/contenu', label: 'Contenu CMS', icon: FileText },
+  { to: '/admin/livraison', label: 'Livraison', icon: Truck },
 ]
 
 async function signOut() {

@@ -1,9 +1,10 @@
 import { z } from 'zod'
-import { PRODUCT_ESSENCES } from '../constants/index.js'
+import { ESSENCE_GROUP_IDS, PRODUCT_ESSENCES } from '../constants/index.js'
 
 export const listProductsSchema = z.object({
   query: z.object({
     essence: z.enum(PRODUCT_ESSENCES).optional(),
+    group: z.enum(ESSENCE_GROUP_IDS).optional(),
     exclude: z.string().uuid('Identifiant invalide').optional(),
     active: z
       .enum(['true', 'false'])

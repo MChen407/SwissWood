@@ -9,6 +9,7 @@ import type { AdminProductInput } from '../services/product.service.js'
 export const listProducts = asyncHandler(async (req: Request, res: Response) => {
   const query = (req.query as unknown) as {
     essence?: string
+    group?: string
     exclude?: string
     active?: boolean | undefined
     sort?: string

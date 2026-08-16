@@ -43,4 +43,29 @@ export const PRODUCT_ESSENCES = [
   'Meleze',
 ] as const
 export type ProductEssence = (typeof PRODUCT_ESSENCES)[number]
+
+export const ESSENCE_GROUPS = [
+  {
+    id: 'feuillus_durs',
+    label: 'Feuillus durs',
+    essences: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier'] as const,
+  },
+  {
+    id: 'feuillus_mi_durs',
+    label: 'Feuillus mi-durs / intermédiaires',
+    essences: ['Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier'] as const,
+  },
+  {
+    id: 'resineux_tendres',
+    label: 'Résineux & feuillus tendres',
+    essences: ['Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'] as const,
+  },
+] as const
+
+export const ESSENCE_GROUP_IDS = ['feuillus_durs', 'feuillus_mi_durs', 'resineux_tendres'] as const
+
+export function essenceGroupOf(groupId: string): ProductEssence[] {
+  const group = ESSENCE_GROUPS.find((g) => g.id === groupId)
+  return group ? [...group.essences] : []
+}
 export const CURRENCIES = ['EUR', 'USD', 'FCFA'] as const

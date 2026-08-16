@@ -42,6 +42,7 @@ const router = createRouter({
         { path: 'paiements', name: 'admin-payments', component: () => import('@/pages/admin/AdminPayments.vue') },
         { path: 'avis', name: 'admin-reviews', component: () => import('@/pages/admin/AdminReviews.vue') },
         { path: 'contenu', name: 'admin-cms', component: () => import('@/pages/admin/AdminCms.vue') },
+        { path: 'livraison', name: 'admin-shipping', component: () => import('@/pages/admin/AdminShipping.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/pages/NotFoundPage.vue') },

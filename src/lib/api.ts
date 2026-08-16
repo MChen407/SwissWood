@@ -209,6 +209,7 @@ export interface ProductDto {
     width_mm?: number
     thickness_mm?: number
     weight_kg_m3?: number
+    weight_kg?: number
   }
   images: string[]
   characteristics: Record<string, string>
@@ -222,6 +223,15 @@ export interface ProductListResponse {
   total: number
   limit: number
   offset: number
+}
+
+export interface ShippingRate {
+  country: string
+  fee_eur: number
+}
+
+export interface AdminShippingFee extends ShippingRate {
+  active: boolean
 }
 
 export interface ReviewAuthorDto {
@@ -264,6 +274,8 @@ export interface OrderDto {
   payment_method: PaymentMethod
   payment_status: OrderPaymentStatus
   subtotal_eur: number
+  shipping_fee_eur: number
+  shipping_weight_kg: number
   total_eur: number
   currency: string
   shipping_address: Record<string, unknown>
@@ -433,6 +445,7 @@ export interface AdminProductInput {
 
 export type ProductListQuery = {
   essence?: ProductEssence
+  group?: string
   exclude?: string
   active?: boolean
   sort?: 'price_asc' | 'price_desc'
@@ -623,6 +636,11 @@ export const api = {
     get: () => request<CmsContentDto[]>('/cms', { auth: false }),
   },
 
+  // ---------- Shipping ----------
+  shipping: {
+    rates: () => request<{ rates: ShippingRate[] }>('/shipping/rates', { auth: false }),
+  },
+
   // ---------- Admin ----------
   admin: {
     stats: () => request<AdminStatsDto>('/admin/stats'),
@@ -656,5 +674,10 @@ export const api = {
     },
     deleteImage: (publicId: string) =>
       request<{ deleted: string }>(`/admin/uploads/images/${encodeURIComponent(publicId)}`, { method: 'DELETE' }),
+    listShippingFees: () => request<{ fees: AdminShippingFee[] }>('/admin/shipping'),
+    upsertShippingFee: (input: { country: string; fee_eur: number; active?: boolean }) =>
+      request<{ fee: AdminShippingFee }>('/admin/shipping', { method: 'PUT', body: input }),
+    deleteShippingFee: (country: string) =>
+      request<{ deleted: string }>('/admin/shipping', { method: 'DELETE', body: { country } }),
   },
 }

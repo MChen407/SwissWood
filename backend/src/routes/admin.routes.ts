@@ -20,6 +20,11 @@ import { deleteImageController, uploadImagesController } from '../controllers/up
 import { uploadImages } from '../config/upload.js'
 import { getCmsContent, updateCmsContent } from '../controllers/cms.controller.js'
 import {
+  deleteShippingFee,
+  listAdminShippingFees,
+  upsertShippingFee,
+} from '../controllers/shippingFee.controller.js'
+import {
   createProductSchema,
   productParamsSchema,
   updateCmsSchema,
@@ -28,6 +33,7 @@ import {
   updateProductSchema,
   updateUserRoleSchema,
 } from '../validators/admin.validator.js'
+import { deleteShippingFeeSchema, upsertShippingFeeSchema } from '../validators/shippingFee.validator.js'
 import { reviewParamsSchema } from '../validators/review.validator.js'
 
 const router = Router()
@@ -56,6 +62,10 @@ router.patch('/reviews/:id/reject', validate(reviewParamsSchema), rejectReview)
 
 router.get('/cms', getCmsContent)
 router.patch('/cms/:id', validate(updateCmsSchema), updateCmsContent)
+
+router.get('/shipping', listAdminShippingFees)
+router.put('/shipping', validate(upsertShippingFeeSchema), upsertShippingFee)
+router.delete('/shipping', validate(deleteShippingFeeSchema), deleteShippingFee)
 
 router.post('/uploads/images', uploadImages.array('images'), uploadImagesController)
 router.delete('/uploads/images/*', deleteImageController)

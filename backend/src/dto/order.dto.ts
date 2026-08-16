@@ -29,6 +29,8 @@ export interface OrderDto {
   payment_method: PaymentMethod
   payment_status: OrderPaymentStatus
   subtotal_eur: number
+  shipping_fee_eur: number
+  shipping_weight_kg: number
   total_eur: number
   currency: string
   shipping_address: unknown
@@ -80,6 +82,8 @@ export function toOrderDto(order: Order): OrderDto {
     payment_method: order.paymentMethod,
     payment_status: order.paymentStatus,
     subtotal_eur: order.subtotalEur,
+    shipping_fee_eur: order.shippingFeeEur,
+    shipping_weight_kg: Number(order.shippingWeightKg),
     total_eur: order.totalEur,
     currency: order.currency,
     shipping_address: order.shippingAddress,

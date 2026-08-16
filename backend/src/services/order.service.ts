@@ -1,5 +1,6 @@
 import { orderRepository } from '../repositories/order.repository.js'
 import { productRepository } from '../repositories/product.repository.js'
+import { shippingFeeService } from './shippingFee.service.js'
 import { BadRequestError, NotFoundError } from '../utils/httpErrors.js'
 import { customDimensionMultiplier } from '../utils/pricing.js'
 import { toOrderDetailDto, toOrderDto, type OrderDetailDto, type OrderDto } from '../dto/order.dto.js'
@@ -23,6 +24,17 @@ function generateOrderNumber(): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
   const random = Math.random().toString(36).slice(2, 8).toUpperCase()
   return `SW-${date}-${random}`
+}
+
+function weightPerUnit(product: { dimensions: unknown }, multiplier: number): number {
+  const dimensions = (product.dimensions ?? {}) as Record<string, unknown>
+  const weightKg =
+    typeof dimensions.weight_kg === 'number'
+      ? dimensions.weight_kg
+      : typeof dimensions.weight_kg === 'string' && dimensions.weight_kg.trim() !== ''
+        ? Number(dimensions.weight_kg)
+        : 0
+  return Number.isFinite(weightKg) ? weightKg * multiplier : 0
 }
 
 export const orderService = {
@@ -56,6 +68,7 @@ export const orderService = {
         quantity: line.quantity,
         unit: line.unit,
         unitPriceEur,
+        weightKg: weightPerUnit(product, multiplier),
         customization: {
           ...customization,
           __price_usd: unitPriceUsd,
@@ -65,6 +78,12 @@ export const orderService = {
     })
 
     const subtotalEur = items.reduce((sum, item) => sum + item.unitPriceEur * item.quantity, 0)
+    const shippingWeightKg = Number(
+      items.reduce((sum, item) => sum + item.weightKg * item.quantity, 0).toFixed(2)
+    )
+    const shippingFeeEur = await shippingFeeService.getFeeForCountry(
+      input.shipping_address?.country as string | undefined
+    )
 
     const order = await orderRepository.createWithItems({
       userId,
@@ -73,7 +92,9 @@ export const orderService = {
       shippingAddress: input.shipping_address,
       notes: input.notes,
       subtotalEur,
-      totalEur: subtotalEur,
+      shippingFeeEur,
+      shippingWeightKg,
+      totalEur: subtotalEur + shippingFeeEur,
       items,
     })
 

@@ -1,6 +1,7 @@
 import { env } from './config/env.js'
 import { createApp, checkDatabaseConnection } from './app.js'
 import { prisma } from './config/db.js'
+import { shippingFeeService } from './services/shippingFee.service.js'
 
 const app = createApp()
 
@@ -8,6 +9,8 @@ async function start(): Promise<void> {
   try {
     await checkDatabaseConnection()
     console.log('🗄️  Connexion à la base de données établie')
+    await shippingFeeService.ensureDefaults()
+    console.log('🚚 Frais de livraison par défaut à jour')
   } catch (error) {
     console.error('❌ Connexion à la base de données impossible :', (error as Error).message)
     process.exit(1)

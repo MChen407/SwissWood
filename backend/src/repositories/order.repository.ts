@@ -16,6 +16,8 @@ export interface CreateOrderData {
   shippingAddress: unknown
   notes?: string
   subtotalEur: number
+  shippingFeeEur: number
+  shippingWeightKg: number
   totalEur: number
   items: CreateOrderItemData[]
 }
@@ -33,6 +35,8 @@ export const orderRepository = {
           shippingAddress: (data.shippingAddress ?? {}) as Prisma.InputJsonValue,
           notes: data.notes,
           subtotalEur: data.subtotalEur,
+          shippingFeeEur: data.shippingFeeEur,
+          shippingWeightKg: data.shippingWeightKg,
           totalEur: data.totalEur,
           items: {
             createMany: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowRight, ArrowLeft, Shield, Truck, RotateCcw } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
@@ -25,6 +25,19 @@ const shipping = ref({
 })
 const loading = ref(false)
 const error = ref('')
+const shippingRates = ref<Record<string, number>>({})
+
+const shippingFeeEur = computed(() => shippingRates.value[shipping.value.country] ?? 0)
+const totalEur = computed(() => cart.subtotal + shippingFeeEur.value)
+
+onMounted(async () => {
+  try {
+    const { rates } = await api.shipping.rates()
+    shippingRates.value = Object.fromEntries(rates.map((r) => [r.country, r.fee_eur]))
+  } catch {
+    shippingRates.value = {}
+  }
+})
 
 async function placeOrder() {
   if (cart.items.length === 0) return
@@ -153,8 +166,9 @@ async function placeOrder() {
               <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
             </div>
             <div class="flex justify-between">
-              <span style="color:#7A7167;">Livraison</span>
-              <span style="color:#7A7167;">À déterminer</span>
+              <span style="color:#7A7167;">Livraison ({{ shipping.country }})</span>
+              <span v-if="shippingFeeEur > 0" class="font-semibold" style="color:#4A2C1A;">{{ currency.formatEur(shippingFeeEur) }}</span>
+              <span v-else style="color:#B23A2E;">À confirmer</span>
             </div>
           </div>
 
@@ -162,7 +176,7 @@ async function placeOrder() {
 
           <div class="flex justify-between items-center mb-6">
             <span class="font-semibold" style="color:#4A2C1A;">Total</span>
-            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
+            <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatEur(totalEur) }}</span>
           </div>
 
           <div v-if="error" class="mb-4 p-3 rounded-lg text-sm" style="background:#fde8e6; color:#C0392B;">{{ error }}</div>

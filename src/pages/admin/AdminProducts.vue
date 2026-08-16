@@ -20,7 +20,7 @@ const deleteError = ref('')
 const emptyForm = {
   name: '', slug: '', essence: 'Charme' as ProductEssence, description: '',
   price_eur: 0, price_usd: 0, price_fcfa: 0, stock: 0,
-  length_mm: 4000, width_mm: 100, thickness_mm: 30, weight_kg_m3: 500,
+  length_mm: 4000, width_mm: 100, thickness_mm: 30, weight_kg_m3: 500, weight_kg: 0,
   images: [] as string[], certification: 'FSC', class_emploi: 'Classe 3', origine: '', traitement: 'Naturel', is_active: true,
 }
 const form = ref({ ...emptyForm })
@@ -42,6 +42,7 @@ function openEdit(p: ProductDto) {
     price_eur: p.price_eur, price_usd: p.price_usd, price_fcfa: p.price_fcfa, stock: p.stock,
     length_mm: p.dimensions.length_mm ?? 4000, width_mm: p.dimensions.width_mm ?? 100,
     thickness_mm: p.dimensions.thickness_mm ?? 30, weight_kg_m3: p.dimensions.weight_kg_m3 ?? 500,
+    weight_kg: p.dimensions.weight_kg ?? 0,
     images: [...p.images],
     certification: p.characteristics.certification || 'FSC', class_emploi: p.characteristics.class_emploi || 'Classe 3',
     origine: p.characteristics.origine || '', traitement: p.characteristics.traitement || 'Naturel', is_active: p.is_active,
@@ -77,7 +78,7 @@ async function save() {
     essence: form.value.essence, description: form.value.description,
     price_eur: Number(form.value.price_eur), price_usd: Number(form.value.price_usd), price_fcfa: Number(form.value.price_fcfa),
     stock: Number(form.value.stock),
-    dimensions: { length_mm: Number(form.value.length_mm), width_mm: Number(form.value.width_mm), thickness_mm: Number(form.value.thickness_mm), weight_kg_m3: Number(form.value.weight_kg_m3) },
+    dimensions: { length_mm: Number(form.value.length_mm), width_mm: Number(form.value.width_mm), thickness_mm: Number(form.value.thickness_mm), weight_kg_m3: Number(form.value.weight_kg_m3), weight_kg: Number(form.value.weight_kg) },
     images: form.value.images,
     characteristics: { certification: form.value.certification, class_emploi: form.value.class_emploi, origine: form.value.origine, traitement: form.value.traitement },
     is_active: form.value.is_active,
@@ -190,6 +191,9 @@ async function remove(id: string) {
             <div><label class="text-sm text-wood-500">Largeur (mm)</label><input v-model.number="form.width_mm" type="number" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
             <div><label class="text-sm text-wood-500">Épaisseur (mm)</label><input v-model.number="form.thickness_mm" type="number" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
             <div><label class="text-sm text-wood-500">Densité (kg/m³)</label><input v-model.number="form.weight_kg_m3" type="number" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="text-sm text-wood-500">Poids unitaire (kg)</label><input v-model.number="form.weight_kg" type="number" min="0" step="0.01" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
           </div>
           <div>
             <label class="text-sm text-wood-500">Images</label>
