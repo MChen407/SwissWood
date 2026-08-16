@@ -14,7 +14,29 @@ vi.mock('../../src/services/media.service.js', () => ({
   deleteImage: vi.fn(async () => undefined),
 }))
 
+vi.mock('../../src/services/shippingFee.service.js', () => ({
+  shippingFeeService: {
+    ensureDefaults: vi.fn(async () => undefined),
+    listActiveRates: vi.fn(async () => [
+      { country: 'Suisse', fee_eur: 1500 },
+      { country: 'France', fee_eur: 2000 },
+    ]),
+  },
+}))
+
 const app = createApp()
+
+describe('Shipping — taux de livraison publics', () => {
+  it('GET /api/shipping/rates renvoie les frais par pays', async () => {
+    const res = await request(app).get('/api/shipping/rates')
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.rates).toEqual([
+      { country: 'Suisse', fee_eur: 1500 },
+      { country: 'France', fee_eur: 2000 },
+    ])
+  })
+})
 
 describe('API — endpoints racine et erreurs', () => {
   it('GET / expose les liens de l’API', async () => {

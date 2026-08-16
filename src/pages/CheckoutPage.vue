@@ -26,6 +26,7 @@ const shipping = ref({
 const loading = ref(false)
 const error = ref('')
 const shippingRates = ref<Record<string, number>>({})
+const ratesLoaded = ref(false)
 
 const shippingFeeEur = computed(() => shippingRates.value[shipping.value.country] ?? 0)
 const totalEur = computed(() => cart.subtotal + shippingFeeEur.value)
@@ -36,6 +37,8 @@ onMounted(async () => {
     shippingRates.value = Object.fromEntries(rates.map((r) => [r.country, r.fee_eur]))
   } catch {
     shippingRates.value = {}
+  } finally {
+    ratesLoaded.value = true
   }
 })
 
@@ -168,7 +171,8 @@ async function placeOrder() {
             <div class="flex justify-between">
               <span style="color:#7A7167;">Livraison ({{ shipping.country }})</span>
               <span v-if="shippingFeeEur > 0" class="font-semibold" style="color:#4A2C1A;">{{ currency.formatEur(shippingFeeEur) }}</span>
-              <span v-else style="color:#B23A2E;">À confirmer</span>
+              <span v-else-if="!ratesLoaded" style="color:#7A7167;">…</span>
+              <span v-else style="color:#2E7D32;">Gratuit</span>
             </div>
           </div>
 

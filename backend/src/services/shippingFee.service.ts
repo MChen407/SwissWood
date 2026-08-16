@@ -18,7 +18,9 @@ export const shippingFeeService = {
   },
 
   async getFeeForCountry(country: string | undefined): Promise<number> {
-    if (!country) return 0
+    if (!country) {
+      return 0
+    }
     const fee = await shippingFeeRepository.findByCountry(country.trim())
     return fee?.active ? fee.feeEur : 0
   },

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Search, SlidersHorizontal, X } from 'lucide-vue-next'
+import { Search, SlidersHorizontal, X, ChevronDown } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
@@ -13,21 +13,41 @@ const products = ref<ProductDto[]>([])
 const loading = ref(true)
 const search = ref('')
 const selectedEssence = ref('')
+const selectedGroup = ref('')
 const sortBy = ref<'price-asc' | 'price-desc' | 'name'>('price-asc')
 
 const essences = ESSENCE_GROUPS
 
+const activeGroup = computed(() => essences.find((g) => g.id === selectedGroup.value) ?? null)
+
 onMounted(async () => {
   if (route.query.essence) selectedEssence.value = route.query.essence as string
+  if (route.query.group) selectedGroup.value = route.query.group as string
   await load()
 })
 
-watch([search, selectedEssence, sortBy], load)
-watch(selectedEssence, (v) => router.replace({ query: { ...route.query, essence: v || undefined } }))
+watch([search, selectedEssence, selectedGroup, sortBy], load)
+watch([selectedEssence, selectedGroup], () => {
+  const query: Record<string, string> = { ...(route.query as Record<string, string>) }
+  if (selectedEssence.value) {
+    query.essence = selectedEssence.value
+    delete query.group
+  } else if (selectedGroup.value) {
+    query.group = selectedGroup.value
+    delete query.essence
+  } else {
+    delete query.essence
+    delete query.group
+  }
+  router.replace({ query })
+})
 
 async function load() {
   loading.value = true
-  const res = await api.products.list({ active: true, essence: (selectedEssence.value || undefined) as ProductEssence })
+  const query: { active: boolean; essence?: ProductEssence; group?: string } = { active: true }
+  if (selectedEssence.value) query.essence = selectedEssence.value as ProductEssence
+  else if (selectedGroup.value) query.group = selectedGroup.value
+  const res = await api.products.list(query)
   let list = res.items
   if (search.value) {
     const q = search.value.toLowerCase()
@@ -40,8 +60,19 @@ async function load() {
   loading.value = false
 }
 
-function clearFilters() { search.value = ''; selectedEssence.value = ''; sortBy.value = 'price-asc' }
-const hasFilters = computed(() => !!search.value || !!selectedEssence.value)
+function selectGroup(id: string) {
+  selectedEssence.value = ''
+  selectedGroup.value = selectedGroup.value === id ? '' : id
+}
+
+function selectEssence(e: string) {
+  selectedEssence.value = selectedEssence.value === e ? '' : e
+}
+
+function clearFilters() {
+  search.value = ''; selectedEssence.value = ''; selectedGroup.value = ''; sortBy.value = 'price-asc'
+}
+const hasFilters = computed(() => !!search.value || !!selectedEssence.value || !!selectedGroup.value)
 </script>
 
 <template>
@@ -63,15 +94,22 @@ const hasFilters = computed(() => !!search.value || !!selectedEssence.value)
               <button v-if="hasFilters" @click="clearFilters" class="text-xs flex items-center gap-1 hover:underline" style="color:#B23A2E;"><X class="w-3 h-3" /> Effacer</button>
             </div>
             <div class="space-y-1">
-              <p class="text-xs font-semibold uppercase tracking-widest mb-2" style="color:#C89B5D;">Essence</p>
-              <button @click="selectedEssence = ''"
+              <p class="text-xs font-semibold uppercase tracking-widest mb-2" style="color:#C89B5D;">Catégorie</p>
+              <button @click="clearFilters()"
                 class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
-                :style="!selectedEssence ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
-                :class="!selectedEssence ? '' : 'hover:bg-wood-50'">Toutes les essences</button>
+                :style="!selectedGroup && !selectedEssence ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
+                :class="!selectedGroup && !selectedEssence ? '' : 'hover:bg-wood-50'">Toutes les essences</button>
 
-              <div v-for="group in essences" :key="group.id" class="pt-3">
-                <p class="text-[10px] font-semibold uppercase tracking-widest mb-1.5 mt-2 first:mt-0" style="color:#C89B5D;">{{ group.label }}</p>
-                <button v-for="e in group.essences" :key="e" @click="selectedEssence = e"
+              <button v-for="group in essences" :key="group.id" @click="selectGroup(group.id)"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                :style="selectedGroup === group.id ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
+                :class="selectedGroup === group.id ? '' : 'hover:bg-wood-50'">
+                <span>{{ group.label }}</span>
+                <ChevronDown class="w-4 h-4 transition-transform" :class="{ 'rotate-180': selectedGroup === group.id }" />
+              </button>
+
+              <div v-if="activeGroup" class="ml-3 mt-1 space-y-1">
+                <button v-for="e in activeGroup.essences" :key="e" @click="selectEssence(e)"
                   class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
                   :style="selectedEssence === e ? 'background:#6B4226; color:#fff;' : 'color:#6B4226;'"
                   :class="selectedEssence === e ? '' : 'hover:bg-wood-50'">{{ PRODUCT_ESSENCE_LABELS[e] }}</button>

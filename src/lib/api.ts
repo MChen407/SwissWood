@@ -457,7 +457,7 @@ export type ProductListQuery = {
 // Core HTTP
 // =====================================================================
 
-type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
+type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
 interface RequestOptions {
   method?: HttpMethod

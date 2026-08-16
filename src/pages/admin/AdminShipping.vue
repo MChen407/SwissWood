@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { Save, Check, Plus, Trash2, Loader2 } from 'lucide-vue-next'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { COUNTRIES } from '@/lib/countries'
-import { api, type AdminShippingFee } from '@/lib/api'
+import { api } from '@/lib/api'
 
 interface Row {
   country: string
@@ -95,7 +95,7 @@ async function remove(row: Row) {
       Frais appliqués au moment de la commande selon le pays de livraison. Montant en euros. Pays non configuré : livraison gratuite (0 €).
     </p>
 
-    <div v-if="error" class="mb-4 p-3 rounded-lg text-sm bg-error-50 text-error-500">{{ error }}</div>
+    <div v-if="error" class="mb-4 p-3 rounded-lg text-sm bg-error-100 text-error-500">{{ error }}</div>
 
     <div v-if="loading" class="text-center py-10 text-wood-400">Chargement...</div>
     <div v-else-if="rows.length === 0" class="text-center py-12 bg-white rounded-xl border border-wood-200">

@@ -18,10 +18,16 @@ vi.mock('../../src/repositories/product.repository', () => ({
     findByIds: vi.fn(),
   },
 }))
+vi.mock('../../src/services/shippingFee.service', () => ({
+  shippingFeeService: {
+    getFeeForCountry: vi.fn(async () => 0),
+  },
+}))
 
 import { orderService } from '../../src/services/order.service.js'
 import { orderRepository } from '../../src/repositories/order.repository.js'
 import { productRepository } from '../../src/repositories/product.repository.js'
+import { shippingFeeService } from '../../src/services/shippingFee.service.js'
 import { BadRequestError, NotFoundError } from '../../src/utils/httpErrors.js'
 import type { OrderStatus, Product } from '@prisma/client'
 import type { OrderDto } from '../../src/dto/order.dto.js'
@@ -58,6 +64,8 @@ function makeOrder(overrides: Partial<Record<string, unknown>> = {}) {
     paymentMethod: 'card',
     paymentStatus: 'pending',
     subtotalEur: 20000,
+    shippingFeeEur: 0,
+    shippingWeightKg: 0,
     totalEur: 20000,
     currency: 'EUR',
     shippingAddress: {},
@@ -126,6 +134,25 @@ describe('orderService.create', () => {
         shipping_address: {},
       })
     ).rejects.toBeInstanceOf(BadRequestError)
+  })
+
+  it('calcule les frais de livraison et le poids total', async () => {
+    vi.mocked(productRepository.findByIds).mockResolvedValue([
+      makeProduct({ dimensions: { weight_kg: 2 } }),
+    ])
+    vi.mocked(shippingFeeService.getFeeForCountry).mockResolvedValue(1500)
+    vi.mocked(orderRepository.createWithItems).mockResolvedValue(makeOrder() as never)
+
+    await orderService.create('user-1', {
+      items: [{ productId: UUID, quantity: 3, unit: 'pcs', customization: {} }],
+      currency: 'EUR',
+      shipping_address: { country: 'Suisse' },
+    })
+
+    expect(shippingFeeService.getFeeForCountry).toHaveBeenCalledWith('Suisse')
+    expect(orderRepository.createWithItems).toHaveBeenCalledWith(
+      expect.objectContaining({ shippingFeeEur: 1500, shippingWeightKg: 6, totalEur: 31500 })
+    )
   })
 })
 

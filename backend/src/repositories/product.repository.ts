@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import { prisma } from '../config/db.js'
 
 export interface ProductListFilters {
@@ -14,9 +14,11 @@ export interface ProductListFilters {
 export const productRepository = {
   async findMany(filters: ProductListFilters = {}) {
     const where: Prisma.ProductWhereInput = {}
-    if (filters.essence) where.essence = filters.essence as Prisma.ProductWhereInput['essence']
-    else if (filters.essences && filters.essences.length > 0)
+    if (filters.essence) {
+      where.essence = filters.essence as Prisma.ProductWhereInput['essence']
+    } else if (filters.essences && filters.essences.length > 0) {
       where.essence = { in: filters.essences as Prisma.ProductWhereInput['essence'][] } as Prisma.ProductWhereInput['essence']
+    }
     if (filters.active !== undefined) where.isActive = filters.active
     if (filters.excludeId) where.id = { not: filters.excludeId }
 
@@ -41,9 +43,11 @@ export const productRepository = {
 
   async count(filters: Pick<ProductListFilters, 'essence' | 'essences' | 'active'> = {}) {
     const where: Prisma.ProductWhereInput = {}
-    if (filters.essence) where.essence = filters.essence as Prisma.ProductWhereInput['essence']
-    else if (filters.essences && filters.essences.length > 0)
+    if (filters.essence) {
+      where.essence = filters.essence as Prisma.ProductWhereInput['essence']
+    } else if (filters.essences && filters.essences.length > 0) {
       where.essence = { in: filters.essences as Prisma.ProductWhereInput['essence'][] } as Prisma.ProductWhereInput['essence']
+    }
     if (filters.active !== undefined) where.isActive = filters.active
     return prisma.product.count({ where })
   },

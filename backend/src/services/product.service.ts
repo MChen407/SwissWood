@@ -35,7 +35,9 @@ function normalizeFilters(query: ProductListQuery): ProductListFilters {
     filters.essences = essenceGroupOf(query.group)
   }
 
-  if (query.exclude) filters.excludeId = query.exclude
+  if (query.exclude) {
+    filters.excludeId = query.exclude
+  }
 
   const validSorts = ['price_asc', 'price_desc']
   if (query.sort && validSorts.includes(query.sort)) {
