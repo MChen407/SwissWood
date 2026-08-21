@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Trash2, Plus, Minus, ArrowRight, ShoppingCart, ArrowLeft, Shield, Truck, RotateCcw } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import { useCartStore } from '@/stores/cart'
 import { useCurrencyStore } from '@/stores/currency'
 import { useAuthStore } from '@/stores/auth'
 import { itemLinePrice } from '@/lib/pricing'
-import { resolveImageUrl, PRODUCT_ESSENCE_LABELS } from '@/lib/api'
+import { resolveImageUrl } from '@/lib/api'
 
+const { t } = useI18n()
 const cart = useCartStore()
 const currency = useCurrencyStore()
 const auth = useAuthStore()
@@ -26,13 +28,13 @@ function checkout() {
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
         <div>
-          <h1 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">Votre panier</h1>
+          <h1 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">{{ t('cart.title') }}</h1>
           <p class="text-sm mt-1" style="color:#7A7167;" v-if="cart.items.length > 0">
-            {{ cart.itemCount }} article{{ cart.itemCount > 1 ? 's' : '' }} sélectionné{{ cart.itemCount > 1 ? 's' : '' }}
+            {{ t('cart.itemCount', cart.itemCount) }}
           </p>
         </div>
         <RouterLink to="/catalogue" class="hidden sm:flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style="color:#6B4226;">
-          <ArrowLeft class="w-4 h-4" /> Continuer mes achats
+          <ArrowLeft class="w-4 h-4" /> {{ t('cart.continueShopping') }}
         </RouterLink>
       </div>
 
@@ -41,13 +43,13 @@ function checkout() {
         <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style="background:#E8D4A8;">
           <ShoppingCart class="w-8 h-8" style="color:#6B4226;" />
         </div>
-        <h2 class="font-display text-xl font-semibold mb-2" style="color:#4A2C1A;">Votre panier est vide</h2>
-        <p class="text-sm mb-6" style="color:#7A7167;">Ajoutez des produits pour commencer votre commande</p>
+        <h2 class="font-display text-xl font-semibold mb-2" style="color:#4A2C1A;">{{ t('cart.empty') }}</h2>
+        <p class="text-sm mb-6" style="color:#7A7167;">{{ t('cart.emptyHint') }}</p>
         <RouterLink to="/catalogue"
           class="inline-flex items-center gap-2 text-white px-6 py-3 rounded-lg font-semibold transition-all"
           style="background:#B23A2E;"
           onmouseover="this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
-          Parcourir le catalogue <ArrowRight class="w-4 h-4" />
+          {{ t('cart.browse') }} <ArrowRight class="w-4 h-4" />
         </RouterLink>
       </div>
 
@@ -58,9 +60,9 @@ function checkout() {
         <div class="lg:col-span-2 space-y-4">
           <!-- Header row -->
           <div class="hidden sm:grid grid-cols-12 gap-4 px-4 pb-2 text-xs font-semibold uppercase tracking-wider" style="color:#7A7167;">
-            <span class="col-span-6">Produit</span>
-            <span class="col-span-3 text-center">Quantité</span>
-            <span class="col-span-3 text-right">Sous-total</span>
+            <span class="col-span-6">{{ t('cart.product') }}</span>
+            <span class="col-span-3 text-center">{{ t('cart.quantity') }}</span>
+            <span class="col-span-3 text-right">{{ t('cart.subtotal') }}</span>
           </div>
 
           <div v-for="item in cart.items" :key="item.product.id"
@@ -76,13 +78,13 @@ function checkout() {
                 <RouterLink :to="`/produits/${item.product.slug}`">
                   <h3 class="font-semibold text-sm leading-snug" style="color:#4A2C1A;">{{ item.product.name }}</h3>
                 </RouterLink>
-                <span class="inline-block text-xs px-2 py-0.5 rounded mt-1" style="background:#E8D4A8; color:#6B4226;">{{ item.product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[item.product.essence] ?? item.product.essence }}</span>
+                <span class="inline-block text-xs px-2 py-0.5 rounded mt-1" style="background:#E8D4A8; color:#6B4226;">{{ t(`essences.${item.product.essence}`) }}</span>
                 <div v-if="Object.keys(item.customization).length > 0" class="flex flex-wrap gap-1.5 mt-1.5">
                   <span v-for="(val, key) in item.customization" :key="String(key)"
                     class="text-xs px-2 py-0.5 rounded" style="background:#FAF7F2; color:#7A7167;">{{ key }}: {{ val }}</span>
                 </div>
                 <p class="text-xs mt-1.5 font-semibold sm:hidden" style="color:#4A2C1A;">
-                  {{ currency.formatPrice(itemLinePrice(item).eur / item.quantity, itemLinePrice(item).usd / item.quantity, itemLinePrice(item).fcfa / item.quantity) }} / unité
+                  {{ currency.formatPrice(itemLinePrice(item).eur / item.quantity, itemLinePrice(item).usd / item.quantity, itemLinePrice(item).fcfa / item.quantity) }} {{ t('cart.perUnit') }}
                 </p>
               </div>
             </div>
@@ -103,7 +105,7 @@ function checkout() {
               <button @click="cart.removeItem(item.product.id)"
                 class="p-1.5 rounded-lg transition-colors hover:bg-red-50" style="color:#E2DCD1;"
                 onmouseover="this.style.color='#B23A2E'" onmouseout="this.style.color='#E2DCD1'"
-                aria-label="Supprimer">
+                :aria-label="t('cart.remove')">
                 <Trash2 class="w-4 h-4" />
               </button>
             </div>
@@ -119,23 +121,23 @@ function checkout() {
 
         <!-- Order summary -->
         <div class="bg-white rounded-xl border p-6 h-fit sticky top-20" style="border-color:#E2DCD1; box-shadow:0 2px 8px rgba(43,36,32,0.06);">
-          <h2 class="font-display text-lg font-semibold mb-5" style="color:#4A2C1A;">Récapitulatif</h2>
+          <h2 class="font-display text-lg font-semibold mb-5" style="color:#4A2C1A;">{{ t('cart.summary') }}</h2>
 
           <div class="space-y-3 text-sm">
             <div class="flex justify-between">
-              <span style="color:#7A7167;">Sous-total</span>
+              <span style="color:#7A7167;">{{ t('cart.subtotal') }}</span>
               <span class="font-semibold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
             </div>
             <div class="flex justify-between">
-              <span style="color:#7A7167;">Livraison</span>
-              <span style="color:#7A7167;">Calculée à l'étape suivante</span>
+              <span style="color:#7A7167;">{{ t('cart.shipping') }}</span>
+              <span style="color:#7A7167;">{{ t('cart.shippingNextStep') }}</span>
             </div>
           </div>
 
           <div class="my-5" style="border-top:1px solid #E2DCD1;"></div>
 
           <div class="flex justify-between items-center mb-6">
-            <span class="font-semibold text-base" style="color:#4A2C1A;">Total estimé</span>
+            <span class="font-semibold text-base" style="color:#4A2C1A;">{{ t('cart.totalEstimated') }}</span>
             <span class="text-2xl font-bold" style="color:#4A2C1A;">{{ currency.formatPrice(cart.subtotal, cart.subtotalUsd, cart.subtotalFcfa) }}</span>
           </div>
 
@@ -143,22 +145,22 @@ function checkout() {
             class="w-full text-white py-3.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
             style="background:#B23A2E; box-shadow:0 4px 12px rgba(178,58,46,0.25);"
             onmouseover="this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
-            Passer commande <ArrowRight class="w-4 h-4" />
+            {{ t('cart.checkout') }} <ArrowRight class="w-4 h-4" />
           </button>
 
           <!-- Reassurance -->
           <div class="mt-5 space-y-2.5 pt-5" style="border-top:1px solid #E2DCD1;">
             <div class="flex items-center gap-2 text-xs" style="color:#7A7167;">
               <Shield class="w-4 h-4 flex-shrink-0" style="color:#6B4226;" />
-              Paiement 100% sécurisé
+              {{ t('cart.securePayment') }}
             </div>
             <div class="flex items-center gap-2 text-xs" style="color:#7A7167;">
               <Truck class="w-4 h-4 flex-shrink-0" style="color:#6B4226;" />
-              Livraison en Europe
+              {{ t('cart.europeShipping') }}
             </div>
             <div class="flex items-center gap-2 text-xs" style="color:#7A7167;">
               <RotateCcw class="w-4 h-4 flex-shrink-0" style="color:#6B4226;" />
-              Retours facilités sous 14 jours
+              {{ t('cart.returns14') }}
             </div>
           </div>
         </div>

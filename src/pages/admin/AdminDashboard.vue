@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { TrendingUp, Package, Users, Euro, ShoppingCart, ArrowUpRight, Clock, CheckCircle2, Truck, XCircle, AlertCircle } from 'lucide-vue-next'
 import { api, type OrderDto } from '@/lib/api'
-import { STATUS_LABELS, STATUS_COLORS } from '@/types/index'
+import { STATUS_KEYS, STATUS_COLORS } from '@/types/index'
+import { useLocaleStore } from '@/stores/locale'
 
+const { t } = useI18n()
+const localeStore = useLocaleStore()
 const stats = ref({ revenue: 0, orders: 0, customers: 0, products: 0 })
 const recentOrders = ref<OrderDto[]>([])
 const loading = ref(true)
@@ -24,11 +28,22 @@ const statusIcon: Record<string, unknown> = {
   shipped: Truck, delivered: CheckCircle2, cancelled: XCircle,
 }
 
+function statusLabel(status: string) {
+  return t(`status.${STATUS_KEYS[status] ?? status}`)
+}
+
+const essenceBreakdown = [
+  { key: 'essences.Chene', pct: 30, color: '#4A2C1A' },
+  { key: 'essences.Hetre', pct: 22, color: '#6B4226' },
+  { key: 'essences.Charme', pct: 18, color: '#C89B5D' },
+  { key: 'essences.Frene', pct: 15, color: '#E8D4A8' },
+]
+
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+  return new Date(iso).toLocaleDateString(localeStore.locale, { day: '2-digit', month: 'short' })
 }
 function fmtEur(v: number) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v / 100)
+  return new Intl.NumberFormat(localeStore.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v / 100)
 }
 </script>
 
@@ -37,12 +52,12 @@ function fmtEur(v: number) {
     <!-- Page header -->
     <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:#C89B5D;">Vue d'ensemble</p>
-        <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">Tableau de bord</h1>
+        <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:#C89B5D;">{{ t('admin.overview') }}</p>
+        <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">{{ t('admin.dashboard') }}</h1>
       </div>
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#E8D4A8; color:#6B4226;">
         <span class="w-2 h-2 rounded-full animate-pulse" style="background:#4E7A51;"></span>
-        Données en temps réel
+        {{ t('admin.realtimeData') }}
       </div>
     </div>
 
@@ -55,11 +70,11 @@ function fmtEur(v: number) {
           <Euro class="w-5 h-5" style="color:#C89B5D;" />
         </div>
         <p class="text-2xl font-bold tracking-tight">
-          {{ loading ? '—' : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(stats.revenue / 100) }}
+          {{ loading ? '—' : fmtEur(stats.revenue) }}
         </p>
-        <p class="text-xs mt-1" style="color:#E8D4A8;">Revenus encaissés</p>
+        <p class="text-xs mt-1" style="color:#E8D4A8;">{{ t('admin.revenueReceived') }}</p>
         <div class="flex items-center gap-1 mt-3 text-xs font-medium" style="color:#C89B5D;">
-          <TrendingUp class="w-3.5 h-3.5" /> Paiements confirmés
+          <TrendingUp class="w-3.5 h-3.5" /> {{ t('admin.confirmedPayments') }}
         </div>
       </div>
 
@@ -72,7 +87,7 @@ function fmtEur(v: number) {
           <ArrowUpRight class="w-4 h-4" style="color:#C89B5D;" />
         </div>
         <p class="text-2xl font-bold" style="color:#4A2C1A;">{{ loading ? '—' : stats.orders }}</p>
-        <p class="text-xs mt-1" style="color:#7A7167;">Commandes totales</p>
+        <p class="text-xs mt-1" style="color:#7A7167;">{{ t('admin.totalOrders') }}</p>
       </div>
 
       <!-- Customers -->
@@ -84,7 +99,7 @@ function fmtEur(v: number) {
           <ArrowUpRight class="w-4 h-4" style="color:#C89B5D;" />
         </div>
         <p class="text-2xl font-bold" style="color:#4A2C1A;">{{ loading ? '—' : stats.customers }}</p>
-        <p class="text-xs mt-1" style="color:#7A7167;">Clients inscrits</p>
+        <p class="text-xs mt-1" style="color:#7A7167;">{{ t('admin.registeredCustomers') }}</p>
       </div>
 
       <!-- Products -->
@@ -96,7 +111,7 @@ function fmtEur(v: number) {
           <ArrowUpRight class="w-4 h-4" style="color:#C89B5D;" />
         </div>
         <p class="text-2xl font-bold" style="color:#4A2C1A;">{{ loading ? '—' : stats.products }}</p>
-        <p class="text-xs mt-1" style="color:#7A7167;">Produits actifs</p>
+        <p class="text-xs mt-1" style="color:#7A7167;">{{ t('admin.activeProducts') }}</p>
       </div>
     </div>
 
@@ -105,10 +120,10 @@ function fmtEur(v: number) {
       <!-- Recent orders table -->
       <div class="xl:col-span-2 bg-white rounded-2xl border p-6" style="border-color:#E2DCD1; box-shadow:0 1px 4px rgba(43,36,32,0.06);">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="font-semibold text-base" style="color:#4A2C1A;">Commandes récentes</h2>
+          <h2 class="font-semibold text-base" style="color:#4A2C1A;">{{ t('admin.recentOrders') }}</h2>
           <a href="/admin/commandes" class="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
             style="background:#E8D4A8; color:#6B4226;">
-            Voir tout <ArrowUpRight class="w-3.5 h-3.5" />
+            {{ t('admin.viewAll') }} <ArrowUpRight class="w-3.5 h-3.5" />
           </a>
         </div>
 
@@ -118,7 +133,7 @@ function fmtEur(v: number) {
 
         <div v-else-if="recentOrders.length === 0" class="text-center py-12">
           <ShoppingCart class="w-10 h-10 mx-auto mb-3" style="color:#E2DCD1;" />
-          <p class="text-sm" style="color:#7A7167;">Aucune commande pour le moment</p>
+          <p class="text-sm" style="color:#7A7167;">{{ t('admin.noOrdersYet') }}</p>
         </div>
 
         <div v-else>
@@ -132,7 +147,7 @@ function fmtEur(v: number) {
                 <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
                   :class="STATUS_COLORS[order.status]">
                   <component :is="statusIcon[order.status]" class="w-3 h-3" />
-                  {{ STATUS_LABELS[order.status] }}
+                  {{ statusLabel(order.status) }}
                 </span>
               </div>
               <div class="flex items-center justify-between mt-2">
@@ -146,10 +161,10 @@ function fmtEur(v: number) {
           <div class="hidden sm:block space-y-2">
             <!-- Header -->
             <div class="grid grid-cols-12 gap-3 px-3 pb-2 text-xs font-semibold uppercase tracking-wider" style="color:#7A7167;">
-              <span class="col-span-4">Référence</span>
-              <span class="col-span-3">Date</span>
-              <span class="col-span-3">Statut</span>
-              <span class="col-span-2 text-right">Total</span>
+              <span class="col-span-4">{{ t('admin.reference') }}</span>
+              <span class="col-span-3">{{ t('admin.date') }}</span>
+              <span class="col-span-3">{{ t('admin.status') }}</span>
+              <span class="col-span-2 text-right">{{ t('admin.total') }}</span>
             </div>
             <div v-for="order in recentOrders" :key="order.order_number"
               class="grid grid-cols-12 gap-3 items-center px-3 py-3 rounded-xl transition-colors hover:bg-neutral-50"
@@ -161,7 +176,7 @@ function fmtEur(v: number) {
                 <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
                   :class="STATUS_COLORS[order.status]">
                   <component :is="statusIcon[order.status]" class="w-3 h-3" />
-                  {{ STATUS_LABELS[order.status] }}
+                  {{ statusLabel(order.status) }}
                 </span>
               </span>
               <span class="col-span-2 text-right font-bold text-sm" style="color:#4A2C1A;">
@@ -176,24 +191,24 @@ function fmtEur(v: number) {
       <div class="space-y-5">
         <!-- Quick stats card -->
         <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg, #6B4226 0%, #4A2C1A 100%);">
-          <h3 class="font-semibold text-sm mb-4" style="color:#E8D4A8;">Accès rapides</h3>
+          <h3 class="font-semibold text-sm mb-4" style="color:#E8D4A8;">{{ t('admin.quickAccess') }}</h3>
           <div class="space-y-3">
             <RouterLink to="/admin/produits" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
               onmouseover="this.style.background='rgba(232,212,168,0.18)'" onmouseout="this.style.background='rgba(232,212,168,0.1)'">
               <Package class="w-4 h-4" style="color:#C89B5D;" />
-              <span class="text-sm">Gérer les produits</span>
+              <span class="text-sm">{{ t('admin.manageProducts') }}</span>
               <ArrowUpRight class="w-3.5 h-3.5 ml-auto" style="color:#C89B5D;" />
             </RouterLink>
             <RouterLink to="/admin/commandes" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
               onmouseover="this.style.background='rgba(232,212,168,0.18)'" onmouseout="this.style.background='rgba(232,212,168,0.1)'">
               <ShoppingCart class="w-4 h-4" style="color:#C89B5D;" />
-              <span class="text-sm">Voir les commandes</span>
+              <span class="text-sm">{{ t('admin.viewOrders') }}</span>
               <ArrowUpRight class="w-3.5 h-3.5 ml-auto" style="color:#C89B5D;" />
             </RouterLink>
             <RouterLink to="/admin/clients" class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(232,212,168,0.1);"
               onmouseover="this.style.background='rgba(232,212,168,0.18)'" onmouseout="this.style.background='rgba(232,212,168,0.1)'">
               <Users class="w-4 h-4" style="color:#C89B5D;" />
-              <span class="text-sm">Base clients</span>
+              <span class="text-sm">{{ t('admin.customerBase') }}</span>
               <ArrowUpRight class="w-3.5 h-3.5 ml-auto" style="color:#C89B5D;" />
             </RouterLink>
           </div>
@@ -201,17 +216,11 @@ function fmtEur(v: number) {
 
         <!-- Essence breakdown -->
         <div class="bg-white rounded-2xl border p-6" style="border-color:#E2DCD1; box-shadow:0 1px 4px rgba(43,36,32,0.06);">
-          <h3 class="font-semibold text-sm mb-5" style="color:#4A2C1A;">Répartition par essence</h3>
+          <h3 class="font-semibold text-sm mb-5" style="color:#4A2C1A;">{{ t('admin.breakdownByEssence') }}</h3>
           <div class="space-y-3">
-            <div v-for="(item, i) in [
-              { label: 'Chêne', pct: 30, color: '#4A2C1A' },
-              { label: 'Hêtre', pct: 22, color: '#6B4226' },
-              { label: 'Charme', pct: 18, color: '#C89B5D' },
-              { label: 'Frêne', pct: 15, color: '#E8D4A8' },
-              { label: 'Autres', pct: 15, color: '#7A7167' },
-            ]" :key="i">
+            <div v-for="(item, i) in [...essenceBreakdown.map(e => ({ ...e })), { key: 'admin.others', pct: 15, color: '#7A7167' }]" :key="i">
               <div class="flex items-center justify-between text-xs mb-1">
-                <span class="font-medium" style="color:#4A2C1A;">{{ item.label }}</span>
+                <span class="font-medium" style="color:#4A2C1A;">{{ t(item.key) }}</span>
                 <span style="color:#7A7167;">{{ item.pct }}%</span>
               </div>
               <div class="w-full rounded-full h-2" style="background:#FAF7F2;">

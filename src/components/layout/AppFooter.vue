@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Mail, Phone, MapPin, Shield, Leaf, Truck } from 'lucide-vue-next'
-import { PRODUCT_ESSENCE_LABELS, ESSENCE_GROUPS } from '@/lib/api'
+import { ESSENCE_GROUPS } from '@/lib/api'
 
+const { t } = useI18n()
 const year = new Date().getFullYear()
 </script>
 
@@ -17,39 +19,39 @@ const year = new Date().getFullYear()
             <img src="/logo.jpg" alt="SwissWood" class="h-11 w-11 rounded-lg object-cover" />
             <span class="font-display text-2xl font-semibold text-white">SwissWood</span>
           </div>
-          <p class="text-sm leading-relaxed" style="color:#E8D4A8;">Votre spécialiste suisse du bois de chauffage premium et des fourneaux. Chaleur, qualité et fiabilité pour votre foyer.</p>
+          <p class="text-sm leading-relaxed" style="color:#E8D4A8;">{{ t('footer.tagline') }}</p>
           <div class="flex flex-col gap-2.5 mt-5">
-            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Shield class="w-4 h-4" /> Paiement sécurisé</span>
-            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Leaf class="w-4 h-4" /> Bois certifiés FSC/PEFC</span>
-            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Truck class="w-4 h-4" /> Livraison en Europe</span>
+            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Shield class="w-4 h-4" /> {{ t('footer.securePayment') }}</span>
+            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Leaf class="w-4 h-4" /> {{ t('footer.fscCertified') }}</span>
+            <span class="flex items-center gap-2 text-xs" style="color:#C89B5D;"><Truck class="w-4 h-4" /> {{ t('footer.europeShipping') }}</span>
           </div>
         </div>
 
         <!-- Navigation -->
         <div>
-          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Navigation</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">{{ t('footer.navigation') }}</h3>
           <ul class="space-y-2.5">
-            <li><RouterLink to="/" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Accueil</RouterLink></li>
-            <li><RouterLink to="/catalogue" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Catalogue</RouterLink></li>
-            <li><RouterLink to="/a-propos" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">À propos</RouterLink></li>
-            <li><RouterLink to="/contact" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">Contact</RouterLink></li>
+            <li><RouterLink to="/" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ t('navlinks.home') }}</RouterLink></li>
+            <li><RouterLink to="/catalogue" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ t('navlinks.catalogue') }}</RouterLink></li>
+            <li><RouterLink to="/a-propos" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ t('navlinks.about') }}</RouterLink></li>
+            <li><RouterLink to="/contact" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ t('navlinks.contact') }}</RouterLink></li>
           </ul>
         </div>
 
         <!-- Essences -->
         <div>
-          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Essences</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">{{ t('footer.essences') }}</h3>
           <div v-for="group in ESSENCE_GROUPS" :key="group.id" class="mb-4">
-            <p class="text-[10px] font-semibold uppercase tracking-widest mb-2" style="color:#8A6A3A;">{{ group.label }}</p>
+            <p class="text-[10px] font-semibold uppercase tracking-widest mb-2" style="color:#8A6A3A;">{{ t(`essences.${group.labelKey}`) }}</p>
             <ul class="grid grid-cols-2 gap-x-4 gap-y-2.5">
-              <li v-for="e in group.essences" :key="e"><RouterLink :to="`/catalogue?essence=${e}`" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ PRODUCT_ESSENCE_LABELS[e] }}</RouterLink></li>
+              <li v-for="e in group.essences" :key="e"><RouterLink :to="`/catalogue?essence=${e}`" class="text-sm transition-colors hover:text-white" style="color:#E8D4A8;">{{ t(`essences.${e}`) }}</RouterLink></li>
             </ul>
           </div>
         </div>
 
         <!-- Contact -->
         <div>
-          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">Contact</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color:#C89B5D;">{{ t('footer.contact') }}</h3>
           <ul class="space-y-3">
             <li class="flex items-start gap-2 text-sm" style="color:#E8D4A8;"><Mail class="w-4 h-4 mt-0.5 flex-shrink-0" style="color:#C89B5D;" /> contact@swisswood.ch</li>
             <li class="flex items-start gap-2 text-sm" style="color:#E8D4A8;"><Phone class="w-4 h-4 mt-0.5 flex-shrink-0" style="color:#C89B5D;" /> +41 22 123 45 67</li>
@@ -60,11 +62,11 @@ const year = new Date().getFullYear()
 
       <!-- Bottom bar -->
       <div class="mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top: 1px solid #6B4226;">
-        <p class="text-xs" style="color:#C89B5D;">© {{ year }} SwissWood. Tous droits réservés.</p>
+        <p class="text-xs" style="color:#C89B5D;">© {{ year }} SwissWood. {{ t('footer.rightsReserved') }}</p>
         <div class="flex items-center gap-6">
-          <RouterLink to="/mentions-legales" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Mentions légales</RouterLink>
-          <RouterLink to="/confidentialite" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">Confidentialité</RouterLink>
-          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">CGV</RouterLink>
+          <RouterLink to="/mentions-legales" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">{{ t('footer.legalNotice') }}</RouterLink>
+          <RouterLink to="/confidentialite" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">{{ t('footer.privacy') }}</RouterLink>
+          <RouterLink to="/" class="text-xs transition-colors hover:text-white" style="color:#C89B5D;">{{ t('footer.terms') }}</RouterLink>
         </div>
       </div>
     </div>

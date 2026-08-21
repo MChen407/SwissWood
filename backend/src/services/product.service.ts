@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 import { productRepository, type ProductListFilters } from '../repositories/product.repository.js'
-import { toProductDto, type ProductDto } from '../dto/public.dto.js'
+import { toProductDto, normalizeLocale, type ProductDto, type ProductTranslations } from '../dto/public.dto.js'
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/httpErrors.js'
 import {
   essenceGroupOf,
@@ -17,6 +17,7 @@ export interface ProductListQuery {
   sort?: string
   limit?: number
   offset?: number
+  locale?: unknown
 }
 
 function normalizeFilters(query: ProductListQuery): ProductListFilters {
@@ -53,29 +54,31 @@ function normalizeFilters(query: ProductListQuery): ProductListFilters {
 export const productService = {
   async list(query: ProductListQuery) {
     const filters = normalizeFilters(query)
+    const locale = normalizeLocale(query.locale)
     const [items, total] = await Promise.all([
       productRepository.findMany(filters),
       productRepository.count(filters as Pick<ProductListFilters, 'essence' | 'essences' | 'active'>),
     ])
     return {
-      items: items.map(toProductDto),
+      items: items.map((p) => toProductDto(p, locale)),
       total,
       limit: filters.limit,
       offset: filters.offset,
     }
   },
 
-  async featured(limit = 6) {
+  async featured(limit = 6, locale?: unknown) {
     const items = await productRepository.findMany({ active: true, sort: 'price_desc', limit })
-    return items.map(toProductDto)
+    const loc = normalizeLocale(locale)
+    return items.map((p) => toProductDto(p, loc))
   },
 
-  async getBySlug(slug: string): Promise<ProductDto> {
+  async getBySlug(slug: string, locale?: unknown): Promise<ProductDto> {
     const product = await productRepository.findBySlug(slug, true)
     if (!product) {
       throw new NotFoundError('Produit introuvable')
     }
-    return toProductDto(product)
+    return toProductDto(product, normalizeLocale(locale))
   },
 
   async getById(id: string) {
@@ -86,7 +89,7 @@ export const productService = {
     return toProductDto(product)
   },
 
-  async related(productId: string, essence?: string, limit = 3) {
+  async related(productId: string, essence?: string, limit = 3, locale?: unknown) {
     if (essence && !PRODUCT_ESSENCES.includes(essence as ProductEssence)) {
       throw new BadRequestError('Essence de bois invalide')
     }
@@ -96,7 +99,8 @@ export const productService = {
       excludeId: productId,
       limit,
     })
-    return items.map(toProductDto)
+    const loc = normalizeLocale(locale)
+    return items.map((p) => toProductDto(p, loc))
   },
 }
 
@@ -120,6 +124,23 @@ export interface AdminProductInput {
   images: string[]
   characteristics: Record<string, unknown>
   is_active: boolean
+  translations?: Record<string, ProductTranslations>
+}
+
+function sanitizeTranslations(
+  input: Record<string, ProductTranslations> | undefined,
+): Prisma.InputJsonValue {
+  const clean: Record<string, ProductTranslations> = {}
+  if (!input) return clean as Prisma.InputJsonValue
+  for (const [locale, value] of Object.entries(input)) {
+    const loc = normalizeLocale(locale)
+    if (!loc || loc === 'fr' || typeof value !== 'object' || value === null) continue
+    const entry: ProductTranslations = {}
+    if (typeof value.name === 'string') entry.name = value.name.trim()
+    if (typeof value.description === 'string') entry.description = value.description.trim()
+    clean[loc] = entry
+  }
+  return clean as Prisma.InputJsonValue
 }
 
 export const adminProductService = {
@@ -141,6 +162,7 @@ export const adminProductService = {
       dimensions: (input.dimensions ?? {}) as Prisma.InputJsonValue,
       images: (Array.isArray(input.images) ? input.images : []) as Prisma.InputJsonValue,
       characteristics: (input.characteristics ?? {}) as Prisma.InputJsonValue,
+      translations: sanitizeTranslations(input.translations),
       isActive: input.is_active,
     })
     return toProductDto(product)
@@ -172,6 +194,7 @@ export const adminProductService = {
     if (input.dimensions !== undefined) data.dimensions = input.dimensions as Prisma.InputJsonValue
     if (input.images !== undefined) data.images = input.images as Prisma.InputJsonValue
     if (input.characteristics !== undefined) data.characteristics = input.characteristics as Prisma.InputJsonValue
+    if (input.translations !== undefined) data.translations = sanitizeTranslations(input.translations)
     if (input.is_active !== undefined) data.isActive = input.is_active
 
     const product = await productRepository.update(id, data)
@@ -188,6 +211,6 @@ export const adminProductService = {
 
   async listAll(): Promise<ProductDto[]> {
     const items = await productRepository.findMany({})
-    return items.map(toProductDto)
+    return items.map((p) => toProductDto(p))
   },
 }

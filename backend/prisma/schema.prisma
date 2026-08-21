@@ -159,6 +159,10 @@ model Product {
   // TEXT ne doit pas avoir de DEFAULT sur MySQL Railway.
   description String @db.Text
 
+  // Traductions optionnelles { en: { name, description }, es: {...}, de: {...} }.
+  // Les champs `name`/`description` restent les valeurs par défaut (français).
+  translations Json @default("{}")
+
   priceEur  Int @default(0) @map("price_eur")
   priceUsd  Int @default(0) @map("price_usd")
   priceFcfa Int @default(0) @map("price_fcfa")
@@ -340,6 +344,9 @@ model CmsContent {
 
   // TEXT : pas de DEFAULT.
   value String @db.Text
+
+  // Traductions optionnelles { en: { value }, es: {...}, de: {...} }.
+  translations Json @default("{}")
 
   type  String @default("text") @db.VarChar(20)
   label String @default("") @db.VarChar(200)

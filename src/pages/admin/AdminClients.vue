@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { api, type UserPublicDto } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
+import { useLocaleStore } from '@/stores/locale'
 
+const { t } = useI18n()
 const auth = useAuthStore()
+const localeStore = useLocaleStore()
 const clients = ref<UserPublicDto[]>([])
 const loading = ref(true)
 const roleTarget = ref<{ client: UserPublicDto; role: UserPublicDto['role'] } | null>(null)
@@ -14,7 +18,13 @@ const roleError = ref('')
 
 const canManageRoles = computed(() => auth.profile?.role === 'super_admin')
 
-const roleLabels: Record<string, string> = { customer: 'Client', admin: 'Admin', super_admin: 'Super Admin' }
+function roleLabel(role: string) {
+  if (role === 'admin') return t('admin.roleAdmin')
+  if (role === 'super_admin') return t('admin.roleSuperAdmin')
+  return t('admin.roleCustomer')
+}
+
+const roleOptions = computed(() => (['customer', 'admin', 'super_admin'] as const).map((value) => ({ value, label: roleLabel(value) })))
 
 onMounted(async () => {
   clients.value = await api.admin.clients()
@@ -37,7 +47,7 @@ async function confirmRoleChange() {
     if (idx >= 0) clients.value[idx] = updated
     roleTarget.value = null
   } catch (err) {
-    roleError.value = err instanceof Error ? err.message : 'Échec de la mise à jour du rôle'
+    roleError.value = err instanceof Error ? err.message : t('admin.roleUpdateFailed')
   } finally {
     rolePending.value = false
   }
@@ -46,11 +56,11 @@ async function confirmRoleChange() {
 
 <template>
   <div>
-    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">Gestion des clients</h1>
-    <p v-if="canManageRoles" class="text-sm text-wood-500 mb-4">En tant que super admin, vous pouvez attribuer les rôles administrateur pour la gestion des produits.</p>
+    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">{{ t('admin.clientsTitle') }}</h1>
+    <p v-if="canManageRoles" class="text-sm text-wood-500 mb-4">{{ t('admin.superAdminHint') }}</p>
     <div class="bg-white rounded-xl border border-wood-200 overflow-hidden">
-      <div v-if="loading" class="p-10 text-center text-wood-400">Chargement...</div>
-      <div v-else-if="clients.length === 0" class="p-10 text-center text-wood-400">Aucun client</div>
+      <div v-if="loading" class="p-10 text-center text-wood-400">{{ t('common.loading') }}</div>
+      <div v-else-if="clients.length === 0" class="p-10 text-center text-wood-400">{{ t('admin.noClients') }}</div>
 
       <div v-else>
         <!-- Mobile cards -->
@@ -60,17 +70,17 @@ async function confirmRoleChange() {
               <p class="font-medium text-primary-500 text-sm break-all">{{ c.first_name }} {{ c.last_name }}</p>
               <div v-if="canManageRoles && c.id !== auth.profile?.id" class="w-32">
                 <SearchableSelect size="sm" :model-value="c.role" :disabled="rolePending"
-                  :options="Object.entries(roleLabels).map(([value, label]) => ({ value, label }))"
+                  :options="[...roleOptions]"
                   @update:model-value="requestRoleChange(c, $event as UserPublicDto['role'])" />
               </div>
-              <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
+              <span v-else class="text-xs px-2 py-1 rounded-full" :class="{
                 'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
                 'bg-wood-100 text-wood-500': c.role === 'customer',
-              }">{{ roleLabels[c.role] || c.role }}</span>
+              }">{{ roleLabel(c.role) }}</span>
             </div>
             <div class="flex items-center justify-between gap-2 text-sm">
               <span class="text-wood-500">{{ c.phone || '—' }}</span>
-              <span class="text-xs text-wood-400">{{ new Date(c.created_at).toLocaleDateString('fr-FR') }}</span>
+              <span class="text-xs text-wood-400">{{ new Date(c.created_at).toLocaleDateString(localeStore.locale) }}</span>
             </div>
           </div>
         </div>
@@ -79,7 +89,7 @@ async function confirmRoleChange() {
         <div class="hidden sm:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-wood-100 text-wood-500 text-left">
-              <tr><th class="px-4 py-3 font-medium">Nom</th><th class="px-4 py-3 font-medium">Téléphone</th><th class="px-4 py-3 font-medium">Rôle</th><th class="px-4 py-3 font-medium">Inscrit le</th></tr>
+              <tr><th class="px-4 py-3 font-medium">{{ t('admin.nameCol') }}</th><th class="px-4 py-3 font-medium">{{ t('admin.phone') }}</th><th class="px-4 py-3 font-medium">{{ t('admin.role') }}</th><th class="px-4 py-3 font-medium">{{ t('admin.registeredOn') }}</th></tr>
             </thead>
             <tbody class="divide-y divide-wood-100">
               <tr v-for="c in clients" :key="c.id" class="hover:bg-wood-50">
@@ -88,15 +98,15 @@ async function confirmRoleChange() {
                 <td class="px-4 py-3">
                   <div v-if="canManageRoles && c.id !== auth.profile?.id" class="w-36">
                     <SearchableSelect size="sm" :model-value="c.role" :disabled="rolePending"
-                      :options="Object.entries(roleLabels).map(([value, label]) => ({ value, label }))"
+                      :options="[...roleOptions]"
                       @update:model-value="requestRoleChange(c, $event as UserPublicDto['role'])" />
                   </div>
-                  <span v-else class="text-xs px-2 py-1 rounded-full capitalize" :class="{
+                  <span v-else class="text-xs px-2 py-1 rounded-full" :class="{
                     'bg-primary-100 text-primary-500': c.role === 'admin' || c.role === 'super_admin',
                     'bg-wood-100 text-wood-500': c.role === 'customer',
-                  }">{{ roleLabels[c.role] || c.role }}</span>
+                  }">{{ roleLabel(c.role) }}</span>
                 </td>
-                <td class="px-4 py-3 text-wood-500">{{ new Date(c.created_at).toLocaleDateString('fr-FR') }}</td>
+                <td class="px-4 py-3 text-wood-500">{{ new Date(c.created_at).toLocaleDateString(localeStore.locale) }}</td>
               </tr>
             </tbody>
           </table>
@@ -107,9 +117,9 @@ async function confirmRoleChange() {
     <ConfirmModal
       :open="!!roleTarget"
       variant="confirm"
-      title="Changer le rôle"
-      :message="roleError || `Confirmer le changement de rôle de « ${roleTarget?.client.first_name} ${roleTarget?.client.last_name} » vers « ${roleTarget ? roleLabels[roleTarget.role] : ''} » ?`"
-      confirm-label="Confirmer"
+      :title="t('admin.changeRole')"
+      :message="roleError || t('admin.confirmRoleChange', { name: `${roleTarget?.client.first_name} ${roleTarget?.client.last_name}`, role: roleTarget ? roleLabel(roleTarget.role) : '' })"
+      :confirm-label="t('common.confirm')"
       :loading="rolePending"
       @confirm="confirmRoleChange"
       @cancel="roleTarget = null; roleError = ''"

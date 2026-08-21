@@ -2,6 +2,31 @@ import type { Product, ProductReview, CmsContent } from '@prisma/client'
 import { ESSENCE_DATA } from '../constants/essences.js'
 import type { ProductEssence } from '../constants/index.js'
 
+export const SUPPORTED_LOCALES = ['fr', 'en', 'es', 'de'] as const
+export type Locale = (typeof SUPPORTED_LOCALES)[number]
+
+export function normalizeLocale(raw: unknown): Locale | undefined {
+  if (typeof raw !== 'string') return undefined
+  const value = raw.toLowerCase()
+  return (SUPPORTED_LOCALES as readonly string[]).includes(value) ? (value as Locale) : undefined
+}
+
+export interface ProductTranslations {
+  name?: string
+  description?: string
+}
+
+export function productTranslationsOf(product: Pick<Product, 'translations'>, locale?: Locale): ProductTranslations {
+  if (!locale || locale === 'fr') return {}
+  const all = (product.translations ?? {}) as Record<string, ProductTranslations>
+  return all[locale] ?? {}
+}
+
+function pick(overlay: ProductTranslations, base: string, key: 'name' | 'description'): string {
+  const value = overlay[key]
+  return typeof value === 'string' && value.trim() !== '' ? value : base
+}
+
 export interface EssenceDataDto {
   label: string
   densite_vert_kg_m3: number
@@ -24,18 +49,20 @@ export interface ProductDto {
   images: string[]
   characteristics: object
   is_active: boolean
+  translations: Record<string, ProductTranslations>
   created_at: Date
   updated_at: Date
 }
 
-export function toProductDto(product: Product): ProductDto {
+export function toProductDto(product: Product, locale?: Locale): ProductDto {
+  const overlay = productTranslationsOf(product, locale)
   return {
     id: product.id,
-    name: product.name,
+    name: pick(overlay, product.name, 'name'),
     slug: product.slug,
     essence: product.essence,
     essence_data: ESSENCE_DATA[product.essence] as EssenceDataDto,
-    description: product.description,
+    description: pick(overlay, product.description, 'description'),
     price_eur: product.priceEur,
     price_usd: product.priceUsd,
     price_fcfa: product.priceFcfa,
@@ -44,6 +71,7 @@ export function toProductDto(product: Product): ProductDto {
     images: Array.isArray(product.images) ? (product.images as string[]) : [],
     characteristics: product.characteristics as object,
     is_active: product.isActive,
+    translations: (product.translations ?? {}) as Record<string, ProductTranslations>,
     created_at: product.createdAt,
     updated_at: product.updatedAt,
   }
@@ -79,16 +107,24 @@ export interface CmsContentDto {
   value: string
   type: string
   label: string
+  translations: Record<string, { value?: string }>
   updated_at: Date
 }
 
-export function toCmsContentDto(content: CmsContent): CmsContentDto {
+export function toCmsContentDto(content: CmsContent, locale?: Locale): CmsContentDto {
+  let value = content.value
+  if (locale && locale !== 'fr') {
+    const all = (content.translations ?? {}) as Record<string, { value?: string }>
+    const translated = all[locale]?.value
+    if (typeof translated === 'string' && translated.trim() !== '') value = translated
+  }
   return {
     id: content.id,
     key: content.key,
-    value: content.value,
+    value,
     type: content.type,
     label: content.label,
+    translations: (content.translations ?? {}) as Record<string, { value?: string }>,
     updated_at: content.updatedAt,
   }
 }

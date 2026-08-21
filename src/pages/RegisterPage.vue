@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Mail, Lock, User, AlertCircle } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 const firstName = ref('')
@@ -16,13 +18,13 @@ const loading = ref(false)
 
 async function handleSubmit() {
   error.value = ''
-  if (password.value.length < 6) { error.value = 'Le mot de passe doit contenir au moins 6 caractères'; return }
+  if (password.value.length < 6) { error.value = t('auth.passwordTooShort'); return }
   loading.value = true
   try {
     await auth.signUp(email.value, password.value, firstName.value, lastName.value)
     router.push('/mon-compte')
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Une erreur est survenue'
+    error.value = e instanceof Error ? e.message : t('auth.errorGeneric')
   } finally { loading.value = false }
 }
 </script>
@@ -34,8 +36,8 @@ async function handleSubmit() {
         <!-- Logo header -->
         <div class="text-center mb-8">
           <img src="/logo.jpg" alt="SwissWood" class="h-16 w-16 rounded-2xl object-cover mx-auto mb-4 shadow-md" />
-          <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">Créer un compte</h1>
-          <p class="text-sm mt-1" style="color:#7A7167;">Rejoignez SwissWood en quelques secondes</p>
+          <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">{{ t('auth.createTitle') }}</h1>
+          <p class="text-sm mt-1" style="color:#7A7167;">{{ t('auth.registerSubtitle') }}</p>
         </div>
 
         <form @submit.prevent="handleSubmit"
@@ -50,7 +52,7 @@ async function handleSubmit() {
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Prénom</label>
+              <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">{{ t('auth.firstName') }}</label>
               <div class="relative">
                 <User class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:#C89B5D;" />
                 <input v-model="firstName" type="text" required placeholder="Jean"
@@ -60,7 +62,7 @@ async function handleSubmit() {
               </div>
             </div>
             <div>
-              <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Nom</label>
+              <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">{{ t('auth.lastName') }}</label>
               <input v-model="lastName" type="text" required placeholder="Dupont"
                 class="w-full px-3 py-2.5 rounded-lg text-sm"
                 style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
@@ -69,7 +71,7 @@ async function handleSubmit() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">E-mail</label>
+            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">{{ t('auth.email') }}</label>
             <div class="relative">
               <Mail class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:#C89B5D;" />
               <input v-model="email" type="email" required placeholder="vous@exemple.com"
@@ -80,7 +82,7 @@ async function handleSubmit() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Mot de passe</label>
+            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">{{ t('auth.password') }}</label>
             <div class="relative">
               <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:#C89B5D;" />
               <input v-model="password" type="password" required placeholder="••••••••"
@@ -88,19 +90,19 @@ async function handleSubmit() {
                 style="border:1px solid #E2DCD1; color:#2B2420; background:#fff; outline:none;"
                 onfocus="this.style.borderColor='#6B4226'" onblur="this.style.borderColor='#E2DCD1'" />
             </div>
-            <p class="text-xs mt-1.5" style="color:#7A7167;">Minimum 6 caractères</p>
+            <p class="text-xs mt-1.5" style="color:#7A7167;">{{ t('auth.minChars') }}</p>
           </div>
 
           <button type="submit" :disabled="loading"
             class="w-full text-white py-3 rounded-lg font-semibold transition-all disabled:opacity-50"
             style="background:#B23A2E; box-shadow:0 4px 12px rgba(178,58,46,0.25);"
             onmouseover="if(!this.disabled) this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
-            {{ loading ? 'Création...' : 'Créer mon compte' }}
+            {{ loading ? t('common.loading') : t('auth.createButton') }}
           </button>
 
           <p class="text-center text-sm" style="color:#7A7167;">
-            Déjà un compte ?
-            <RouterLink to="/connexion" class="font-semibold hover:underline" style="color:#6B4226;">Se connecter</RouterLink>
+            {{ t('auth.hasAccount') }}
+            <RouterLink to="/connexion" class="font-semibold hover:underline" style="color:#6B4226;">{{ t('auth.login') }}</RouterLink>
           </p>
         </form>
       </div>

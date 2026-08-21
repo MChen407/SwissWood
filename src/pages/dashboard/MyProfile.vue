@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { User, Save, Check } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
-import { COUNTRIES } from '@/lib/countries'
+import { COUNTRIES, countryLabel } from '@/lib/countries'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
+import { useLocaleStore } from '@/stores/locale'
 
+const { t } = useI18n()
+const localeStore = useLocaleStore()
 const auth = useAuthStore()
 const form = ref({ first_name: '', last_name: '', phone: '', address: '', city: '', country: '' })
 const saved = ref(false)
@@ -28,28 +32,28 @@ async function save() {
 
 <template>
   <div>
-    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">Mon profil</h1>
+    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">{{ t('dashboard.profile') }}</h1>
     <div class="bg-white rounded-xl border border-wood-200 p-6 max-w-2xl">
       <div class="flex items-center gap-3 mb-6">
         <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center"><User class="w-6 h-6 text-primary-500" /></div>
-        <div><p class="font-medium text-primary-500">{{ auth.fullName || 'Client' }}</p><p class="text-sm text-wood-400">{{ auth.user?.email }}</p></div>
+        <div><p class="font-medium text-primary-500">{{ auth.fullName || t('dashboard.client') }}</p><p class="text-sm text-wood-400">{{ auth.user?.email }}</p></div>
       </div>
-      <div v-if="saved" class="flex items-center gap-2 p-3 bg-success-100 text-success-500 text-sm rounded-lg mb-4"><Check class="w-4 h-4" /> Profil mis à jour avec succès</div>
+      <div v-if="saved" class="flex items-center gap-2 p-3 bg-success-100 text-success-500 text-sm rounded-lg mb-4"><Check class="w-4 h-4" /> {{ t('dashboard.profileUpdated') }}</div>
       <form @submit.prevent="save" class="space-y-4">
         <div class="grid sm:grid-cols-2 gap-4">
-          <div><label class="text-sm text-wood-500">Prénom</label><input v-model="form.first_name" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-          <div><label class="text-sm text-wood-500">Nom</label><input v-model="form.last_name" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+          <div><label class="text-sm text-wood-500">{{ t('auth.firstName') }}</label><input v-model="form.first_name" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+          <div><label class="text-sm text-wood-500">{{ t('auth.lastName') }}</label><input v-model="form.last_name" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
         </div>
-        <div><label class="text-sm text-wood-500">Téléphone</label><input v-model="form.phone" type="tel" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-        <div><label class="text-sm text-wood-500">Adresse</label><input v-model="form.address" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+        <div><label class="text-sm text-wood-500">{{ t('checkout.phone') }}</label><input v-model="form.phone" type="tel" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+        <div><label class="text-sm text-wood-500">{{ t('checkout.address') }}</label><input v-model="form.address" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
         <div class="grid sm:grid-cols-2 gap-4">
-          <div><label class="text-sm text-wood-500">Ville</label><input v-model="form.city" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+          <div><label class="text-sm text-wood-500">{{ t('checkout.city') }}</label><input v-model="form.city" type="text" class="w-full mt-1 px-3 py-2.5 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
           <div>
-            <label class="text-sm text-wood-500">Pays</label>
-            <div class="mt-1"><SearchableSelect v-model="form.country" :options="COUNTRIES.map(c => ({ value: c, label: c }))" /></div>
+            <label class="text-sm text-wood-500">{{ t('checkout.country') }}</label>
+            <div class="mt-1"><SearchableSelect v-model="form.country" :options="COUNTRIES.map(c => ({ value: c, label: countryLabel(c, localeStore.locale) }))" /></div>
           </div>
         </div>
-        <button type="submit" class="bg-primary-500 text-wood-100 px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"><Save class="w-4 h-4" /> Enregistrer</button>
+        <button type="submit" class="bg-primary-500 text-wood-100 px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center gap-2"><Save class="w-4 h-4" /> {{ t('common.save') }}</button>
       </form>
     </div>
   </div>

@@ -22,12 +22,12 @@ export const listProducts = asyncHandler(async (req: Request, res: Response) => 
 
 export const featuredProducts = asyncHandler(async (req: Request, res: Response) => {
   const limit = Number(req.query.limit ?? 6)
-  const items = await productService.featured(limit)
+  const items = await productService.featured(limit, req.query.locale)
   ApiResponse.success(res, items)
 })
 
 export const getProductBySlug = asyncHandler(async (req: Request, res: Response) => {
-  const product = await productService.getBySlug(req.params.slug!)
+  const product = await productService.getBySlug(req.params.slug!, req.query.locale)
   ApiResponse.success(res, product)
 })
 

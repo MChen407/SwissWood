@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Mail, Lock, AlertCircle } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
@@ -21,7 +23,7 @@ async function handleSubmit() {
     await auth.signIn(email.value, password.value)
     router.push((route.query.redirect as string) || '/mon-compte')
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Identifiants incorrects'
+    error.value = e instanceof Error ? e.message : t('auth.invalidCredentials')
     showErrorModal.value = true
   } finally { loading.value = false }
 }
@@ -34,8 +36,8 @@ async function handleSubmit() {
         <!-- Logo header -->
         <div class="text-center mb-8">
           <img src="/logo.jpg" alt="SwissWood" class="h-16 w-16 rounded-2xl object-cover mx-auto mb-4 shadow-md" />
-          <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">Connexion</h1>
-          <p class="text-sm mt-1" style="color:#7A7167;">Accédez à votre espace client SwissWood</p>
+          <h1 class="font-display text-2xl font-semibold" style="color:#4A2C1A;">{{ t('auth.login') }}</h1>
+          <p class="text-sm mt-1" style="color:#7A7167;">{{ t('auth.loginSubtitle') }}</p>
         </div>
 
         <form @submit.prevent="handleSubmit"
@@ -49,7 +51,7 @@ async function handleSubmit() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">E-mail</label>
+            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">{{ t('auth.email') }}</label>
             <div class="relative">
               <Mail class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:#C89B5D;" />
               <input v-model="email" type="email" required placeholder="vous@exemple.com"
@@ -60,7 +62,7 @@ async function handleSubmit() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">Mot de passe</label>
+            <label class="block text-xs font-medium mb-1.5" style="color:#7A7167;">{{ t('auth.password') }}</label>
             <div class="relative">
               <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:#C89B5D;" />
               <input v-model="password" type="password" required placeholder="••••••••"
@@ -74,12 +76,12 @@ async function handleSubmit() {
             class="w-full text-white py-3 rounded-lg font-semibold transition-all disabled:opacity-50"
             style="background:#B23A2E; box-shadow:0 4px 12px rgba(178,58,46,0.25);"
             onmouseover="if(!this.disabled) this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'">
-            {{ loading ? 'Connexion...' : 'Se connecter' }}
+            {{ loading ? t('common.loading') : t('auth.login') }}
           </button>
 
           <p class="text-center text-sm" style="color:#7A7167;">
-            Pas encore de compte ?
-            <RouterLink to="/inscription" class="font-semibold hover:underline" style="color:#6B4226;">Créer un compte</RouterLink>
+            {{ t('auth.noAccount') }}
+            <RouterLink to="/inscription" class="font-semibold hover:underline" style="color:#6B4226;">{{ t('auth.register') }}</RouterLink>
           </p>
         </form>
       </div>
@@ -89,9 +91,9 @@ async function handleSubmit() {
       :open="showErrorModal"
       variant="danger"
       confirm-only
-      confirm-label="Fermer"
-      title="Connexion échouée"
-      :message="error || 'Vérifiez vos identifiants et réessayez.'"
+      :confirm-label="t('common.close')"
+      :title="t('auth.loginFailed')"
+      :message="error || t('auth.loginFailedHint')"
       @confirm="showErrorModal = false"
     />
   </DefaultLayout>

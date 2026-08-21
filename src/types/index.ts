@@ -1,15 +1,15 @@
-export type NavLink = { label: string; to: string }
+export type NavLink = { key: string; to: string }
 
 export const navLinks: NavLink[] = [
-  { label: 'Accueil', to: '/' },
-  { label: 'Catalogue', to: '/catalogue' },
-  { label: 'À propos', to: '/a-propos' },
-  { label: 'Contact', to: '/contact' },
+  { key: 'home', to: '/' },
+  { key: 'catalogue', to: '/catalogue' },
+  { key: 'about', to: '/a-propos' },
+  { key: 'contact', to: '/contact' },
 ]
 
-export const STATUS_LABELS: Record<string, string> = {
-  pending: 'En attente', confirmed: 'Confirmée', preparing: 'En préparation',
-  shipped: 'Expédiée', delivered: 'Livrée', cancelled: 'Annulée',
+export const STATUS_KEYS: Record<string, string> = {
+  pending: 'pending', confirmed: 'confirmed', preparing: 'preparing',
+  shipped: 'shipped', delivered: 'delivered', cancelled: 'cancelled',
 }
 
 export const STATUS_COLORS: Record<string, string> = {

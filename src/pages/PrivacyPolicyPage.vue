@@ -1,5 +1,20 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
+
+const { t } = useI18n()
+
+const introParagraphs = [t('privacy.intro1'), t('privacy.intro2'), t('privacy.intro3')]
+const idData = [t('privacy.idData1'), t('privacy.idData2'), t('privacy.idData3'), t('privacy.idData4'), t('privacy.idData5'), t('privacy.idData6')]
+const orderData = [t('privacy.orderData1'), t('privacy.orderData2'), t('privacy.orderData3'), t('privacy.orderData4'), t('privacy.orderData5'), t('privacy.orderData6'), t('privacy.orderData7'), t('privacy.orderData8')]
+const techData = [t('privacy.techData1'), t('privacy.techData2'), t('privacy.techData3'), t('privacy.techData4'), t('privacy.techData5'), t('privacy.techData6'), t('privacy.techData7'), t('privacy.techData8')]
+const purposes = [t('privacy.purpose1'), t('privacy.purpose2'), t('privacy.purpose3'), t('privacy.purpose4'), t('privacy.purpose5'), t('privacy.purpose6'), t('privacy.purpose7'), t('privacy.purpose8'), t('privacy.purpose9'), t('privacy.purpose10'), t('privacy.purpose11'), t('privacy.purpose12'), t('privacy.purpose13'), t('privacy.purpose14'), t('privacy.purpose15')]
+const international = [t('privacy.international1'), t('privacy.international2'), t('privacy.international3'), t('privacy.international4'), t('privacy.international5'), t('privacy.international6'), t('privacy.international7'), t('privacy.international8')]
+const thirdParties = [t('privacy.thirdParty1'), t('privacy.thirdParty2'), t('privacy.thirdParty3'), t('privacy.thirdParty4'), t('privacy.thirdParty5'), t('privacy.thirdParty6'), t('privacy.thirdParty7')]
+const cookies = [t('privacy.cookie1'), t('privacy.cookie2'), t('privacy.cookie3'), t('privacy.cookie4'), t('privacy.cookie5'), t('privacy.cookie6')]
+const retention = [t('privacy.retention3'), t('privacy.retention4'), t('privacy.retention5'), t('privacy.retention6'), t('privacy.retention7')]
+const security = [t('privacy.security1'), t('privacy.security2'), t('privacy.security3'), t('privacy.security4'), t('privacy.security5'), t('privacy.security6')]
+const rights = [t('privacy.right1'), t('privacy.right2'), t('privacy.right3'), t('privacy.right4'), t('privacy.right5'), t('privacy.right6'), t('privacy.right7')]
 </script>
 
 <template>
@@ -7,262 +22,133 @@ import DefaultLayout from '@/components/layout/DefaultLayout.vue'
     <!-- Hero -->
     <section class="py-14 text-white" style="background:#4A2C1A;">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="font-display text-4xl font-semibold">Politique de confidentialité</h1>
-        <p class="mt-3" style="color:#E8D4A8;">Dernière mise à jour : 11 août 2026</p>
+        <h1 class="font-display text-4xl font-semibold">{{ t('privacy.title') }}</h1>
+        <p class="mt-3" style="color:#E8D4A8;">{{ t('privacy.updated') }}</p>
       </div>
     </section>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-8">
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          SwissWood Sàrl (« SwissWood », « nous », « notre » ou « nos ») accorde une grande importance à la protection des données personnelles de ses clients, visiteurs et utilisateurs.
-        </p>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          La présente politique explique quelles données personnelles nous pouvons collecter, pourquoi nous les utilisons, avec qui elles peuvent être partagées et quels sont les droits des personnes concernées.
-        </p>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Elle s'applique au site internet de SwissWood, aux commandes effectuées en ligne, aux demandes de renseignements, aux communications avec nos clients et aux services associés à nos activités commerciales.
-        </p>
+        <p v-for="p in introParagraphs" :key="p" class="leading-relaxed mb-4 last:mb-0" style="color:#7A7167; font-size:15px;">{{ p }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">1. Responsable du traitement</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">Le responsable du traitement des données est :</p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">1. {{ t('privacy.controller') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.controllerIntro') }}</p>
         <p class="mb-2 font-semibold" style="color:#4A2C1A;">SwissWood Sàrl</p>
-        <p class="leading-relaxed mb-2" style="color:#7A7167; font-size:15px;">
-          Rue du Bois 18<br />
-          1003 Lausanne<br />
-          Canton de Vaud<br />
-          Suisse
-        </p>
+        <p class="leading-relaxed mb-2" style="color:#7A7167; font-size:15px;" v-html="t('privacy.companyAddress')"></p>
         <p class="text-sm mb-2" style="color:#7A7167;">
-          E-mail : <a href="mailto:privacy@swisswood.example" class="font-medium" style="color:#6B4226;">privacy@swisswood.example</a><br />
-          Téléphone : <span class="font-medium" style="color:#4A2C1A;">+41 21 555 14 80</span>
+          {{ t('privacy.email') }}: <a href="mailto:privacy@swisswood.example" class="font-medium" style="color:#6B4226;">privacy@swisswood.example</a><br />
+          {{ t('privacy.phone') }}: <span class="font-medium" style="color:#4A2C1A;">+41 21 555 14 80</span>
         </p>
-        <p class="text-xs" style="color:#C89B5D;">Les coordonnées ci-dessus sont fictives dans le présent modèle.</p>
+        <p class="text-xs" style="color:#C89B5D;">{{ t('privacy.fictional') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">2. Données personnelles collectées</h2>
-        <p class="leading-relaxed mb-5" style="color:#7A7167; font-size:15px;">
-          Selon votre utilisation de notre site et de nos services, nous pouvons collecter notamment :
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">2. {{ t('privacy.collected') }}</h2>
+        <p class="leading-relaxed mb-5" style="color:#7A7167; font-size:15px;">{{ t('privacy.collectedIntro') }}</p>
 
-        <h3 class="font-semibold mb-2" style="color:#4A2C1A;">Données d'identification</h3>
+        <h3 class="font-semibold mb-2" style="color:#4A2C1A;">{{ t('privacy.idData') }}</h3>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>nom et prénom ;</li>
-          <li>raison sociale ;</li>
-          <li>adresse postale ;</li>
-          <li>pays de résidence ou de livraison ;</li>
-          <li>adresse e-mail ;</li>
-          <li>numéro de téléphone.</li>
+          <li v-for="i in idData" :key="i">{{ i }}</li>
         </ul>
 
-        <h3 class="font-semibold mb-2" style="color:#4A2C1A;">Données relatives aux commandes</h3>
+        <h3 class="font-semibold mb-2" style="color:#4A2C1A;">{{ t('privacy.orderData') }}</h3>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>produits commandés ;</li>
-          <li>quantités ;</li>
-          <li>prix ;</li>
-          <li>adresse de facturation ;</li>
-          <li>adresse de livraison ;</li>
-          <li>historique des commandes ;</li>
-          <li>informations nécessaires au suivi de livraison ;</li>
-          <li>échanges avec notre service clientèle.</li>
+          <li v-for="i in orderData" :key="i">{{ i }}</li>
         </ul>
 
-        <h3 class="font-semibold mb-2" style="color:#4A2C1A;">Données relatives au paiement</h3>
-        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">
-          Les paiements peuvent être traités par des prestataires de paiement externes.
-        </p>
-        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">
-          SwissWood ne conserve pas nécessairement les données complètes de carte bancaire lorsque celles-ci sont directement traitées par un prestataire de paiement sécurisé.
-        </p>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Nous pouvons toutefois recevoir certaines informations nécessaires à la confirmation et au suivi du paiement, telles que le statut de la transaction, la référence de paiement ou les quatre derniers chiffres d'un moyen de paiement lorsque le prestataire les communique.
-        </p>
+        <h3 class="font-semibold mb-2" style="color:#4A2C1A;">{{ t('privacy.paymentData') }}</h3>
+        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">{{ t('privacy.paymentData1') }}</p>
+        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">{{ t('privacy.paymentData2') }}</p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.paymentData3') }}</p>
 
-        <h3 class="font-semibold mb-2 mt-5" style="color:#4A2C1A;">Données techniques</h3>
-        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">
-          Lors de votre navigation, certaines informations techniques peuvent être collectées automatiquement, notamment :
-        </p>
+        <h3 class="font-semibold mb-2 mt-5" style="color:#4A2C1A;">{{ t('privacy.techData') }}</h3>
+        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">{{ t('privacy.techDataIntro') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 text-sm" style="color:#7A7167;">
-          <li>adresse IP ;</li>
-          <li>type d'appareil ;</li>
-          <li>navigateur utilisé ;</li>
-          <li>système d'exploitation ;</li>
-          <li>pages consultées ;</li>
-          <li>date et heure de connexion ;</li>
-          <li>données relatives à la navigation ;</li>
-          <li>données nécessaires à la sécurité du site.</li>
+          <li v-for="i in techData" :key="i">{{ i }}</li>
         </ul>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">3. Finalités du traitement</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">Nous pouvons utiliser les données personnelles pour :</p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">3. {{ t('privacy.purposes') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.purposesIntro') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 text-sm" style="color:#7A7167;">
-          <li>traiter et exécuter les commandes ;</li>
-          <li>préparer et expédier les produits ;</li>
-          <li>organiser la livraison ;</li>
-          <li>communiquer avec les clients ;</li>
-          <li>établir les factures ;</li>
-          <li>gérer les paiements ;</li>
-          <li>assurer le service après-vente ;</li>
-          <li>répondre aux demandes de renseignements ;</li>
-          <li>prévenir les fraudes et les abus ;</li>
-          <li>assurer la sécurité du site ;</li>
-          <li>améliorer nos produits et services ;</li>
-          <li>analyser l'utilisation du site ;</li>
-          <li>respecter nos obligations légales ;</li>
-          <li>gérer les éventuels litiges ;</li>
-          <li>envoyer des communications commerciales lorsque les conditions légales applicables sont remplies.</li>
+          <li v-for="i in purposes" :key="i">{{ i }}</li>
         </ul>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">4. Commandes et livraison internationale</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          SwissWood peut transmettre certaines données personnelles à des prestataires nécessaires à l'exécution de la commande.
-        </p>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">Il peut notamment s'agir :</p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">4. {{ t('privacy.international') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.internationalText1') }}</p>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.internationalText2') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>de transporteurs ;</li>
-          <li>de sociétés de livraison ;</li>
-          <li>de prestataires logistiques ;</li>
-          <li>de prestataires de paiement ;</li>
-          <li>de prestataires informatiques ;</li>
-          <li>de prestataires d'hébergement ;</li>
-          <li>de prestataires chargés du service clientèle ;</li>
-          <li>de représentants ou intermédiaires douaniers lorsque cela est nécessaire.</li>
+          <li v-for="i in international" :key="i">{{ i }}</li>
         </ul>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Lorsque la livraison est effectuée dans un pays étranger, certaines données peuvent être communiquées aux transporteurs, autorités douanières ou autres organismes légalement compétents afin de permettre l'importation et la livraison du colis.
-        </p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.internationalText3') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">5. Transmission à des tiers</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          SwissWood ne vend pas les données personnelles de ses clients.
-        </p>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          Certaines données peuvent néanmoins être communiquées à des tiers lorsque cela est nécessaire :
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">5. {{ t('privacy.thirdParties') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.thirdParties1') }}</p>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.thirdParties2') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>à l'exécution d'une commande ;</li>
-          <li>à la livraison ;</li>
-          <li>au traitement d'un paiement ;</li>
-          <li>à l'hébergement et à la sécurité informatique ;</li>
-          <li>au respect d'une obligation légale ;</li>
-          <li>à la prévention des fraudes ;</li>
-          <li>à la défense des intérêts légitimes de SwissWood.</li>
+          <li v-for="i in thirdParties" :key="i">{{ i }}</li>
         </ul>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Les prestataires concernés ne peuvent utiliser les données que dans le cadre des services qui leur sont confiés et conformément aux exigences légales applicables.
-        </p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.thirdParties3') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">6. Transferts internationaux</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          En raison de son activité internationale, SwissWood peut être amenée à traiter ou à faire traiter certaines données personnelles dans des pays situés hors de Suisse.
-        </p>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Lorsque cela est nécessaire, SwissWood prend les mesures appropriées prévues par la législation applicable en matière de protection des données.
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">6. {{ t('privacy.transfers') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.transfers1') }}</p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.transfers2') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">7. Cookies</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          Le site peut utiliser des cookies et technologies similaires afin de :
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">7. {{ t('privacy.cookies') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.cookiesIntro') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>assurer le fonctionnement du site ;</li>
-          <li>mémoriser certaines préférences ;</li>
-          <li>mesurer l'audience ;</li>
-          <li>améliorer l'expérience utilisateur ;</li>
-          <li>sécuriser les services ;</li>
-          <li>éventuellement proposer des contenus ou communications personnalisés.</li>
+          <li v-for="i in cookies" :key="i">{{ i }}</li>
         </ul>
-        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">
-          Lorsque la législation applicable l'exige, certains cookies ne seront utilisés qu'après obtention du consentement de l'utilisateur.
-        </p>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          L'utilisateur peut également configurer son navigateur afin de limiter ou de bloquer certains cookies.
-        </p>
+        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">{{ t('privacy.cookies1') }}</p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.cookies2') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">8. Communications commerciales</h2>
-        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">
-          SwissWood peut envoyer des communications commerciales lorsque la législation applicable le permet.
-        </p>
-        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">
-          L'utilisateur peut à tout moment demander l'arrêt de ces communications ou utiliser le lien de désinscription prévu dans les e-mails concernés.
-        </p>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          La désinscription des communications commerciales n'empêche pas l'envoi de communications strictement nécessaires à l'exécution d'une commande, à la sécurité du compte ou à une obligation contractuelle.
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">8. {{ t('privacy.commercial') }}</h2>
+        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">{{ t('privacy.commercial1') }}</p>
+        <p class="leading-relaxed mb-3" style="color:#7A7167; font-size:15px;">{{ t('privacy.commercial2') }}</p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.commercial3') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">9. Durée de conservation</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          SwissWood conserve les données personnelles pendant la durée nécessaire aux finalités pour lesquelles elles ont été collectées.
-        </p>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          Certaines données peuvent être conservées plus longtemps lorsque cela est nécessaire pour :
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">9. {{ t('privacy.retention') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.retention1') }}</p>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.retention2') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>respecter une obligation légale ou comptable ;</li>
-          <li>établir ou défendre un droit ;</li>
-          <li>gérer un litige ;</li>
-          <li>assurer la sécurité ;</li>
-          <li>respecter les obligations fiscales et commerciales applicables.</li>
+          <li v-for="i in retention" :key="i">{{ i }}</li>
         </ul>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Une fois les données devenues inutiles et lorsqu'aucune obligation légale ne justifie leur conservation, elles sont supprimées ou anonymisées dans la mesure du possible.
-        </p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.retention8') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">10. Sécurité</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          SwissWood met en œuvre des mesures techniques et organisationnelles raisonnables afin de protéger les données personnelles contre :
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">10. {{ t('privacy.security') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.securityIntro') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>l'accès non autorisé ;</li>
-          <li>la perte ;</li>
-          <li>la destruction ;</li>
-          <li>la modification ;</li>
-          <li>la divulgation non autorisée ;</li>
-          <li>les autres formes de traitement illicite.</li>
+          <li v-for="i in security" :key="i">{{ i }}</li>
         </ul>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          Aucun système informatique ne pouvant garantir une sécurité absolue, SwissWood ne peut toutefois garantir une sécurité totale des informations transmises sur Internet.
-        </p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.security7') }}</p>
       </div>
 
       <div class="bg-white rounded-xl border p-8" style="border-color:#E2DCD1; box-shadow:0 2px 12px rgba(43,36,32,0.06);">
-        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">11. Droits des personnes concernées</h2>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">
-          Sous réserve des conditions et limites prévues par la législation applicable, les personnes concernées peuvent notamment disposer de droits concernant :
-        </p>
+        <h2 class="font-display text-xl font-semibold mb-4" style="color:#4A2C1A;">11. {{ t('privacy.rights') }}</h2>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.rightsIntro') }}</p>
         <ul class="list-disc pl-5 space-y-1.5 mb-5 text-sm" style="color:#7A7167;">
-          <li>l'accès à leurs données personnelles ;</li>
-          <li>la rectification de données inexactes ;</li>
-          <li>la suppression de certaines données ;</li>
-          <li>la limitation de certains traitements ;</li>
-          <li>l'opposition à certains traitements ;</li>
-          <li>la révocation d'un consentement lorsque le traitement repose sur celui-ci ;</li>
-          <li>la portabilité de certaines données lorsque les conditions légales sont remplies.</li>
+          <li v-for="i in rights" :key="i">{{ i }}</li>
         </ul>
-        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">Toute demande peut être adressée à :</p>
+        <p class="leading-relaxed mb-4" style="color:#7A7167; font-size:15px;">{{ t('privacy.rights1') }}</p>
         <p class="mb-4"><a href="mailto:privacy@swisswood.example" class="font-medium" style="color:#6B4226;">privacy@swisswood.example</a></p>
-        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">
-          SwissWood peut demander des informations raisonnables permettant de vérifier l'identité du demandeur lorsque cela est nécessaire pour protéger les données
-        </p>
+        <p class="leading-relaxed" style="color:#7A7167; font-size:15px;">{{ t('privacy.rights2') }}</p>
       </div>
     </div>
   </DefaultLayout>

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ShoppingCart, Star } from 'lucide-vue-next'
-import { resolveImageUrl, PRODUCT_ESSENCE_LABELS, type ProductDto } from '@/lib/api'
+import { resolveImageUrl, type ProductDto } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 
 const props = defineProps<{ product: ProductDto }>()
+const { t } = useI18n()
 const currency = useCurrencyStore()
 const cart = useCartStore()
 
@@ -25,16 +27,16 @@ function quickAdd() { cart.addItem(props.product, 1); cart.toggleCart() }
         loading="lazy" />
       <!-- Essence badge -->
       <span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded text-white uppercase tracking-wider"
-        style="background:#6B4226; letter-spacing:0.04em;">{{ product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[product.essence] ?? product.essence }}</span>
+        style="background:#6B4226; letter-spacing:0.04em;">{{ t(`essences.${product.essence}`) }}</span>
       <!-- Out of stock overlay -->
       <div v-if="product.stock === 0" class="absolute inset-0 flex items-center justify-center" style="background:rgba(250,247,242,0.75);">
-        <span class="text-xs font-semibold px-3 py-1 rounded" style="color:#7A7167; background:#F0EDE7; border:1px solid #E2DCD1;">Rupture de stock</span>
+        <span class="text-xs font-semibold px-3 py-1 rounded" style="color:#7A7167; background:#F0EDE7; border:1px solid #E2DCD1;">{{ t('product.outOfStock') }}</span>
       </div>
       <!-- Low stock -->
       <span v-else-if="product.stock <= 5 && product.stock > 0"
         class="absolute bottom-3 left-3 text-xs font-medium px-2.5 py-1 rounded"
         style="background:#FBF0DA; color:#8A6115;">
-        Plus que {{ product.stock }} en stock
+        {{ t('product.lowStock', { count: product.stock }) }}
       </span>
     </RouterLink>
 
@@ -63,9 +65,9 @@ function quickAdd() { cart.addItem(props.product, 1); cart.toggleCart() }
           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style="background:#B23A2E; box-shadow: 0 2px 6px rgba(178,58,46,0.2);"
           onmouseover="if(!this.disabled) this.style.background='#8F2E24'" onmouseout="this.style.background='#B23A2E'"
-          aria-label="Ajouter au panier">
+          :aria-label="t('product.addToCart')">
           <ShoppingCart class="w-3.5 h-3.5" />
-          Ajouter
+          {{ t('product.add') }}
         </button>
       </div>
     </div>

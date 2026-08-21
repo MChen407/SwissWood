@@ -5,12 +5,12 @@ import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const listFavorites = asyncHandler(async (req: Request, res: Response) => {
-  const favorites = await favoriteService.listForUser(req.user!.id)
+  const favorites = await favoriteService.listForUser(req.user!.id, req.query.locale)
   ApiResponse.success(res, favorites)
 })
 
 export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const favorite = await favoriteService.add(req.user!.id, req.params.productId!)
+  const favorite = await favoriteService.add(req.user!.id, req.params.productId!, req.query.locale)
   ApiResponse.success(res, favorite, StatusCodes.CREATED)
 })
 

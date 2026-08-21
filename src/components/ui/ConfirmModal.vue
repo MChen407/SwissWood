@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Check, AlertTriangle, X } from 'lucide-vue-next'
+
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   open: boolean
@@ -12,8 +15,6 @@ const props = withDefaults(defineProps<{
   loading?: boolean
 }>(), {
   variant: 'confirm',
-  confirmLabel: 'Confirmer',
-  cancelLabel: 'Annuler',
   confirmOnly: false,
   loading: false,
 })
@@ -49,14 +50,14 @@ function onCancel() {
           <div class="flex justify-end gap-3 mt-6">
             <button v-if="!confirmOnly" @click="onCancel"
               class="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors" style="background:#FAF7F2; color:#6B4226;"
-              onmouseover="this.style.background='#EDE6DA'" onmouseout="this.style.background='#FAF7F2'">{{ cancelLabel }}</button>
+              onmouseover="this.style.background='#EDE6DA'" onmouseout="this.style.background='#FAF7F2'">{{ cancelLabel || t('common.cancel') }}</button>
             <button @click="emit('confirm')" :disabled="loading"
               class="px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-50"
               :style="variant === 'danger' ? { background:'#B23A2E' } : { background:'#6B4226' }"
               onmouseover="this.style.background=this.getAttribute('data-danger')==='1' ? '#8F2E24' : '#4A2C1A'"
               onmouseout="this.style.background=this.getAttribute('data-danger')==='1' ? '#B23A2E' : '#6B4226'"
               :data-danger="variant === 'danger' ? '1' : '0'">
-              {{ loading ? 'Traitement...' : confirmLabel }}
+              {{ loading ? t('payment.processing') : (confirmLabel || t('common.confirm')) }}
             </button>
           </div>
         </div>

@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Star, Heart, ShoppingCart, Minus, Plus, Check, Truck, Shield, ChevronRight, Ruler } from 'lucide-vue-next'
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import ProductCard from '@/components/ui/ProductCard.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
-import { api, resolveImageUrl, PRODUCT_ESSENCE_LABELS, type ProductDto, type ProductReviewDto, type ProductEssence } from '@/lib/api'
+import { api, resolveImageUrl, type ProductDto, type ProductReviewDto, type ProductEssence } from '@/lib/api'
 import { useCurrencyStore } from '@/stores/currency'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { dimensionMultiplier } from '@/lib/pricing'
 
+const { t, locale } = useI18n()
 const route = useRoute()
 const currency = useCurrencyStore()
 const cart = useCartStore()
@@ -119,7 +121,7 @@ async function submitReview() {
     reviewSubmitted.value = true
     reviewComment.value = ''
   } catch (e: unknown) {
-    reviewError.value = e instanceof Error ? e.message : 'Une erreur est survenue'
+    reviewError.value = e instanceof Error ? e.message : t('common.error')
   } finally {
     reviewSubmitting.value = false
   }
@@ -128,13 +130,13 @@ async function submitReview() {
 
 <template>
   <DefaultLayout>
-    <div v-if="loading" class="max-w-7xl mx-auto px-4 py-20 text-center"><p class="text-wood-400">Chargement...</p></div>
+    <div v-if="loading" class="max-w-7xl mx-auto px-4 py-20 text-center"><p class="text-wood-400">{{ t('common.loading') }}</p></div>
 
     <div v-else-if="product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <nav class="flex items-center gap-1 text-sm text-wood-400 mb-6">
-        <RouterLink to="/" class="hover:text-primary-500">Accueil</RouterLink>
+        <RouterLink to="/" class="hover:text-primary-500">{{ t('navlinks.home') }}</RouterLink>
         <ChevronRight class="w-3 h-3" />
-        <RouterLink to="/catalogue" class="hover:text-primary-500">Catalogue</RouterLink>
+        <RouterLink to="/catalogue" class="hover:text-primary-500">{{ t('navlinks.catalogue') }}</RouterLink>
         <ChevronRight class="w-3 h-3" />
         <span class="text-primary-500">{{ product.name }}</span>
       </nav>
@@ -148,10 +150,10 @@ async function submitReview() {
 
         <div>
           <div class="flex items-center gap-2 mb-2">
-            <span class="px-3 py-1 bg-primary-100 text-primary-500 text-xs font-medium rounded-md">{{ product.essence_data?.label ?? PRODUCT_ESSENCE_LABELS[product.essence] ?? product.essence }}</span>
+            <span class="px-3 py-1 bg-primary-100 text-primary-500 text-xs font-medium rounded-md">{{ t(`essences.${product.essence}`) }}</span>
             <div class="flex items-center gap-1">
               <Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= Math.round(Number(avgRating)) ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" />
-              <span class="text-sm text-wood-400 ml-1">({{ reviews.length }} avis)</span>
+              <span class="text-sm text-wood-400 ml-1">({{ reviews.length }} {{ t('product.reviews') }})</span>
             </div>
           </div>
 
@@ -161,12 +163,12 @@ async function submitReview() {
           <div class="mt-6 text-3xl font-semibold text-primary-500">{{ currency.formatPrice(computedPrice.eur, computedPrice.usd, computedPrice.fcfa) }}</div>
 
           <div class="mt-6 bg-white rounded-xl border border-wood-200 p-5">
-            <h3 class="font-medium text-primary-500 flex items-center gap-2 mb-4"><Ruler class="w-4 h-4" /> Personnalisation</h3>
+            <h3 class="font-medium text-primary-500 flex items-center gap-2 mb-4"><Ruler class="w-4 h-4" /> {{ t('product.customization') }}</h3>
             <div class="grid grid-cols-2 gap-4">
-              <div><label class="text-xs text-wood-500">Longueur (mm)</label><input v-model.number="customLength" type="number" min="100" step="100" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-              <div><label class="text-xs text-wood-500">Largeur (mm)</label><input v-model.number="customWidth" type="number" min="10" step="10" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-              <div><label class="text-xs text-wood-500">Épaisseur (mm)</label><input v-model.number="customThickness" type="number" min="5" step="5" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
-              <div><label class="text-xs text-wood-500">Traitement</label>
+              <div><label class="text-xs text-wood-500">{{ t('product.length') }} (mm)</label><input v-model.number="customLength" type="number" min="100" step="100" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+              <div><label class="text-xs text-wood-500">{{ t('product.width') }} (mm)</label><input v-model.number="customWidth" type="number" min="10" step="10" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+              <div><label class="text-xs text-wood-500">{{ t('product.thickness') }} (mm)</label><input v-model.number="customThickness" type="number" min="5" step="5" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
+              <div><label class="text-xs text-wood-500">{{ t('product.treatment') }}</label>
                 <div class="mt-1"><SearchableSelect v-model="customTreatment" :options="['Naturel','Autoclave Classe 3','Autoclave Classe 4','Saturateur'].map(t => ({ value: t, label: t }))" /></div>
               </div>
             </div>
@@ -178,14 +180,14 @@ async function submitReview() {
               <span class="w-12 text-center font-medium">{{ quantity }}</span>
               <button @click="quantity++" class="p-2.5 text-wood-500 hover:text-primary-500"><Plus class="w-4 h-4" /></button>
             </div>
-            <button @click="addToCart" class="flex-1 bg-primary-500 text-wood-100 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"><ShoppingCart class="w-5 h-5" /> Ajouter au panier</button>
-            <button @click="toggleFavorite" class="p-3 border border-wood-200 rounded-lg transition-colors" :class="isFavorite ? 'text-cta-500 border-cta-500' : 'text-wood-500 hover:text-cta-500'"><Heart class="w-5 h-5" :class="isFavorite ? 'fill-cta-500' : ''" /></button>
+            <button @click="addToCart" class="flex-1 bg-primary-500 text-wood-100 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"><ShoppingCart class="w-5 h-5" /> {{ t('product.addToCart') }}</button>
+            <button @click="toggleFavorite" :aria-label="isFavorite ? t('product.removeFavorite') : t('product.addFavorite')" class="p-3 border border-wood-200 rounded-lg transition-colors" :class="isFavorite ? 'text-cta-500 border-cta-500' : 'text-wood-500 hover:text-cta-500'"><Heart class="w-5 h-5" :class="isFavorite ? 'fill-cta-500' : ''" /></button>
           </div>
 
           <div class="mt-6 grid grid-cols-2 gap-3">
-            <div class="flex items-center gap-2 text-sm text-wood-500"><Check class="w-4 h-4 text-success-500" /> Stock: {{ product.stock }}</div>
+            <div class="flex items-center gap-2 text-sm text-wood-500"><Check class="w-4 h-4 text-success-500" /> {{ t('product.stock') }}: {{ product.stock }}</div>
             <div class="flex items-center gap-2 text-sm text-wood-500"><Shield class="w-4 h-4 text-success-500" /> {{ product.characteristics.certification || 'FSC' }}</div>
-            <div class="flex items-center gap-2 text-sm text-wood-500"><Truck class="w-4 h-4 text-success-500" /> Expédition 48h</div>
+            <div class="flex items-center gap-2 text-sm text-wood-500"><Truck class="w-4 h-4 text-success-500" /> {{ t('product.shipping48') }}</div>
             <div class="flex items-center gap-2 text-sm text-wood-500"><Check class="w-4 h-4 text-success-500" /> {{ product.characteristics.class_emploi }}</div>
           </div>
         </div>
@@ -196,7 +198,7 @@ async function submitReview() {
         <div class="flex gap-6 border-b border-wood-200 mb-6">
           <button v-for="tab in (['description','specs','reviews'] as const)" :key="tab" @click="activeTab = tab"
             :class="['pb-3 text-sm font-medium border-b-2 transition-colors', activeTab === tab ? 'border-primary-500 text-primary-500' : 'border-transparent text-wood-500 hover:text-primary-500']">
-            {{ tab === 'description' ? 'Description' : tab === 'specs' ? 'Caractéristiques' : `Avis (${reviews.length})` }}
+            {{ tab === 'description' ? t('product.description') : tab === 'specs' ? t('product.characteristics') : `${t('product.reviews')} (${reviews.length})` }}
           </button>
         </div>
 
@@ -204,22 +206,22 @@ async function submitReview() {
 
         <div v-else-if="activeTab === 'specs'" class="grid md:grid-cols-2 gap-6">
           <div class="bg-white rounded-xl border border-wood-200 p-5">
-            <h3 class="font-medium text-primary-500 mb-3">Dimensions de base</h3>
+            <h3 class="font-medium text-primary-500 mb-3">{{ t('product.baseDimensions') }}</h3>
             <dl class="space-y-2 text-sm">
-              <div class="flex justify-between"><dt class="text-wood-500">Longueur</dt><dd class="font-medium">{{ product.dimensions.length_mm }} mm</dd></div>
-              <div class="flex justify-between"><dt class="text-wood-500">Largeur</dt><dd class="font-medium">{{ product.dimensions.width_mm }} mm</dd></div>
-              <div class="flex justify-between"><dt class="text-wood-500">Épaisseur</dt><dd class="font-medium">{{ product.dimensions.thickness_mm }} mm</dd></div>
-              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">Densité (vert)</dt><dd class="font-medium">{{ product.essence_data.densite_vert_kg_m3 }} kg/m³</dd></div>
-              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">Densité (sec)</dt><dd class="font-medium">{{ product.essence_data.densite_sec_kg_m3 }} kg/m³</dd></div>
-              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">Pouvoir calorifique</dt><dd class="font-medium">{{ product.essence_data.pouvoir_calorifique }} <span class="text-wood-400">(base 100)</span></dd></div>
-              <div v-if="!product.essence_data" class="flex justify-between"><dt class="text-wood-500">Densité</dt><dd class="font-medium">{{ product.dimensions.weight_kg_m3 }} kg/m³</dd></div>
+              <div class="flex justify-between"><dt class="text-wood-500">{{ t('product.length') }}</dt><dd class="font-medium">{{ product.dimensions.length_mm }} mm</dd></div>
+              <div class="flex justify-between"><dt class="text-wood-500">{{ t('product.width') }}</dt><dd class="font-medium">{{ product.dimensions.width_mm }} mm</dd></div>
+              <div class="flex justify-between"><dt class="text-wood-500">{{ t('product.thickness') }}</dt><dd class="font-medium">{{ product.dimensions.thickness_mm }} mm</dd></div>
+              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">{{ t('product.densityWet') }}</dt><dd class="font-medium">{{ product.essence_data.densite_vert_kg_m3 }} kg/m³</dd></div>
+              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">{{ t('product.densityDry') }}</dt><dd class="font-medium">{{ product.essence_data.densite_sec_kg_m3 }} kg/m³</dd></div>
+              <div v-if="product.essence_data" class="flex justify-between"><dt class="text-wood-500">{{ t('product.calorificValue') }}</dt><dd class="font-medium">{{ product.essence_data.pouvoir_calorifique }} <span class="text-wood-400">(base 100)</span></dd></div>
+              <div v-if="!product.essence_data" class="flex justify-between"><dt class="text-wood-500">{{ t('product.density') }}</dt><dd class="font-medium">{{ product.dimensions.weight_kg_m3 }} kg/m³</dd></div>
             </dl>
           </div>
           <div class="bg-white rounded-xl border border-wood-200 p-5">
-            <h3 class="font-medium text-primary-500 mb-3">Caractéristiques techniques</h3>
+            <h3 class="font-medium text-primary-500 mb-3">{{ t('product.techCharacteristics') }}</h3>
             <dl class="space-y-2 text-sm">
               <div v-for="(val, key) in product.characteristics" :key="String(key)" class="flex justify-between">
-                <dt class="text-wood-500 capitalize">{{ String(key).replace(/_/g, ' ') }}</dt><dd class="font-medium">{{ val }}</dd>
+                <dt class="text-wood-500 capitalize">{{ t(`product.char.${String(key)}`) }}</dt><dd class="font-medium">{{ val }}</dd>
               </div>
             </dl>
           </div>
@@ -227,8 +229,8 @@ async function submitReview() {
 
         <div v-else class="space-y-8">
           <div v-if="auth.isAuthenticated" class="bg-white rounded-xl border border-wood-200 p-5 max-w-2xl">
-            <h3 class="font-medium text-primary-500 mb-3">Donner votre avis</h3>
-            <p v-if="reviewSubmitted" class="text-sm text-success-500 mb-2">Merci ! Votre avis sera publié après validation par notre équipe.</p>
+            <h3 class="font-medium text-primary-500 mb-3">{{ t('product.writeReview') }}</h3>
+            <p v-if="reviewSubmitted" class="text-sm text-success-500 mb-2">{{ t('product.reviewThanks') }}</p>
             <template v-else>
               <div class="flex items-center gap-1 mb-3">
                 <button v-for="n in 5" :key="n" type="button" @click="reviewRating = n" class="p-0.5">
@@ -236,35 +238,35 @@ async function submitReview() {
                 </button>
                 <span class="ml-2 text-sm text-wood-500">{{ reviewRating }}/5</span>
               </div>
-              <textarea v-model="reviewComment" rows="3" maxlength="1000" placeholder="Partagez votre expérience avec ce produit..."
+              <textarea v-model="reviewComment" rows="3" maxlength="1000" :placeholder="t('product.reviewPlaceholder')"
                 class="w-full px-3 py-2.5 border border-wood-200 rounded-lg text-sm resize-none focus:outline-none focus:border-primary-500"></textarea>
               <p v-if="reviewError" class="text-sm text-error-500 mt-2">{{ reviewError }}</p>
               <div class="mt-3 flex items-center gap-3">
                 <button @click="submitReview" :disabled="reviewSubmitting"
                   class="bg-primary-500 text-wood-100 px-5 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors disabled:opacity-50">
-                  {{ reviewSubmitting ? 'Envoi...' : 'Publier mon avis' }}
+                  {{ reviewSubmitting ? t('common.loading') : t('product.submitReview') }}
                 </button>
-                <p class="text-xs text-wood-400">Votre avis sera modéré avant publication.</p>
+                <p class="text-xs text-wood-400">{{ t('product.reviewModerated') }}</p>
               </div>
             </template>
           </div>
           <div v-else class="bg-white rounded-xl border border-wood-200 p-5 max-w-2xl">
             <p class="text-wood-600 text-sm">
-              <RouterLink :to="{ name: 'login', query: { redirect: route.fullPath } }" class="text-primary-500 hover:underline font-medium">Connectez-vous</RouterLink>
-              pour laisser votre avis sur ce produit.
+              <RouterLink :to="{ name: 'login', query: { redirect: route.fullPath } }" class="text-primary-500 hover:underline font-medium">{{ t('product.loginToReview') }}</RouterLink>
+              {{ t('product.loginToReviewHint') }}
             </p>
           </div>
 
           <div>
-            <div v-if="reviews.length === 0" class="text-center py-10 text-wood-400"><p>Aucun avis pour le moment.</p></div>
+            <div v-if="reviews.length === 0" class="text-center py-10 text-wood-400"><p>{{ t('product.noReviews') }}</p></div>
             <div v-else class="space-y-4">
               <div v-for="r in reviews" :key="r.id" class="bg-white rounded-xl border border-wood-200 p-5">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center gap-1"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /></div>
-                  <span class="text-xs text-wood-400">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</span>
+                  <span class="text-xs text-wood-400">{{ new Date(r.created_at).toLocaleDateString(locale) }}</span>
                 </div>
                 <p class="text-wood-600 text-sm leading-relaxed">{{ r.comment }}</p>
-                <p class="mt-2 text-xs font-medium" style="color:#6B4226;">{{ r.user ? `${r.user.first_name} ${r.user.last_name}`.trim() : 'Client SwissWood' }}</p>
+                <p class="mt-2 text-xs font-medium" style="color:#6B4226;">{{ r.user ? `${r.user.first_name} ${r.user.last_name}`.trim() : t('home.clientSwissWood') }}</p>
               </div>
             </div>
           </div>
@@ -272,14 +274,14 @@ async function submitReview() {
       </div>
 
       <div v-if="similar.length > 0" class="mt-16">
-        <h2 class="font-display text-2xl font-medium text-primary-500 mb-6">Produits similaires</h2>
+        <h2 class="font-display text-2xl font-medium text-primary-500 mb-6">{{ t('product.similar') }}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"><ProductCard v-for="p in similar" :key="p.id" :product="p" /></div>
       </div>
     </div>
 
     <div v-else class="max-w-7xl mx-auto px-4 py-20 text-center">
-      <p class="text-wood-400">Produit introuvable</p>
-      <RouterLink to="/catalogue" class="text-primary-500 hover:underline mt-2 inline-block">Retour au catalogue</RouterLink>
+      <p class="text-wood-400">{{ t('product.notFound') }}</p>
+      <RouterLink to="/catalogue" class="text-primary-500 hover:underline mt-2 inline-block">{{ t('product.backToCatalogue') }}</RouterLink>
     </div>
   </DefaultLayout>
 </template>

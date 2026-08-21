@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useLocaleStore } from './locale'
 
 type Currency = 'EUR' | 'USD' | 'FCFA'
 
@@ -21,7 +22,7 @@ export const useCurrencyStore = defineStore('currency', () => {
   function formatPrice(eur: number, usd: number, fcfa: number) {
     if (currency.value === 'EUR') return `${(eur / 100).toFixed(2)} €`
     if (currency.value === 'USD') return `$${(usd / 100).toFixed(2)}`
-    return `${(fcfa / 100).toLocaleString('fr-FR')} FCFA`
+    return `${(fcfa / 100).toLocaleString(useLocaleStore().locale)} FCFA`
   }
 
   function formatEur(eur: number) {

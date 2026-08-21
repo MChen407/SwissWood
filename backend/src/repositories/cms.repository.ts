@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client'
 import { prisma } from '../config/db.js'
 
 export const cmsRepository = {
@@ -13,7 +14,7 @@ export const cmsRepository = {
     return prisma.cmsContent.findUnique({ where: { id } })
   },
 
-  async updateById(id: string, data: { value?: string; label?: string }) {
+  async updateById(id: string, data: { value?: string; label?: string; translations?: Prisma.InputJsonValue }) {
     return prisma.cmsContent.update({ where: { id }, data })
   },
 

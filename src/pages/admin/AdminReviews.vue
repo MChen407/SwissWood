@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Check, X, Star } from 'lucide-vue-next'
 import { api, type AdminReviewDto } from '@/lib/api'
+import { useLocaleStore } from '@/stores/locale'
 
+const { t } = useI18n()
+const localeStore = useLocaleStore()
 const reviews = ref<AdminReviewDto[]>([])
 const loading = ref(true)
 const filter = ref<'pending' | 'approved' | 'all'>('pending')
@@ -24,27 +28,27 @@ async function reject(id: string) { await api.admin.rejectReview(id); await load
 
 <template>
   <div>
-    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">Modération des avis</h1>
+    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">{{ t('admin.reviewsTitle') }}</h1>
     <div class="flex flex-wrap gap-2 mb-4">
-      <button @click="filter = 'pending'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'pending' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">En attente</button>
-      <button @click="filter = 'approved'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'approved' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">Approuvés</button>
-      <button @click="filter = 'all'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'all' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">Tous</button>
+      <button @click="filter = 'pending'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'pending' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">{{ t('admin.pending') }}</button>
+      <button @click="filter = 'approved'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'approved' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">{{ t('admin.approved') }}</button>
+      <button @click="filter = 'all'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'all' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">{{ t('admin.all') }}</button>
     </div>
-    <div v-if="loading" class="text-center py-10 text-wood-400">Chargement...</div>
-    <div v-else-if="reviews.length === 0" class="bg-white rounded-xl border border-wood-200 p-10 text-center text-wood-400">Aucun avis</div>
+    <div v-if="loading" class="text-center py-10 text-wood-400">{{ t('common.loading') }}</div>
+    <div v-else-if="reviews.length === 0" class="bg-white rounded-xl border border-wood-200 p-10 text-center text-wood-400">{{ t('admin.noReviews') }}</div>
     <div v-else class="space-y-3">
       <div v-for="r in reviews" :key="r.id" class="bg-white rounded-xl border border-wood-200 p-5">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1 flex-wrap"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /><span class="text-xs text-wood-400">{{ r.product.name || 'Produit' }}</span></div>
+            <div class="flex items-center gap-2 mb-1 flex-wrap"><Star v-for="n in 5" :key="n" class="w-4 h-4" :class="n <= r.rating ? 'text-wood-400 fill-wood-400' : 'text-wood-200'" /><span class="text-xs text-wood-400">{{ r.product.name || t('admin.product') }}</span></div>
             <p class="text-sm text-wood-600 break-words">{{ r.comment }}</p>
-            <p class="text-xs text-wood-300 mt-2">{{ new Date(r.created_at).toLocaleDateString('fr-FR') }}</p>
+            <p class="text-xs text-wood-300 mt-2">{{ new Date(r.created_at).toLocaleDateString(localeStore.locale) }}</p>
           </div>
           <div v-if="!r.is_approved && !r.is_rejected" class="flex gap-2 flex-shrink-0">
-            <button @click="approve(r.id)" class="p-2 bg-success-100 text-success-500 rounded-lg hover:bg-success-500 hover:text-white transition-colors"><Check class="w-4 h-4" /></button>
-            <button @click="reject(r.id)" class="p-2 bg-error-100 text-error-500 rounded-lg hover:bg-error-500 hover:text-white transition-colors"><X class="w-4 h-4" /></button>
+            <button @click="approve(r.id)" :aria-label="t('admin.approve')" class="p-2 bg-success-100 text-success-500 rounded-lg hover:bg-success-500 hover:text-white transition-colors"><Check class="w-4 h-4" /></button>
+            <button @click="reject(r.id)" :aria-label="t('admin.reject')" class="p-2 bg-error-100 text-error-500 rounded-lg hover:bg-error-500 hover:text-white transition-colors"><X class="w-4 h-4" /></button>
           </div>
-          <span v-else :class="['text-xs px-2 py-1 rounded-full flex-shrink-0', r.is_approved ? 'bg-success-100 text-success-500' : 'bg-error-100 text-error-500']">{{ r.is_approved ? 'Approuvé' : 'Rejeté' }}</span>
+          <span v-else :class="['text-xs px-2 py-1 rounded-full flex-shrink-0', r.is_approved ? 'bg-success-100 text-success-500' : 'bg-error-100 text-error-500']">{{ r.is_approved ? t('admin.approvedLabel') : t('admin.rejectedLabel') }}</span>
         </div>
       </div>
     </div>

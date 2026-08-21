@@ -57,6 +57,10 @@ export function isAuthenticated(): boolean {
   return Boolean(getAccessToken())
 }
 
+export function currentLocale(): string {
+  return localStorage.getItem('swisswood_locale') || 'fr'
+}
+
 export function resolveImageUrl(image: string): string {
   if (!image) return ''
 
@@ -106,42 +110,42 @@ export type ProductEssence = (typeof PRODUCT_ESSENCES)[number]
 
 export interface EssenceGroup {
   id: string
-  label: string
+  labelKey: string
   essences: ProductEssence[]
 }
 
 export const ESSENCE_GROUPS: EssenceGroup[] = [
   {
     id: 'feuillus_durs',
-    label: 'Feuillus durs',
+    labelKey: 'groupFeuillusDurs',
     essences: ['Chene', 'Charme', 'Hetre', 'Frene', 'Orme', 'Erable', 'Noyer', 'Olivier'],
   },
   {
     id: 'feuillus_mi_durs',
-    label: 'Feuillus mi-durs / intermédiaires',
+    labelKey: 'groupFeuillusMiDurs',
     essences: ['Chataignier', 'Acacia', 'Bouleau', 'Merisier', 'ArbresFruitiers', 'Robinier'],
   },
   {
     id: 'resineux_tendres',
-    label: 'Résineux & feuillus tendres',
+    labelKey: 'groupResineuxTendres',
     essences: ['Peuplier', 'Aulne', 'Tilleul', 'Saule', 'Platane', 'Pin', 'Sapin', 'Epicea', 'Meleze'],
   },
 ]
 
 export const PRODUCT_ESSENCE_LABELS: Record<ProductEssence, string> = {
-  Chene: 'Chêne',
+  Chene: 'Chene',
   Charme: 'Charme',
-  Hetre: 'Hêtre',
-  Frene: 'Frêne',
+  Hetre: 'Hetre',
+  Frene: 'Frene',
   Orme: 'Orme',
-  Erable: 'Érable',
+  Erable: 'Erable',
   Noyer: 'Noyer',
   Olivier: 'Olivier',
-  Chataignier: 'Châtaignier',
+  Chataignier: 'Chataignier',
   Acacia: 'Acacia',
   Bouleau: 'Bouleau',
   Merisier: 'Merisier',
-  ArbresFruitiers: 'Arbres fruitiers',
+  ArbresFruitiers: 'ArbresFruitiers',
   Robinier: 'Robinier',
   Peuplier: 'Peuplier',
   Aulne: 'Aulne',
@@ -150,8 +154,8 @@ export const PRODUCT_ESSENCE_LABELS: Record<ProductEssence, string> = {
   Platane: 'Platane',
   Pin: 'Pin',
   Sapin: 'Sapin',
-  Epicea: 'Epicéa',
-  Meleze: 'Mélèze',
+  Epicea: 'Epicea',
+  Meleze: 'Meleze',
 }
 export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled'
 export type OrderPaymentStatus = 'pending' | 'awaiting_transfer' | 'paid' | 'failed' | 'refunded'
@@ -214,6 +218,7 @@ export interface ProductDto {
   images: string[]
   characteristics: Record<string, string>
   is_active: boolean
+  translations?: Record<string, ProductTranslationsDto>
   created_at: string
   updated_at: string
 }
@@ -257,12 +262,18 @@ export interface LatestReviewDto extends ProductReviewDto {
   product: { id: string; name: string; slug: string }
 }
 
+export interface ProductTranslationsDto {
+  name?: string
+  description?: string
+}
+
 export interface CmsContentDto {
   id: string
   key: string
   value: string
   type: string
   label: string
+  translations: Record<string, { value?: string }>
   updated_at: string
 }
 
@@ -441,6 +452,7 @@ export interface AdminProductInput {
   images?: string[]
   characteristics?: Record<string, unknown>
   is_active?: boolean
+  translations?: Record<string, ProductTranslationsDto>
 }
 
 export type ProductListQuery = {
@@ -593,9 +605,9 @@ export const api = {
 
   // ---------- Products ----------
   products: {
-    list: (query: ProductListQuery = {}) => request<ProductListResponse>('/products', { query, auth: false }),
-    featured: (limit = 6) => request<ProductDto[]>('/products/featured', { query: { limit }, auth: false }),
-    bySlug: (slug: string) => request<ProductDto>(`/products/${encodeURIComponent(slug)}`, { auth: false }),
+    list: (query: ProductListQuery = {}) => request<ProductListResponse>('/products', { query: { ...query, locale: currentLocale() }, auth: false }),
+    featured: (limit = 6) => request<ProductDto[]>('/products/featured', { query: { limit, locale: currentLocale() }, auth: false }),
+    bySlug: (slug: string) => request<ProductDto>(`/products/${encodeURIComponent(slug)}`, { query: { locale: currentLocale() }, auth: false }),
     reviews: (productId: string) => request<ProductReviewDto[]>(`/products/${encodeURIComponent(productId)}/reviews`, { auth: false }),
   },
 
@@ -614,8 +626,8 @@ export const api = {
 
   // ---------- Favorites ----------
   favorites: {
-    list: () => request<FavoriteItemDto[]>('/favorites'),
-    add: (productId: string) => request<FavoriteItemDto>(`/favorites/${encodeURIComponent(productId)}`, { method: 'POST' }),
+    list: () => request<FavoriteItemDto[]>('/favorites', { query: { locale: currentLocale() } }),
+    add: (productId: string) => request<FavoriteItemDto>(`/favorites/${encodeURIComponent(productId)}`, { method: 'POST', query: { locale: currentLocale() } }),
     remove: (productId: string) => request<null>(`/favorites/${encodeURIComponent(productId)}`, { method: 'DELETE' }),
   },
 
@@ -633,7 +645,7 @@ export const api = {
 
   // ---------- CMS ----------
   cms: {
-    get: () => request<CmsContentDto[]>('/cms', { auth: false }),
+    get: () => request<CmsContentDto[]>('/cms', { query: { locale: currentLocale() }, auth: false }),
   },
 
   // ---------- Shipping ----------
@@ -662,7 +674,7 @@ export const api = {
     approveReview: (id: string) => request<ProductReviewDto>(`/admin/reviews/${encodeURIComponent(id)}/approve`, { method: 'PATCH', body: {} }),
     rejectReview: (id: string) => request<ProductReviewDto>(`/admin/reviews/${encodeURIComponent(id)}/reject`, { method: 'PATCH', body: {} }),
     getCms: () => request<CmsContentDto[]>('/admin/cms'),
-    updateCms: (id: string, input: { value?: string; label?: string }) =>
+    updateCms: (id: string, input: { value?: string; label?: string; locale?: string }) =>
       request<CmsContentDto>(`/admin/cms/${encodeURIComponent(id)}`, { method: 'PATCH', body: input }),
     uploadImages: (files: File[]) => {
       const formData = new FormData()

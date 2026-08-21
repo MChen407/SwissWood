@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ChevronDown, Search, X } from 'lucide-vue-next'
 
 export interface SearchableOption {
@@ -11,6 +12,8 @@ export interface SearchableOptionGroup {
   label: string
   options: SearchableOption[]
 }
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -26,8 +29,8 @@ const props = withDefaults(
   {
     options: () => [],
     groups: () => [],
-    placeholder: 'Sélectionner…',
-    searchPlaceholder: 'Rechercher…',
+    placeholder: '',
+    searchPlaceholder: '',
     disabled: false,
     size: 'md',
     className: '',
@@ -78,7 +81,7 @@ const totalCount = computed(() => visibleOptions.value.length)
 
 function selectedLabel(): string {
   const found = flatOptions.value.find((o) => o.value === props.modelValue)
-  return found?.label ?? props.modelValue ?? props.placeholder
+  return found?.label ?? props.modelValue ?? (props.placeholder || t('common.select'))
 }
 
 function select(value: string) {
@@ -191,11 +194,11 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
         <input
           ref="searchInput"
           v-model="query"
-          :placeholder="searchPlaceholder"
+          :placeholder="searchPlaceholder || t('common.search')"
           class="w-full bg-transparent text-sm outline-none"
           style="color:#2B2420;"
         />
-        <button v-if="query" type="button" class="flex-shrink-0" @click="query = ''" aria-label="Effacer la recherche">
+        <button v-if="query" type="button" class="flex-shrink-0" @click="query = ''" :aria-label="t('common.close')">
           <X class="w-4 h-4" style="color:#8A8578;" />
         </button>
       </div>
@@ -225,7 +228,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
           </ul>
         </template>
         <div v-if="visibleOptions.length === 0" class="px-3 py-4 text-sm text-center" style="color:#8A8578;">
-          Aucun résultat
+          {{ t('common.noResults') }}
         </div>
       </div>
     </div>
