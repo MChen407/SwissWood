@@ -148,6 +148,8 @@ export default {
     searchPlaceholder: 'Holz, Holzart suchen...',
     sortName: 'Name (A-Z)',
     results: 'Produkte',
+    prev: 'Zurück',
+    next: 'Weiter',
     viewProduct: 'Produkt ansehen',
   },
   product: {

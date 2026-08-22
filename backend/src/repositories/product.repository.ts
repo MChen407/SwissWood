@@ -6,9 +6,11 @@ export interface ProductListFilters {
   essences?: string[]
   excludeId?: string
   active?: boolean
-  sort?: 'price_asc' | 'price_desc' | 'newest'
+  search?: string
+  sort?: 'price_asc' | 'price_desc' | 'newest' | 'name'
   limit?: number
   offset?: number
+  createdBy?: string
 }
 
 export const productRepository = {
@@ -21,10 +23,18 @@ export const productRepository = {
     }
     if (filters.active !== undefined) where.isActive = filters.active
     if (filters.excludeId) where.id = { not: filters.excludeId }
+    if (filters.createdBy) where.createdBy = filters.createdBy
+    if (filters.search) {
+      where.OR = [
+        { name: { contains: filters.search } },
+        { description: { contains: filters.search } },
+      ]
+    }
 
     const orderBy: Prisma.ProductOrderByWithRelationInput[] = []
     if (filters.sort === 'price_asc') orderBy.push({ priceEur: 'asc' })
     else if (filters.sort === 'price_desc') orderBy.push({ priceEur: 'desc' })
+    else if (filters.sort === 'name') orderBy.push({ name: 'asc' })
     else orderBy.push({ createdAt: 'desc' })
 
     return prisma.product.findMany({
@@ -41,7 +51,15 @@ export const productRepository = {
     })
   },
 
-  async count(filters: Pick<ProductListFilters, 'essence' | 'essences' | 'active'> = {}) {
+  // Liste admin : pas de limite de pagination (renvoie tous les produits filtrés).
+  async findForAdmin(where: Prisma.ProductWhereInput = {}) {
+    return prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
+  },
+
+  async count(filters: Pick<ProductListFilters, 'essence' | 'essences' | 'active' | 'search'> = {}) {
     const where: Prisma.ProductWhereInput = {}
     if (filters.essence) {
       where.essence = filters.essence as Prisma.ProductWhereInput['essence']
@@ -49,6 +67,12 @@ export const productRepository = {
       where.essence = { in: filters.essences as Prisma.ProductWhereInput['essence'][] } as Prisma.ProductWhereInput['essence']
     }
     if (filters.active !== undefined) where.isActive = filters.active
+    if (filters.search) {
+      where.OR = [
+        { name: { contains: filters.search } },
+        { description: { contains: filters.search } },
+      ]
+    }
     return prisma.product.count({ where })
   },
 

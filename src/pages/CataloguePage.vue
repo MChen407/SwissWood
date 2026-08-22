@@ -18,6 +18,12 @@ const selectedEssence = ref('')
 const selectedGroup = ref('')
 const sortBy = ref<'price-asc' | 'price-desc' | 'name'>('price-asc')
 
+const page = ref(1)
+const pageSize = 12
+const total = ref(0)
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+
 const essences = ESSENCE_GROUPS
 
 const activeGroup = computed(() => essences.find((g) => g.id === selectedGroup.value) ?? null)
@@ -28,7 +34,17 @@ onMounted(async () => {
   await load()
 })
 
-watch([search, selectedEssence, selectedGroup, sortBy], load)
+watch(search, () => {
+  if (page.value !== 1) page.value = 1
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => load(), 350)
+})
+watch([selectedEssence, selectedGroup, sortBy], () => {
+  if (searchTimer) clearTimeout(searchTimer)
+  if (page.value !== 1) page.value = 1
+  else load()
+})
+watch(page, () => load())
 watch([selectedEssence, selectedGroup], () => {
   const query: Record<string, string> = { ...(route.query as Record<string, string>) }
   if (selectedEssence.value) {
@@ -46,19 +62,17 @@ watch([selectedEssence, selectedGroup], () => {
 
 async function load() {
   loading.value = true
-  const query: { active: boolean; essence?: ProductEssence; group?: string } = { active: true }
-  if (selectedEssence.value) query.essence = selectedEssence.value as ProductEssence
-  else if (selectedGroup.value) query.group = selectedGroup.value
-  const res = await api.products.list(query)
-  let list = res.items
-  if (search.value) {
-    const q = search.value.toLowerCase()
-    list = list.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))
-  }
-  if (sortBy.value === 'price-asc') list = [...list].sort((a, b) => a.price_eur - b.price_eur)
-  else if (sortBy.value === 'price-desc') list = [...list].sort((a, b) => b.price_eur - a.price_eur)
-  else list = [...list].sort((a, b) => a.name.localeCompare(b.name))
-  products.value = list
+  const res = await api.products.list({
+    active: true,
+    essence: selectedEssence.value ? (selectedEssence.value as ProductEssence) : undefined,
+    group: selectedGroup.value || undefined,
+    search: search.value || undefined,
+    sort: sortBy.value === 'price-asc' ? 'price_asc' : sortBy.value === 'price-desc' ? 'price_desc' : 'name',
+    limit: pageSize,
+    offset: (page.value - 1) * pageSize,
+  })
+  products.value = res.items
+  total.value = res.total
   loading.value = false
 }
 
@@ -140,7 +154,7 @@ const hasFilters = computed(() => !!search.value || !!selectedEssence.value || !
             />
           </div>
 
-          <p class="text-sm mb-4" style="color:#7A7167;">{{ products.length }} {{ t('catalogue.results') }}</p>
+          <p class="text-sm mb-4" style="color:#7A7167;">{{ total }} {{ t('catalogue.results') }}</p>
 
           <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div v-for="n in 6" :key="n" class="bg-white rounded-xl border overflow-hidden animate-pulse" style="border-color:#E2DCD1;">
@@ -155,6 +169,21 @@ const hasFilters = computed(() => !!search.value || !!selectedEssence.value || !
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <ProductCard v-for="p in products" :key="p.id" :product="p" />
+          </div>
+
+          <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-10 flex-wrap">
+            <button type="button" @click="page = Math.max(1, page - 1)" :disabled="page === 1"
+              class="px-3 py-2 rounded-lg text-sm border transition-colors"
+              :class="page === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-wood-50'"
+              style="border-color:#E2DCD1; color:#6B4226;">{{ t('catalogue.prev') }}</button>
+            <button type="button" v-for="p in totalPages" :key="p" @click="page = p"
+              class="w-10 h-10 rounded-lg text-sm font-medium transition-colors"
+              :class="page === p ? 'text-wood-100' : 'border hover:bg-wood-50'"
+              :style="page === p ? 'background:#6B4226;' : 'border-color:#E2DCD1; color:#6B4226;'">{{ p }}</button>
+            <button type="button" @click="page = Math.min(totalPages, page + 1)" :disabled="page === totalPages"
+              class="px-3 py-2 rounded-lg text-sm border transition-colors"
+              :class="page === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-wood-50'"
+              style="border-color:#E2DCD1; color:#6B4226;">{{ t('catalogue.next') }}</button>
           </div>
         </div>
       </div>

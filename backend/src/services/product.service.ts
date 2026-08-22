@@ -8,12 +8,14 @@ import {
   PRODUCT_ESSENCES,
   type ProductEssence,
 } from '../constants/index.js'
+import type { Role } from '../constants/index.js'
 
 export interface ProductListQuery {
   essence?: string
   group?: string
   exclude?: string
   active?: boolean
+  search?: string
   sort?: string
   limit?: number
   offset?: number
@@ -40,12 +42,16 @@ function normalizeFilters(query: ProductListQuery): ProductListFilters {
     filters.excludeId = query.exclude
   }
 
-  const validSorts = ['price_asc', 'price_desc']
-  if (query.sort && validSorts.includes(query.sort)) {
-    filters.sort = query.sort as 'price_asc' | 'price_desc'
+  if (query.search) {
+    filters.search = query.search
   }
 
-  filters.limit = Math.min(query.limit ?? 20, 100)
+  const validSorts = ['price_asc', 'price_desc', 'name']
+  if (query.sort && validSorts.includes(query.sort)) {
+    filters.sort = query.sort as 'price_asc' | 'price_desc' | 'name'
+  }
+
+  filters.limit = Math.min(query.limit ?? 12, 100)
   filters.offset = query.offset ?? 0
 
   return filters
@@ -57,7 +63,7 @@ export const productService = {
     const locale = normalizeLocale(query.locale)
     const [items, total] = await Promise.all([
       productRepository.findMany(filters),
-      productRepository.count(filters as Pick<ProductListFilters, 'essence' | 'essences' | 'active'>),
+      productRepository.count(filters as Pick<ProductListFilters, 'essence' | 'essences' | 'active' | 'search'>),
     ])
     return {
       items: items.map((p) => toProductDto(p, locale)),
@@ -144,7 +150,7 @@ function sanitizeTranslations(
 }
 
 export const adminProductService = {
-  async create(input: AdminProductInput): Promise<ProductDto> {
+  async create(input: AdminProductInput, createdBy?: string): Promise<ProductDto> {
     const slug = (input.slug?.trim() || slugify(input.name) || 'produit').toLowerCase()
     if (await productRepository.findBySlug(slug)) {
       throw new ConflictError('Un produit existe déjà avec ce slug')
@@ -164,6 +170,7 @@ export const adminProductService = {
       characteristics: (input.characteristics ?? {}) as Prisma.InputJsonValue,
       translations: sanitizeTranslations(input.translations),
       isActive: input.is_active,
+      createdBy,
     })
     return toProductDto(product)
   },
@@ -209,8 +216,10 @@ export const adminProductService = {
     await productRepository.remove(id)
   },
 
-  async listAll(): Promise<ProductDto[]> {
-    const items = await productRepository.findMany({})
+  async listAll(currentUser: { id: string; role: Role }): Promise<ProductDto[]> {
+    const where: Prisma.ProductWhereInput =
+      currentUser.role === 'super_admin' ? {} : { createdBy: currentUser.id }
+    const items = await productRepository.findForAdmin(where)
     return items.map((p) => toProductDto(p))
   },
 }

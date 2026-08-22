@@ -148,6 +148,8 @@ export default {
     searchPlaceholder: 'Buscar madera, especie...',
     sortName: 'Nombre (A-Z)',
     results: 'productos',
+    prev: 'Anterior',
+    next: 'Siguiente',
     viewProduct: 'Ver producto',
   },
   product: {

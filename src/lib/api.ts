@@ -460,7 +460,8 @@ export type ProductListQuery = {
   group?: string
   exclude?: string
   active?: boolean
-  sort?: 'price_asc' | 'price_desc'
+  search?: string
+  sort?: 'price_asc' | 'price_desc' | 'name'
   limit?: number
   offset?: number
 }

@@ -36,13 +36,13 @@ export const productReviews = asyncHandler(async (req: Request, res: Response) =
   ApiResponse.success(res, reviews, StatusCodes.OK)
 })
 
-export const adminListProducts = asyncHandler(async (_req: Request, res: Response) => {
-  const products = await adminProductService.listAll()
+export const adminListProducts = asyncHandler(async (req: Request, res: Response) => {
+  const products = await adminProductService.listAll(req.user!)
   ApiResponse.success(res, products)
 })
 
 export const adminCreateProduct = asyncHandler(async (req: Request, res: Response) => {
-  const product = await adminProductService.create(req.body as AdminProductInput)
+  const product = await adminProductService.create(req.body as AdminProductInput, req.user!.id)
   ApiResponse.success(res, product, StatusCodes.CREATED)
 })
 

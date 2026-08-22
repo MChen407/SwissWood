@@ -148,6 +148,8 @@ export default {
     searchPlaceholder: 'Rechercher bois, essence...',
     sortName: 'Nom (A-Z)',
     results: 'produits',
+    prev: 'Précédent',
+    next: 'Suivant',
     viewProduct: 'Voir le produit',
   },
   product: {

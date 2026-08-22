@@ -148,6 +148,8 @@ export default {
     searchPlaceholder: 'Search wood, essence...',
     sortName: 'Name (A-Z)',
     results: 'products',
+    prev: 'Previous',
+    next: 'Next',
     viewProduct: 'View product',
   },
   product: {
