@@ -38,8 +38,8 @@ export const resendPaymentCode = asyncHandler(async (req: Request, res: Response
   ApiResponse.success(res, { message: 'Un nouveau code de sécurité a été envoyé' })
 })
 
-export const adminListOrders = asyncHandler(async (_req: Request, res: Response) => {
-  const orders = await orderService.listAll()
+export const adminListOrders = asyncHandler(async (req: Request, res: Response) => {
+  const orders = await orderService.listAll(req.user!)
   ApiResponse.success(res, orders)
 })
 

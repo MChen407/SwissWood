@@ -1,8 +1,8 @@
 import { prisma } from '../config/db.js'
 
 export const statsRepository = {
-  async countOrders() {
-    return prisma.order.count()
+  async countOrders(userId?: string) {
+    return prisma.order.count({ where: userId ? { userId } : {} })
   },
 
   async countCustomers() {
@@ -13,10 +13,10 @@ export const statsRepository = {
     return prisma.product.count({ where: { isActive: true } })
   },
 
-  async revenuePaid() {
+  async revenuePaid(userId?: string) {
     const result = await prisma.order.aggregate({
       _sum: { totalEur: true },
-      where: { paymentStatus: 'paid' },
+      where: { paymentStatus: 'paid', ...(userId ? { userId } : {}) },
     })
     return result._sum.totalEur ?? 0
   },

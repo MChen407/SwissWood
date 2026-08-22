@@ -79,8 +79,13 @@ export const orderRepository = {
     return order
   },
 
-  async listAll({ skip, take }: { skip?: number; take?: number } = {}) {
-    return prisma.order.findMany({ orderBy: { createdAt: 'desc' }, skip, take })
+  async listAll({ skip, take, userId }: { skip?: number; take?: number; userId?: string } = {}) {
+    return prisma.order.findMany({
+      where: userId ? { userId } : {},
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+    })
   },
 
   async updateStatus(id: string, status: OrderStatus) {

@@ -4,13 +4,13 @@ import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ForbiddenError } from '../utils/httpErrors.js'
 
-export const getStats = asyncHandler(async (_req: Request, res: Response) => {
-  const stats = await adminService.stats()
+export const getStats = asyncHandler(async (req: Request, res: Response) => {
+  const stats = await adminService.stats(req.user!)
   ApiResponse.success(res, stats)
 })
 
-export const listPayments = asyncHandler(async (_req: Request, res: Response) => {
-  const payments = await adminService.listPayments()
+export const listPayments = asyncHandler(async (req: Request, res: Response) => {
+  const payments = await adminService.listPayments(req.user!)
   ApiResponse.success(res, payments)
 })
 

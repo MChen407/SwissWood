@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TrendingUp, Package, Users, Euro, ShoppingCart, ArrowUpRight, Clock, CheckCircle2, Truck, XCircle, AlertCircle } from 'lucide-vue-next'
 import { api, type OrderDto } from '@/lib/api'
 import { STATUS_KEYS, STATUS_COLORS } from '@/types/index'
 import { useLocaleStore } from '@/stores/locale'
+import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
 const localeStore = useLocaleStore()
+const auth = useAuthStore()
+const isSuperAdmin = computed(() => auth.user?.role === 'super_admin')
 const stats = ref({ revenue: 0, orders: 0, customers: 0, products: 0 })
 const recentOrders = ref<OrderDto[]>([])
 const loading = ref(true)
@@ -17,7 +20,7 @@ onMounted(async () => {
   const data = await api.admin.stats()
   stats.value.revenue = data.revenue
   stats.value.orders = data.orders
-  stats.value.customers = data.customers
+  stats.value.customers = data.customers ?? 0
   stats.value.products = data.products
   recentOrders.value = data.recent_orders
   loading.value = false
@@ -91,7 +94,7 @@ function fmtEur(v: number) {
       </div>
 
       <!-- Customers -->
-      <div class="rounded-2xl p-6 bg-white border" style="border-color:#E2DCD1; box-shadow:0 1px 4px rgba(43,36,32,0.06);">
+      <div v-if="isSuperAdmin" class="rounded-2xl p-6 bg-white border" style="border-color:#E2DCD1; box-shadow:0 1px 4px rgba(43,36,32,0.06);">
         <div class="flex items-center justify-between mb-4">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:#E8D4A8;">
             <Users class="w-5 h-5" style="color:#6B4226;" />

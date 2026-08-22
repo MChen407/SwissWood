@@ -8,26 +8,32 @@ import { NotFoundError } from '../utils/httpErrors.js'
 import { toUserPublicDto } from '../dto/auth.dto.js'
 
 export const adminService = {
-  async stats() {
+  async stats(currentUser: { id: string; role: Role }) {
+    const userId = currentUser.role === 'super_admin' ? undefined : currentUser.id
     const [revenue, orderCount, customerCount, productCount, recentOrders] = await Promise.all([
-      statsRepository.revenuePaid(),
-      statsRepository.countOrders(),
+      statsRepository.revenuePaid(userId),
+      statsRepository.countOrders(userId),
       statsRepository.countCustomers(),
       statsRepository.countActiveProducts(),
-      orderRepository.listAll({ take: 6 }),
+      orderRepository.listAll({ take: 6, userId }),
     ])
 
-    return {
+    const result: Record<string, unknown> = {
       revenue,
       orders: orderCount,
-      customers: customerCount,
       products: productCount,
       recent_orders: recentOrders.map(toOrderDto),
     }
+    if (currentUser.role === 'super_admin') {
+      result.customers = customerCount
+    }
+    return result
   },
 
-  async listPayments() {
-    const payments = await paymentRepository.listAll()
+  async listPayments(currentUser: { id: string; role: Role }) {
+    const payments = currentUser.role === 'super_admin'
+      ? await paymentRepository.listAll()
+      : await paymentRepository.listAll(currentUser.id)
     return payments.map((payment) => ({
       id: payment.id,
       order_id: payment.orderId,

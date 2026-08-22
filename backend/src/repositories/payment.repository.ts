@@ -38,8 +38,9 @@ export const paymentRepository = {
     })
   },
 
-  async listAll() {
+  async listAll(userId?: string) {
     return prisma.payment.findMany({
+      where: userId ? { userId } : {},
       orderBy: { createdAt: 'desc' },
       include: { order: { select: { orderNumber: true } } },
     })

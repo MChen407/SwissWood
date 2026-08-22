@@ -5,6 +5,7 @@ import { BadRequestError, NotFoundError } from '../utils/httpErrors.js'
 import { customDimensionMultiplier } from '../utils/pricing.js'
 import { toOrderDetailDto, toOrderDto, type OrderDetailDto, type OrderDto } from '../dto/order.dto.js'
 import type { OrderPaymentStatus, OrderStatus } from '@prisma/client'
+import type { Role } from '../constants/index.js'
 
 export interface OrderLineInput {
   productId: string
@@ -114,8 +115,10 @@ export const orderService = {
     return toOrderDetailDto(order)
   },
 
-  async listAll(): Promise<OrderDto[]> {
-    const orders = await orderRepository.listAll()
+  async listAll(currentUser: { id: string; role: Role }): Promise<OrderDto[]> {
+    const orders = currentUser.role === 'super_admin'
+      ? await orderRepository.listAll()
+      : await orderRepository.listAll({ userId: currentUser.id })
     return orders.map(toOrderDto)
   },
 

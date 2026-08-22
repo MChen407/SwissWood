@@ -338,7 +338,7 @@ export interface FavoriteItemDto {
 export interface AdminStatsDto {
   revenue: number
   orders: number
-  customers: number
+  customers?: number
   products: number
   recent_orders: OrderDto[]
 }
