@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { orderService } from '../services/order.service.js'
 import { paymentService } from '../services/payment.service.js'
+import { invoiceService } from '../services/invoice.service.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import type { CreateOrderDto } from '../validators/order.validator.js'
@@ -50,4 +51,16 @@ export const adminUpdateOrderStatus = asyncHandler(async (req: Request, res: Res
 export const adminUpdateOrderPayment = asyncHandler(async (req: Request, res: Response) => {
   const order = await orderService.updatePaymentStatus(req.params.id!, req.body.payment_status)
   ApiResponse.success(res, order)
+})
+
+export const downloadInvoice = asyncHandler(async (req: Request, res: Response) => {
+  const isAdmin = req.user!.role === 'super_admin' || req.user!.role === 'admin'
+  const order = await orderService.getByIdForInvoice(req.params.id!, req.user!.id, isAdmin)
+  const pdf = await invoiceService.generateInvoicePdf(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="facture-${order.order_number}.pdf"`,
+    'Content-Length': pdf.length.toString()
+  })
+  res.send(pdf)
 })

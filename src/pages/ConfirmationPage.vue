@@ -12,6 +12,7 @@ const route = useRoute()
 const currency = useCurrencyStore()
 const order = ref<OrderDetailDto | null>(null)
 const loading = ref(true)
+const downloading = ref(false)
 const isTransfer = route.query.method === 'transfer'
 
 const orderTotals = computed(() => {
@@ -33,6 +34,18 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+async function downloadInvoice() {
+  if (!order.value) return
+  downloading.value = true
+  try {
+    await api.orders.downloadInvoice(order.value.id)
+  } catch (err) {
+    console.error('Erreur téléchargement facture:', err)
+  } finally {
+    downloading.value = false
+  }
+}
 </script>
 
 <template>
@@ -64,7 +77,7 @@ onMounted(async () => {
 
         <div class="flex flex-col sm:flex-row gap-3 mt-6">
           <div class="flex items-center justify-center gap-2 text-sm text-wood-500 bg-wood-100 rounded-lg p-3"><Mail class="w-4 h-4" /> {{ t('confirmation.emailSent') }}</div>
-          <button class="flex items-center justify-center gap-2 text-sm text-primary-500 border border-wood-200 rounded-lg p-3 hover:bg-wood-100 transition-colors"><Download class="w-4 h-4" /> {{ t('confirmation.downloadInvoice') }}</button>
+          <button @click="downloadInvoice" :disabled="downloading" class="flex items-center justify-center gap-2 text-sm text-primary-500 border border-wood-200 rounded-lg p-3 hover:bg-wood-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"><Download class="w-4 h-4" /> {{ downloading ? t('common.loading') : t('confirmation.downloadInvoice') }}</button>
         </div>
 
         <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">

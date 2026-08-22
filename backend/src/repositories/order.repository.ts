@@ -69,6 +69,16 @@ export const orderRepository = {
     })
   },
 
+  async findDetailByIdForInvoice(id: string, userId?: string, isAdmin = false) {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: { include: { product: true } }, payments: true, user: true },
+    })
+    if (!order) return null
+    if (!isAdmin && order.userId !== userId) return null
+    return order
+  },
+
   async listAll({ skip, take }: { skip?: number; take?: number } = {}) {
     return prisma.order.findMany({ orderBy: { createdAt: 'desc' }, skip, take })
   },

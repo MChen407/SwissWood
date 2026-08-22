@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft, Download } from 'lucide-vue-next'
 import { api, resolveImageUrl, type OrderDetailDto } from '@/lib/api'
 import { STATUS_KEYS } from '@/types/index'
 import { useLocaleStore } from '@/stores/locale'
@@ -12,6 +12,7 @@ const locale = useLocaleStore()
 const route = useRoute()
 const order = ref<OrderDetailDto | null>(null)
 const loading = ref(true)
+const downloading = ref(false)
 
 onMounted(async () => {
   const orderId = route.params.id as string
@@ -23,6 +24,18 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+async function downloadInvoice() {
+  if (!order.value) return
+  downloading.value = true
+  try {
+    await api.orders.downloadInvoice(order.value.id)
+  } catch (err) {
+    console.error('Erreur téléchargement facture:', err)
+  } finally {
+    downloading.value = false
+  }
+}
 </script>
 
 <template>
@@ -30,7 +43,10 @@ onMounted(async () => {
     <RouterLink to="/mon-compte/commandes" class="inline-flex items-center gap-1 text-sm text-wood-500 hover:text-primary-500 mb-4"><ArrowLeft class="w-4 h-4" /> {{ t('dashboard.backToOrders') }}</RouterLink>
     <div v-if="loading" class="text-center py-10"><p class="text-wood-400">{{ t('common.loading') }}</p></div>
     <div v-else-if="order">
-      <h1 class="font-display text-2xl font-medium text-primary-500 mb-2">{{ order.order_number }}</h1>
+      <div class="flex items-center justify-between mb-2">
+        <h1 class="font-display text-2xl font-medium text-primary-500">{{ order.order_number }}</h1>
+        <button @click="downloadInvoice" :disabled="downloading" class="flex items-center gap-2 text-sm text-primary-500 border border-wood-200 rounded-lg px-3 py-2 hover:bg-wood-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"><Download class="w-4 h-4" /> {{ downloading ? t('common.loading') : t('confirmation.downloadInvoice') }}</button>
+      </div>
       <p class="text-sm text-wood-400 mb-6">{{ new Date(order.created_at).toLocaleDateString(locale.locale, { dateStyle: 'long' }) }}</p>
 
       <div class="bg-white rounded-xl border border-wood-200 p-6 mb-6">

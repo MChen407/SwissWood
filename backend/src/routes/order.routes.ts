@@ -4,6 +4,7 @@ import { validate } from '../middlewares/validate.middleware.js'
 import {
   confirmPayment,
   createOrder,
+  downloadInvoice,
   getMyOrder,
   initPayment,
   listMyOrders,
@@ -24,5 +25,6 @@ router.get('/:id', authenticate, validate(orderByIdSchema), getMyOrder)
 router.post('/:id/payment', authenticate, validate(initPaymentSchema), initPayment)
 router.post('/:id/payment/confirm', authenticate, validate(confirmPaymentSchema), confirmPayment)
 router.post('/:id/payment/resend-code', authenticate, validate(orderByIdSchema), resendPaymentCode)
+router.get('/:id/invoice', authenticate, validate(orderByIdSchema), downloadInvoice)
 
 export default router

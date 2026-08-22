@@ -119,6 +119,14 @@ export const orderService = {
     return orders.map(toOrderDto)
   },
 
+  async getByIdForInvoice(id: string, userId: string, isAdmin = false): Promise<OrderDetailDto> {
+    const order = await orderRepository.findDetailByIdForInvoice(id, userId, isAdmin)
+    if (!order) {
+      throw new NotFoundError('Commande introuvable')
+    }
+    return toOrderDetailDto(order)
+  },
+
   async updateStatus(id: string, status: OrderStatus): Promise<OrderDto> {
     const existing = await orderRepository.findById(id)
     if (!existing) {

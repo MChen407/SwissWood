@@ -477,6 +477,7 @@ interface RequestOptions {
   query?: Record<string, unknown>
   auth?: boolean
   retryOnUnauthorized?: boolean
+  responseType?: 'json' | 'blob'
 }
 
 interface ApiSuccess<T> {
@@ -529,9 +530,9 @@ function buildQueryString(query?: RequestOptions['query']): string {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, query, auth = true, retryOnUnauthorized = true } = options
+  const { method = 'GET', body, query, auth = true, retryOnUnauthorized = true, responseType = 'json' } = options
   const url = `${apiBaseUrl}${path}${buildQueryString(query)}`
-  const headers: Record<string, string> = { Accept: 'application/json' }
+  const headers: Record<string, string> = { Accept: responseType === 'blob' ? 'application/pdf' : 'application/json' }
   const isFormData = body instanceof FormData
   const hasBody = body !== undefined
   if (hasBody && !isFormData) headers['Content-Type'] = 'application/json'
@@ -560,6 +561,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
         })
       }
     }
+  }
+
+  if (responseType === 'blob') {
+    if (!res.ok) {
+      if (res.status === 401 && auth) {
+        clearTokens()
+        throw new ApiError(res.status, 'UNAUTHORIZED', 'Session expirée, veuillez vous reconnecter')
+      }
+      throw new ApiError(res.status, 'HTTP_ERROR', `Erreur HTTP ${res.status}`)
+    }
+    return res.blob() as Promise<T>
   }
 
   const contentType = res.headers.get('content-type') ?? ''
@@ -622,6 +634,17 @@ export const api = {
       request<OrderDto>(`/orders/${encodeURIComponent(id)}/payment/confirm`, { method: 'POST', body: code ? { code } : {} }),
     resendCode: (id: string) =>
       request<{ message: string }>(`/orders/${encodeURIComponent(id)}/payment/resend-code`, { method: 'POST' }),
+    downloadInvoice: (orderId: string) =>
+      request<Blob>(`/orders/${encodeURIComponent(orderId)}/invoice`, { responseType: 'blob' }).then((blob) => {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `facture-${orderId}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }),
   },
 
   // ---------- Favorites ----------
