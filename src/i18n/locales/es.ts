@@ -687,6 +687,7 @@ export default {
     unitWeight: 'Peso unitario (kg)',
     images: 'Imágenes',
     noImage: 'Sin imagen',
+    min3images: 'Añade al menos 3 fotos del producto (actualmente {count}).',
     uploadFromDevice: 'Subir desde el dispositivo',
     uploading: 'Subiendo...',
     uploadFailed: 'Error al subir las imágenes',

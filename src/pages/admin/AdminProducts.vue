@@ -106,6 +106,10 @@ function removeImage(url: string) {
 }
 
 async function save() {
+  if (form.value.images.length < 3) {
+    uploadError.value = t('admin.min3images', { count: form.value.images.length })
+    return
+  }
   const translations: Record<string, { name?: string; description?: string }> = {}
   for (const lang of ['en', 'es', 'de'] as const) {
     const entry = form.value.translations[lang]
@@ -251,7 +255,7 @@ async function remove(id: string) {
             <div><label class="text-sm text-wood-500">{{ t('admin.unitWeight') }}</label><input v-model.number="form.weight_kg" type="number" min="0" step="0.01" class="w-full mt-1 px-3 py-2 border border-wood-200 rounded-lg text-sm focus:outline-none focus:border-primary-500" /></div>
           </div>
           <div>
-            <label class="text-sm text-wood-500">{{ t('admin.images') }}</label>
+            <label class="text-sm text-wood-500">{{ t('admin.images') }} <span :class="['text-xs font-medium', form.images.length >= 3 ? 'text-success-500' : 'text-error-500']">({{ form.images.length }}/3 min)</span></label>
             <div class="mt-1 flex items-start gap-3">
               <div class="flex-1">
                 <div class="flex flex-wrap gap-3">

@@ -146,6 +146,13 @@ async function submitReview() {
           <div class="aspect-square rounded-2xl overflow-hidden bg-wood-100 border border-wood-200">
             <img :src="resolveImageUrl(product.images[selectedImage])" :alt="product.name" class="w-full h-full object-cover" />
           </div>
+          <div v-if="product.images.length > 1" class="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <button v-for="(url, i) in product.images" :key="url" type="button" @click="selectedImage = i"
+              :class="['relative w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-colors',
+                selectedImage === i ? 'border-primary-500' : 'border-wood-200 hover:border-primary-300']">
+              <img :src="resolveImageUrl(url)" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
+            </button>
+          </div>
         </div>
 
         <div>
@@ -195,9 +202,9 @@ async function submitReview() {
 
       <!-- Tabs -->
       <div class="mt-12 border-t border-wood-200 pt-8">
-        <div class="flex gap-6 border-b border-wood-200 mb-6">
+        <div class="flex gap-6 border-b border-wood-200 mb-6 overflow-x-auto">
           <button v-for="tab in (['description','specs','reviews'] as const)" :key="tab" @click="activeTab = tab"
-            :class="['pb-3 text-sm font-medium border-b-2 transition-colors', activeTab === tab ? 'border-primary-500 text-primary-500' : 'border-transparent text-wood-500 hover:text-primary-500']">
+            :class="['pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', activeTab === tab ? 'border-primary-500 text-primary-500' : 'border-transparent text-wood-500 hover:text-primary-500']">
             {{ tab === 'description' ? t('product.description') : tab === 'specs' ? t('product.characteristics') : `${t('product.reviews')} (${reviews.length})` }}
           </button>
         </div>
