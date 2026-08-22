@@ -466,6 +466,12 @@ export type ProductListQuery = {
   offset?: number
 }
 
+export interface HomeSelectionDto {
+  bestSellers: ProductDto[]
+  selectionDuJour: ProductDto[]
+  others: ProductDto[]
+}
+
 // =====================================================================
 // Core HTTP
 // =====================================================================
@@ -619,6 +625,7 @@ export const api = {
   // ---------- Products ----------
   products: {
     list: (query: ProductListQuery = {}) => request<ProductListResponse>('/products', { query: { ...query, locale: currentLocale() }, auth: false }),
+    homeSelection: () => request<HomeSelectionDto>('/products/home-selection', { query: { locale: currentLocale() }, auth: false }),
     featured: (limit = 6) => request<ProductDto[]>('/products/featured', { query: { limit, locale: currentLocale() }, auth: false }),
     bySlug: (slug: string) => request<ProductDto>(`/products/${encodeURIComponent(slug)}`, { query: { locale: currentLocale() }, auth: false }),
     reviews: (productId: string) => request<ProductReviewDto[]>(`/products/${encodeURIComponent(productId)}/reviews`, { auth: false }),

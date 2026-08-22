@@ -26,6 +26,11 @@ export const featuredProducts = asyncHandler(async (req: Request, res: Response)
   ApiResponse.success(res, items)
 })
 
+export const homeSelection = asyncHandler(async (req: Request, res: Response) => {
+  const result = await productService.homeSelection(req.query.locale)
+  ApiResponse.success(res, result)
+})
+
 export const getProductBySlug = asyncHandler(async (req: Request, res: Response) => {
   const product = await productService.getBySlug(req.params.slug!, req.query.locale)
   ApiResponse.success(res, product)

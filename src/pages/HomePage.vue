@@ -8,7 +8,9 @@ import ProductCard from '@/components/ui/ProductCard.vue'
 import { api, type ProductDto, type LatestReviewDto } from '@/lib/api'
 
 const { t, locale } = useI18n()
-const products = ref<ProductDto[]>([])
+const bestSellers = ref<ProductDto[]>([])
+const selectionDuJour = ref<ProductDto[]>([])
+const others = ref<ProductDto[]>([])
 const loading = ref(true)
 const reviews = ref<LatestReviewDto[]>([])
 const reviewsLoading = ref(true)
@@ -40,8 +42,10 @@ function stopEngagementCarousel() {
 }
 
 onMounted(async () => {
-  const res = await api.products.list({ active: true, sort: 'price_desc' })
-  products.value = res.items
+  const res = await api.products.homeSelection()
+  bestSellers.value = res.bestSellers
+  selectionDuJour.value = res.selectionDuJour
+  others.value = res.others
   loading.value = false
   api.reviews.latest(5)
     .then((list) => { reviews.value = list })
@@ -128,22 +132,9 @@ const features = [
 
     <!-- Products -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="flex items-end justify-between mb-10">
-        <div>
-          <p class="text-sm font-medium uppercase tracking-widest mb-2" style="color:#C89B5D;">{{ t('home.selectionLabel') }}</p>
-          <h2 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">{{ t('home.selectionTitle') }}</h2>
-          <p class="mt-2 text-sm" style="color:#7A7167;">{{ t('home.selectionSubtitle') }}</p>
-        </div>
-        <RouterLink to="/catalogue"
-          class="hidden sm:flex items-center gap-1.5 text-sm font-semibold transition-colors hover:underline"
-          style="color:#6B4226;">
-          {{ t('common.viewAll') }} <ArrowRight class="w-4 h-4" />
-        </RouterLink>
-      </div>
-
       <!-- Skeleton -->
-      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div v-for="n in 4" :key="n" class="bg-white rounded-xl border overflow-hidden animate-pulse" style="border-color:#E2DCD1;">
+      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="n in 6" :key="n" class="bg-white rounded-xl border overflow-hidden animate-pulse" style="border-color:#E2DCD1;">
           <div class="aspect-[4/3]" style="background:#E8D4A8;"></div>
           <div class="p-4 space-y-2">
             <div class="h-5 rounded w-3/4" style="background:#E8D4A8;"></div>
@@ -153,9 +144,53 @@ const features = [
         </div>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ProductCard v-for="p in products" :key="p.id" :product="p" />
-      </div>
+      <template v-else>
+        <!-- Top ventes -->
+        <div v-if="bestSellers.length" class="mb-14">
+          <div class="mb-6">
+            <p class="text-sm font-medium uppercase tracking-widest mb-2" style="color:#C89B5D;">{{ t('home.topSellersLabel') }}</p>
+            <h2 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">{{ t('home.topSellers') }}</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ProductCard v-for="p in bestSellers" :key="p.id" :product="p" />
+          </div>
+        </div>
+
+        <!-- Sélection du jour -->
+        <div v-for="p in selectionDuJour" :key="p.id" class="mb-14">
+          <div class="mb-6">
+            <p class="text-sm font-medium uppercase tracking-widest mb-2" style="color:#C89B5D;">{{ t('home.selectionOfDayLabel') }}</p>
+            <h2 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">{{ t('home.selectionOfDay') }}</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="sm:col-span-2 lg:col-span-1">
+              <ProductCard :product="p" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Autres produits -->
+        <div v-if="others.length" class="mb-6">
+          <div class="flex items-end justify-between mb-6">
+            <div>
+              <p class="text-sm font-medium uppercase tracking-widest mb-2" style="color:#C89B5D;">{{ t('home.othersLabel') }}</p>
+              <h2 class="font-display text-3xl font-semibold" style="color:#4A2C1A;">{{ t('home.others') }}</h2>
+            </div>
+            <RouterLink to="/catalogue"
+              class="hidden sm:flex items-center gap-1.5 text-sm font-semibold transition-colors hover:underline"
+              style="color:#6B4226;">
+              {{ t('common.viewAll') }} <ArrowRight class="w-4 h-4" />
+            </RouterLink>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ProductCard v-for="p in others" :key="p.id" :product="p" />
+          </div>
+        </div>
+
+        <div v-if="!bestSellers.length && !selectionDuJour.length && !others.length" class="text-center py-20 bg-white rounded-xl border" style="border-color:#E2DCD1;">
+          <p style="color:#7A7167;">{{ t('catalogue.empty') }}</p>
+        </div>
+      </template>
     </section>
 
     <!-- Values section -->

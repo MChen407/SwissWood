@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client'
+import { Prisma, OrderStatus } from '@prisma/client'
 import { prisma } from '../config/db.js'
 
 export interface ProductListFilters {
@@ -56,6 +56,47 @@ export const productRepository = {
     return prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+    })
+  },
+
+  // Top ventes : quantités vendues (commandes terminées) agrégées par produit.
+  async getBestSellers(limit: number) {
+    const items = await prisma.orderItem.findMany({
+      where: { order: { status: OrderStatus.delivered } },
+      select: { productId: true, quantity: true },
+    })
+    const counts = new Map<string, number>()
+    for (const it of items) {
+      counts.set(it.productId, (counts.get(it.productId) ?? 0) + Number(it.quantity))
+    }
+    return [...counts.entries()]
+      .map(([productId, total]) => ({ productId, total }))
+      .filter((r) => r.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, limit)
+  },
+
+  // Produits les plus ajoutés aux favoris depuis `since`.
+  async getMostFavoritedSince(since: Date, limit: number) {
+    const rows = await prisma.favorite.groupBy({
+      by: ['productId'],
+      _count: { _all: true },
+      where: { createdAt: { gte: since } },
+      orderBy: { _count: { productId: 'desc' } },
+      take: limit,
+    })
+    return rows.map((r) => ({ productId: r.productId, count: r._count._all }))
+  },
+
+  // Produits actifs hors `ids`, du plus récent au plus ancien.
+  async findActiveExcluding(ids: string[], limit: number) {
+    return prisma.product.findMany({
+      where: {
+        isActive: true,
+        ...(ids.length ? { id: { notIn: ids } } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
     })
   },
 

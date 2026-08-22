@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, type Product } from '@prisma/client'
 import { productRepository, type ProductListFilters } from '../repositories/product.repository.js'
 import { toProductDto, normalizeLocale, type ProductDto, type ProductTranslations } from '../dto/public.dto.js'
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/httpErrors.js'
@@ -93,6 +93,49 @@ export const productService = {
       throw new NotFoundError('Produit introuvable')
     }
     return toProductDto(product)
+  },
+
+  // Sélection de l'accueil : max 10 produits en 3 sections.
+  async homeSelection(locale?: unknown) {
+    const loc = normalizeLocale(locale)
+
+    const bestRows = await productRepository.getBestSellers(3)
+    let bestSellers: Product[] = []
+    if (bestRows.length) {
+      const found = await productRepository.findByIds(bestRows.map((r) => r.productId))
+      const byId = new Map(found.map((p) => [p.id, p]))
+      bestSellers = bestRows
+        .map((r) => byId.get(r.productId))
+        .filter((p): p is Product => !!p && p.isActive)
+    }
+
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const favRows = await productRepository.getMostFavoritedSince(since, 1)
+    let selectionDuJour: Product[] = []
+    const topFav = favRows[0]
+    if (topFav) {
+      const p = await productRepository.findById(topFav.productId)
+      if (p && p.isActive) selectionDuJour = [p]
+    }
+    if (!selectionDuJour.length) {
+      selectionDuJour = await productRepository.findActiveExcluding(
+        bestSellers.map((p) => p.id),
+        1,
+      )
+    }
+
+    const selectedIds = [
+      ...bestSellers.map((p) => p.id),
+      ...selectionDuJour.map((p) => p.id),
+    ]
+    const remaining = Math.max(0, 10 - selectedIds.length)
+    const others = await productRepository.findActiveExcluding(selectedIds, remaining)
+
+    return {
+      bestSellers: bestSellers.map((p) => toProductDto(p, loc)),
+      selectionDuJour: selectionDuJour.map((p) => toProductDto(p, loc)),
+      others: others.map((p) => toProductDto(p, loc)),
+    }
   },
 
   async related(productId: string, essence?: string, limit = 3, locale?: unknown) {
