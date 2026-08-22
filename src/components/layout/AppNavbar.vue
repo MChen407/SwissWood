@@ -30,7 +30,7 @@ async function handleSignOut() {
   showLogoutModal.value = false
 }
 
-const currencies = ['EUR', 'USD', 'FCFA'] as const
+const currencies = ['EUR', 'USD'] as const
 </script>
 
 <template>

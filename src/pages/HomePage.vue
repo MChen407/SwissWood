@@ -291,8 +291,7 @@ const features = [
 
         <!-- Carousel track -->
         <div v-else ref="reviewsTrack"
-          class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2"
-          style="scrollbar-width:thin;">
+          class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar">
           <RouterLink v-for="r in reviews" :key="r.id" :to="`/produits/${r.product.slug}`" data-review-card
             class="block bg-white rounded-xl border p-6 snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[30.5%] transition-all hover:-translate-y-0.5 hover:shadow-lg"
             style="border-color:#E2DCD1; box-shadow:0 2px 8px rgba(43,36,32,0.05);">

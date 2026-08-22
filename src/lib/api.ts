@@ -161,7 +161,7 @@ export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'd
 export type OrderPaymentStatus = 'pending' | 'awaiting_transfer' | 'paid' | 'failed' | 'refunded'
 export type PaymentMethod = 'card' | 'bank_transfer'
 export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
-export type Currency = 'EUR' | 'USD' | 'FCFA'
+export type Currency = 'EUR' | 'USD'
 
 export interface UserPublicDto {
   id: string

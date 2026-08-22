@@ -57,7 +57,7 @@ async function placeOrder() {
         unit: i.unit,
         customization: i.customization,
       })),
-      currency: currency.currency as 'EUR' | 'USD' | 'FCFA',
+      currency: currency.currency as 'EUR' | 'USD',
       shipping_address: { ...shipping.value },
       notes: shipping.value.notes,
     })

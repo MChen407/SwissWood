@@ -1,38 +1,30 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useLocaleStore } from './locale'
 
-type Currency = 'EUR' | 'USD' | 'FCFA'
+type Currency = 'EUR' | 'USD'
 
 const EUR_TO_USD = 1.08
-const EUR_TO_FCFA = 655.957
 
 export function convertEurToUsd(eur: number): number {
   return Math.round(eur * EUR_TO_USD)
 }
 
-export function convertEurToFcfa(eur: number): number {
-  return Math.round(eur * EUR_TO_FCFA)
-}
-
 export const useCurrencyStore = defineStore('currency', () => {
   const currency = ref<Currency>('EUR')
-  const symbol = computed(() => currency.value === 'EUR' ? '€' : currency.value === 'USD' ? '$' : 'FCFA')
+  const symbol = computed(() => currency.value === 'EUR' ? '€' : '$')
 
-  function formatPrice(eur: number, usd: number, fcfa: number) {
+  function formatPrice(eur: number, usd: number, _fcfa: number) {
     if (currency.value === 'EUR') return `${(eur / 100).toFixed(2)} €`
-    if (currency.value === 'USD') return `$${(usd / 100).toFixed(2)}`
-    return `${(fcfa / 100).toLocaleString(useLocaleStore().locale)} FCFA`
+    return `$${(usd / 100).toFixed(2)}`
   }
 
   function formatEur(eur: number) {
-    return formatPrice(eur, convertEurToUsd(eur), convertEurToFcfa(eur))
+    return formatPrice(eur, convertEurToUsd(eur), 0)
   }
 
-  function formatPriceWithFallback(eur: number, usd: number, fcfa: number) {
+  function formatPriceWithFallback(eur: number, usd: number, _fcfa: number) {
     if (currency.value === 'USD' && !usd) return `${(eur / 100).toFixed(2)} €`
-    if (currency.value === 'FCFA' && !fcfa) return `${(eur / 100).toFixed(2)} €`
-    return formatPrice(eur, usd, fcfa)
+    return formatPrice(eur, usd, _fcfa)
   }
 
   function setCurrency(c: Currency) { currency.value = c }
