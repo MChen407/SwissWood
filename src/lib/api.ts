@@ -696,6 +696,11 @@ export const api = {
     updateProduct: (id: string, input: Partial<AdminProductInput>) =>
       request<ProductDto>(`/admin/products/${encodeURIComponent(id)}`, { method: 'PATCH', body: input }),
     deleteProduct: (id: string) => request<null>(`/admin/products/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    translateAllProducts: (force = false) =>
+      request<{ translated: number; skipped: number; failed: number }>('/admin/products/translate-all', {
+        method: 'POST',
+        body: { force },
+      }),
     listOrders: () => request<OrderDto[]>('/admin/orders'),
     updateOrderStatus: (id: string, status: OrderStatus) =>
       request<OrderDto>(`/admin/orders/${encodeURIComponent(id)}/status`, { method: 'PATCH', body: { status } }),

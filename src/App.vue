@@ -8,7 +8,7 @@ onMounted(() => auth.init())
 </script>
 
 <template>
-  <div id="app-root" class="min-h-screen w-full overflow-x-hidden">
+  <div id="app-root" class="min-h-screen w-full overflow-x-clip">
     <RouterView />
     <CartDrawer />
   </div>

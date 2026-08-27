@@ -40,6 +40,10 @@ export const productParamsSchema = z.object({
   params: z.object({ id: z.string().uuid('Identifiant de produit invalide') }),
 })
 
+export const translateAllSchema = z.object({
+  body: z.object({ force: z.boolean().optional() }).optional(),
+})
+
 export const updateOrderStatusSchema = z.object({
   params: z.object({ id: z.string().uuid('Identifiant de commande invalide') }),
   body: z.object({ status: z.enum(ORDER_STATUSES) }),

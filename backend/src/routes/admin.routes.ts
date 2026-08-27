@@ -8,6 +8,7 @@ import {
   adminCreateProduct,
   adminDeleteProduct,
   adminListProducts,
+  adminTranslateAll,
   adminUpdateProduct,
 } from '../controllers/product.controller.js'
 import {
@@ -27,6 +28,7 @@ import {
 import {
   createProductSchema,
   productParamsSchema,
+  translateAllSchema,
   updateCmsSchema,
   updateOrderPaymentSchema,
   updateOrderStatusSchema,
@@ -51,6 +53,7 @@ router.get('/products', adminListProducts)
 router.post('/products', validate(createProductSchema), adminCreateProduct)
 router.patch('/products/:id', validate(updateProductSchema), adminUpdateProduct)
 router.delete('/products/:id', validate(productParamsSchema), adminDeleteProduct)
+router.post('/products/translate-all', validate(translateAllSchema), adminTranslateAll)
 
 router.get('/orders', adminListOrders)
 router.patch('/orders/:id/status', validate(updateOrderStatusSchema), adminUpdateOrderStatus)

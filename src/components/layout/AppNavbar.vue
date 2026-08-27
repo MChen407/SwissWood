@@ -6,18 +6,30 @@ import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard, ShieldCheck } fro
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useCurrencyStore } from '@/stores/currency'
+import { useLocaleStore } from '@/stores/locale'
+import { SUPPORTED_LOCALES, type Locale } from '@/i18n'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue'
 import { navLinks } from '@/types/index'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const cart = useCartStore()
 const auth = useAuthStore()
 const currency = useCurrencyStore()
+const localeStore = useLocaleStore()
 const mobileOpen = ref(false)
 const userMenuOpen = ref(false)
 const showLogoutModal = ref(false)
 const signOutPending = ref(false)
+
+const LOCALE_LABELS: Record<Locale, string> = {
+  fr: 'FR', en: 'EN', es: 'ES', de: 'DE',
+}
+
+function changeLocale(l: Locale) {
+  locale.value = l
+  localeStore.set(l)
+}
 
 function closeAll() { mobileOpen.value = false; userMenuOpen.value = false }
 
@@ -113,6 +125,15 @@ const currencies = ['EUR', 'USD'] as const
           class="block py-2.5 px-3 rounded-lg text-sm font-medium transition-colors hover:bg-wood-50"
           style="color:#6B4226;"
           active-class="bg-wood-100 !text-primary-600">{{ t(`navlinks.${link.key}`) }}</RouterLink>
+        <div class="flex items-center gap-3 pt-3">
+          <span class="text-xs font-semibold uppercase tracking-wider text-wood-400">{{ t('nav.language') }}</span>
+          <div class="flex items-center gap-1">
+            <button v-for="l in SUPPORTED_LOCALES" :key="l" @click="changeLocale(l)"
+              :class="['px-2.5 py-1 text-xs font-medium rounded-md transition-all uppercase',
+                locale === l ? 'text-white' : 'text-primary-600 hover:text-primary-500']"
+              :style="locale === l ? 'background:#6B4226;' : 'background:#E8D4A8;'">{{ LOCALE_LABELS[l] }}</button>
+          </div>
+        </div>
         <div class="flex items-center gap-1 pt-3">
           <button v-for="c in currencies" :key="c" @click="currency.setCurrency(c)"
             :class="['px-3 py-1.5 text-xs font-medium rounded-md transition-colors', currency.currency === c ? 'text-white' : 'text-primary-600']"

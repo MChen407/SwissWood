@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Plus, Edit, Trash2, X, Save, Package, Upload } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, X, Save, Package, Upload, Languages } from 'lucide-vue-next'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 import { api, resolveImageUrl, ESSENCE_GROUPS, type ProductDto, type ProductEssence } from '@/lib/api'
@@ -28,6 +28,24 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const deleting = ref<ProductDto | null>(null)
 const deletingPending = ref(false)
 const deleteError = ref('')
+
+const translating = ref(false)
+const translateMessage = ref('')
+const translateError = ref('')
+
+async function translateAll() {
+  translating.value = true
+  translateMessage.value = ''
+  translateError.value = ''
+  try {
+    const res = await api.admin.translateAllProducts(false)
+    translateMessage.value = t('admin.translateAllDone', { translated: res.translated, skipped: res.skipped, failed: res.failed })
+  } catch (err) {
+    translateError.value = err instanceof Error ? err.message : t('admin.translateAllFailed')
+  } finally {
+    translating.value = false
+  }
+}
 
 const emptyForm = {
   name: '', slug: '', essence: 'Charme' as ProductEssence, description: '',
@@ -153,8 +171,17 @@ async function remove(id: string) {
   <div>
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <h1 class="font-display text-2xl font-medium text-primary-500">{{ t('admin.productsTitle') }}</h1>
-      <button @click="openCreate" class="bg-primary-500 text-wood-100 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-600 flex items-center gap-2"><Plus class="w-4 h-4" /> {{ t('product.add') }}</button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button @click="translateAll" :disabled="translating"
+          class="border border-wood-300 text-primary-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-wood-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <Languages class="w-4 h-4" /> {{ translating ? t('admin.translating') : t('admin.translateAll') }}
+        </button>
+        <button @click="openCreate" class="bg-primary-500 text-wood-100 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-600 flex items-center gap-2"><Plus class="w-4 h-4" /> {{ t('product.add') }}</button>
+      </div>
     </div>
+
+    <p v-if="translateMessage" class="mb-4 text-sm text-success-500">{{ translateMessage }}</p>
+    <p v-if="translateError" class="mb-4 text-sm text-error-500">{{ translateError }}</p>
 
     <div class="bg-white rounded-xl border border-wood-200 overflow-hidden">
       <div v-if="loading" class="p-10 text-center text-wood-400">{{ t('common.loading') }}</div>

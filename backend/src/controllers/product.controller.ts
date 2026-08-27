@@ -2,8 +2,10 @@ import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { adminProductService, productService } from '../services/product.service.js'
 import { reviewService } from '../services/review.service.js'
+import { deeplService } from '../services/deepl.service.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { BadRequestError } from '../utils/httpErrors.js'
 import type { AdminProductInput } from '../services/product.service.js'
 
 export const listProducts = asyncHandler(async (req: Request, res: Response) => {
@@ -59,4 +61,13 @@ export const adminUpdateProduct = asyncHandler(async (req: Request, res: Respons
 export const adminDeleteProduct = asyncHandler(async (req: Request, res: Response) => {
   await adminProductService.remove(req.params.id!)
   ApiResponse.success(res, null)
+})
+
+export const adminTranslateAll = asyncHandler(async (req: Request, res: Response) => {
+  const force = (req.body as { force?: unknown })?.force === true
+  if (!deeplService.isConfigured()) {
+    throw new BadRequestError('La clé DEEPL_API_KEY n’est pas configurée côté serveur.')
+  }
+  const result = await adminProductService.translateAllMissing(force)
+  ApiResponse.success(res, result)
 })

@@ -53,6 +53,10 @@ const envSchema = z.object({
   PAYMENT_CODE_TTL_MINUTES: z.coerce.number().int().positive().default(10),
   PAYMENT_CODE_MAX_ATTEMPTS: z.coerce.number().int().min(1).default(3),
 
+  // ===== DeepL (traduction automatique des produits) =====
+  DEEPL_API_KEY: z.string().optional(),
+  DEEPL_API_URL: z.string().default('https://api-free.deepl.com'),
+
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
 })
 

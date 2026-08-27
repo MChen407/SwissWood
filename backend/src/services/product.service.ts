@@ -1,6 +1,7 @@
 import { Prisma, type Product } from '@prisma/client'
 import { productRepository, type ProductListFilters } from '../repositories/product.repository.js'
-import { toProductDto, normalizeLocale, type ProductDto, type ProductTranslations } from '../dto/public.dto.js'
+import { toProductDto, normalizeLocale, type ProductDto, type ProductTranslations, type Locale } from '../dto/public.dto.js'
+import { deeplService, DeeplNotConfiguredError } from './deepl.service.js'
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/httpErrors.js'
 import {
   essenceGroupOf,
@@ -257,6 +258,54 @@ export const adminProductService = {
       throw new NotFoundError('Produit introuvable')
     }
     await productRepository.remove(id)
+  },
+
+  /**
+   * Traduit automatiquement (DeepL) les produits existants vers en/es/de.
+   * Par défaut, ne traduit que les langues manquantes (préserve les traductions
+   * manuelles). Avec `force = true`, écrase toutes les traductions.
+   * Retourne un récapitulatif { translated, skipped, failed }.
+   */
+  async translateAllMissing(force = false): Promise<{ translated: number; skipped: number; failed: number }> {
+    if (!deeplService.isConfigured()) throw new DeeplNotConfiguredError()
+
+    const products = await productRepository.findForAdmin({})
+    const targets: Locale[] = ['en', 'es', 'de']
+    const summary = { translated: 0, skipped: 0, failed: 0 }
+
+    for (const product of products) {
+      const existing = (product.translations ?? {}) as Record<string, ProductTranslations>
+      const next: Record<string, ProductTranslations> = JSON.parse(JSON.stringify(existing))
+      let changed = false
+      try {
+        for (const target of targets) {
+          const current = next[target] ?? {}
+          const hasName = typeof current.name === 'string' && current.name.trim() !== ''
+          const hasDesc = typeof current.description === 'string' && current.description.trim() !== ''
+          if (!force && hasName && hasDesc) {
+            continue
+          }
+
+          const translated = await deeplService.translateTexts(
+            [product.name, product.description],
+            target,
+            'fr',
+          )
+          next[target] = { name: (translated[0] ?? '').trim(), description: (translated[1] ?? '').trim() }
+          changed = true
+        }
+        if (changed) {
+          await productRepository.update(product.id, { translations: sanitizeTranslations(next) })
+          summary.translated += 1
+        } else {
+          summary.skipped += 1
+        }
+      } catch {
+        summary.failed += 1
+      }
+    }
+
+    return summary
   },
 
   async listAll(currentUser: { id: string; role: Role }): Promise<ProductDto[]> {
