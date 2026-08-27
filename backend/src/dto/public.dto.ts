@@ -16,14 +16,29 @@ export interface ProductTranslations {
   description?: string
 }
 
+export interface ProductReviewTranslations {
+  comment?: string
+}
+
 export function productTranslationsOf(product: Pick<Product, 'translations'>, locale?: Locale): ProductTranslations {
   if (!locale || locale === 'fr') return {}
   const all = (product.translations ?? {}) as Record<string, ProductTranslations>
   return all[locale] ?? {}
 }
 
+export function reviewTranslationsOf(review: Pick<ProductReview, 'translations'>, locale?: Locale): ProductReviewTranslations {
+  if (!locale || locale === 'fr') return {}
+  const all = (review.translations ?? {}) as Record<string, ProductReviewTranslations>
+  return all[locale] ?? {}
+}
+
 function pick(overlay: ProductTranslations, base: string, key: 'name' | 'description'): string {
   const value = overlay[key]
+  return typeof value === 'string' && value.trim() !== '' ? value : base
+}
+
+function pickReview(overlay: ProductReviewTranslations, base: string): string {
+  const value = overlay.comment
   return typeof value === 'string' && value.trim() !== '' ? value : base
 }
 
@@ -86,18 +101,21 @@ export interface ProductReviewDto {
   is_approved: boolean
   is_rejected: boolean
   created_at: Date
+  translations: Record<string, ProductReviewTranslations>
 }
 
-export function toProductReviewDto(review: ProductReview): ProductReviewDto {
+export function toProductReviewDto(review: ProductReview, locale?: Locale): ProductReviewDto {
+  const overlay = reviewTranslationsOf(review, locale)
   return {
     id: review.id,
     product_id: review.productId,
     user_id: review.userId,
     rating: review.rating,
-    comment: review.comment,
+    comment: pickReview(overlay, review.comment),
     is_approved: review.isApproved,
     is_rejected: review.isRejected,
     created_at: review.createdAt,
+    translations: (review.translations ?? {}) as Record<string, ProductReviewTranslations>,
   }
 }
 

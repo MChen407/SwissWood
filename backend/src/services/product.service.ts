@@ -264,14 +264,14 @@ export const adminProductService = {
    * Traduit automatiquement (DeepL) les produits existants vers en/es/de.
    * Par défaut, ne traduit que les langues manquantes (préserve les traductions
    * manuelles). Avec `force = true`, écrase toutes les traductions.
-   * Retourne un récapitulatif { translated, skipped, failed }.
+   * Retourne un récapitulatif { translated, skipped, failed, lastError? }.
    */
-  async translateAllMissing(force = false): Promise<{ translated: number; skipped: number; failed: number }> {
+  async translateAllMissing(force = false): Promise<{ translated: number; skipped: number; failed: number; lastError?: string }> {
     if (!deeplService.isConfigured()) throw new DeeplNotConfiguredError()
 
     const products = await productRepository.findForAdmin({})
     const targets: Locale[] = ['en', 'es', 'de']
-    const summary = { translated: 0, skipped: 0, failed: 0 }
+    const summary = { translated: 0, skipped: 0, failed: 0, lastError: undefined as string | undefined }
 
     for (const product of products) {
       const existing = (product.translations ?? {}) as Record<string, ProductTranslations>
@@ -300,8 +300,10 @@ export const adminProductService = {
         } else {
           summary.skipped += 1
         }
-      } catch {
+      } catch (err) {
         summary.failed += 1
+        summary.lastError = err instanceof Error ? err.message : String(err)
+        console.error('[DeepL] product translation failed:', err)
       }
     }
 

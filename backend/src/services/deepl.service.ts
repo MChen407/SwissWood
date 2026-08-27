@@ -6,11 +6,24 @@ function toDeeplLang(locale: Locale): string {
   return locale.toUpperCase()
 }
 
+const DEFAULT_FREE_URL = 'https://api-free.deepl.com'
+const DEFAULT_PRO_URL = 'https://api.deepl.com'
+
 export class DeeplNotConfiguredError extends Error {
   constructor() {
-    super('La clé DEEPL_API_KEY n’est pas configurée.')
+    super('La clé DEEPL_API_KEY n\'est pas configurée.')
     this.name = 'DeeplNotConfiguredError'
   }
+}
+
+function resolveDeeplBaseUrl(): string {
+  const explicit = env.DEEPL_API_URL?.trim()
+  // Si une URL est explicitement fournie et différente du défaut free, on l'honore
+  if (explicit && explicit !== DEFAULT_FREE_URL) {
+    return explicit.replace(/\/$/, '')
+  }
+  // Sinon on déduit du type de clé : clé Free finit par :fx
+  return env.DEEPL_API_KEY?.endsWith(':fx') ? DEFAULT_FREE_URL : DEFAULT_PRO_URL
 }
 
 export const deeplService = {
@@ -20,7 +33,7 @@ export const deeplService = {
 
   /**
    * Traduit un tableau de textes vers `target` depuis `source` (français par défaut).
-   * Les textes vides sont préservés tels quels (non envoyés à l’API).
+   * Les textes vides sont préservés tels quels (non envoyés à l'API).
    * Renvoie un tableau de même longueur que `texts`.
    */
   async translateTexts(texts: string[], target: Locale, source: Locale = 'fr'): Promise<string[]> {
@@ -42,6 +55,7 @@ export const deeplService = {
       return result
     }
 
+    const baseUrl = resolveDeeplBaseUrl()
     const body = {
       auth_key: env.DEEPL_API_KEY,
       text: pending.map((p) => p.text),
@@ -49,14 +63,23 @@ export const deeplService = {
       source_lang: toDeeplLang(source),
     }
 
-    const res = await fetch(`${env.DEEPL_API_URL.replace(/\/$/, '')}/v2/translate`, {
+    const res = await fetch(`${baseUrl}/v2/translate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `DeepL-Auth-Key ${env.DEEPL_API_KEY}`,
+      },
       body: JSON.stringify(body),
     })
 
     if (!res.ok) {
-      const detail = await res.text().catch(() => '')
+      let detail = ''
+      try {
+        const errJson = await res.json()
+        detail = errJson.message ?? JSON.stringify(errJson)
+      } catch {
+        detail = await res.text().catch(() => '')
+      }
       throw new Error(`DeepL (${res.status}) : ${detail || res.statusText}`)
     }
 

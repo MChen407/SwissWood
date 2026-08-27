@@ -60,4 +60,11 @@ export const reviewRepository = {
   async setModeration(id: string, moderation: { isApproved: boolean; isRejected: boolean }) {
     return prisma.productReview.update({ where: { id }, data: moderation })
   },
+
+  async updateTranslations(id: string, translations: Record<string, { comment?: string }>) {
+    return prisma.productReview.update({
+      where: { id },
+      data: { translations },
+    })
+  },
 }

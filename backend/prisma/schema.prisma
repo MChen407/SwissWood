@@ -207,6 +207,10 @@ model ProductReview {
   // TEXT : pas de DEFAULT.
   comment String @db.Text
 
+  // Traductions optionnelles { en: { comment }, es: {...}, de: {...} }.
+  // Le champ `comment` reste la valeur par défaut (français).
+  translations Json @default("{}")
+
   isApproved Boolean @default(false) @map("is_approved")
   isRejected Boolean @default(false) @map("is_rejected")
 
