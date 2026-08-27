@@ -75,8 +75,8 @@ export const deeplService = {
     if (!res.ok) {
       let detail = ''
       try {
-        const errJson = await res.json()
-        detail = errJson.message ?? JSON.stringify(errJson)
+        const errJson = (await res.json()) as { message?: string }
+        detail = errJson?.message ?? JSON.stringify(errJson)
       } catch {
         detail = await res.text().catch(() => '')
       }

@@ -60,7 +60,7 @@ export const reviewService = {
 
   async listMine(userId: string) {
     const reviews = await reviewRepository.findByUser(userId)
-    return reviews.map(toProductReviewDto)
+    return reviews.map((r) => toProductReviewDto(r))
   },
 
   async listAll(locale?: Locale) {
@@ -97,7 +97,9 @@ export const reviewService = {
    * Retourne un récapitulatif { translated, skipped, failed, lastError? }.
    */
   async translateAllMissing(force = false): Promise<{ translated: number; skipped: number; failed: number; lastError?: string }> {
-    if (!deeplService.isConfigured()) throw new DeeplNotConfiguredError()
+    if (!deeplService.isConfigured()) {
+      throw new DeeplNotConfiguredError()
+    }
 
     const reviews = await reviewRepository.listAll()
     const targets: Locale[] = ['en', 'es', 'de']
