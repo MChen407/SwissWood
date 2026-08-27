@@ -1,4 +1,5 @@
-import { Prisma, type Product } from '@prisma/client'
+import type { Prisma} from '@prisma/client';
+import { type Product } from '@prisma/client'
 import { productRepository, type ProductListFilters } from '../repositories/product.repository.js'
 import { toProductDto, normalizeLocale, type ProductDto, type ProductTranslations, type Locale } from '../dto/public.dto.js'
 import { deeplService, DeeplNotConfiguredError } from './deepl.service.js'
@@ -116,7 +117,7 @@ export const productService = {
     const topFav = favRows[0]
     if (topFav) {
       const p = await productRepository.findById(topFav.productId)
-      if (p && p.isActive) selectionDuJour = [p]
+      if (p && p.isActive) {selectionDuJour = [p]}
     }
     if (!selectionDuJour.length) {
       selectionDuJour = await productRepository.findActiveExcluding(
@@ -181,16 +182,47 @@ function sanitizeTranslations(
   input: Record<string, ProductTranslations> | undefined,
 ): Prisma.InputJsonValue {
   const clean: Record<string, ProductTranslations> = {}
-  if (!input) return clean as Prisma.InputJsonValue
+  if (!input) {return clean as Prisma.InputJsonValue}
   for (const [locale, value] of Object.entries(input)) {
     const loc = normalizeLocale(locale)
-    if (!loc || loc === 'fr' || typeof value !== 'object' || value === null) continue
+    if (!loc || loc === 'fr' || typeof value !== 'object' || value === null) {continue}
     const entry: ProductTranslations = {}
-    if (typeof value.name === 'string') entry.name = value.name.trim()
-    if (typeof value.description === 'string') entry.description = value.description.trim()
+    if (typeof value.name === 'string') {entry.name = value.name.trim()}
+    if (typeof value.description === 'string') {entry.description = value.description.trim()}
     clean[loc] = entry
   }
   return clean as Prisma.InputJsonValue
+}
+
+async function autoTranslateProduct(
+  nameFr: string,
+  descFr: string,
+  baseTranslations: Record<string, ProductTranslations>,
+  preserveManual: boolean,
+): Promise<Record<string, ProductTranslations> | null> {
+  if (!deeplService.isConfigured()) {return null}
+  const targets: Locale[] = ['en', 'es', 'de']
+  const next = JSON.parse(JSON.stringify(baseTranslations ?? {}))
+  try {
+    for (const target of targets) {
+      const current = next[target] ?? {}
+      const hasName = typeof current.name === 'string' && current.name.trim() !== ''
+      const hasDesc = typeof current.description === 'string' && current.description.trim() !== ''
+      if (preserveManual && hasName && hasDesc) {
+        continue
+      }
+      const translated = await deeplService.translateTexts(
+        [nameFr, descFr],
+        target,
+        'fr',
+      )
+      next[target] = { name: (translated[0] ?? '').trim(), description: (translated[1] ?? '').trim() }
+    }
+    return next
+  } catch (err) {
+    console.error('[DeepL] auto-translate product failed:', err)
+    return null
+  }
 }
 
 export const adminProductService = {
@@ -216,6 +248,17 @@ export const adminProductService = {
       isActive: input.is_active,
       createdBy,
     })
+
+    const auto = await autoTranslateProduct(
+      product.name,
+      product.description,
+      (product.translations ?? {}) as Record<string, ProductTranslations>,
+      true,
+    )
+    if (auto) {
+      const updated = await productRepository.update(product.id, { translations: auto as Prisma.InputJsonValue })
+      return toProductDto(updated)
+    }
     return toProductDto(product)
   },
 
@@ -234,21 +277,32 @@ export const adminProductService = {
     }
 
     const data: Prisma.ProductUncheckedUpdateInput = {}
-    if (input.name !== undefined) data.name = input.name
-    if (input.slug !== undefined) data.slug = input.slug.trim().toLowerCase() || existing.slug
-    if (input.essence !== undefined) data.essence = input.essence
-    if (input.description !== undefined) data.description = input.description
-    if (input.price_eur !== undefined) data.priceEur = input.price_eur
-    if (input.price_usd !== undefined) data.priceUsd = input.price_usd
-    if (input.price_fcfa !== undefined) data.priceFcfa = input.price_fcfa
-    if (input.stock !== undefined) data.stock = input.stock
-    if (input.dimensions !== undefined) data.dimensions = input.dimensions as Prisma.InputJsonValue
-    if (input.images !== undefined) data.images = input.images as Prisma.InputJsonValue
-    if (input.characteristics !== undefined) data.characteristics = input.characteristics as Prisma.InputJsonValue
-    if (input.translations !== undefined) data.translations = sanitizeTranslations(input.translations)
-    if (input.is_active !== undefined) data.isActive = input.is_active
+    if (input.name !== undefined) {data.name = input.name}
+    if (input.slug !== undefined) {data.slug = input.slug.trim().toLowerCase() || existing.slug}
+    if (input.essence !== undefined) {data.essence = input.essence}
+    if (input.description !== undefined) {data.description = input.description}
+    if (input.price_eur !== undefined) {data.priceEur = input.price_eur}
+    if (input.price_usd !== undefined) {data.priceUsd = input.price_usd}
+    if (input.price_fcfa !== undefined) {data.priceFcfa = input.price_fcfa}
+    if (input.stock !== undefined) {data.stock = input.stock}
+    if (input.dimensions !== undefined) {data.dimensions = input.dimensions as Prisma.InputJsonValue}
+    if (input.images !== undefined) {data.images = input.images as Prisma.InputJsonValue}
+    if (input.characteristics !== undefined) {data.characteristics = input.characteristics as Prisma.InputJsonValue}
+    if (input.translations !== undefined) {data.translations = sanitizeTranslations(input.translations)}
+    if (input.is_active !== undefined) {data.isActive = input.is_active}
 
     const product = await productRepository.update(id, data)
+
+    const nameFr = product.name
+    const descFr = product.description
+    const manualTranslations = input.translations
+      ? (sanitizeTranslations(input.translations) as unknown as Record<string, ProductTranslations>)
+      : ((product.translations ?? {}) as Record<string, ProductTranslations>)
+    const auto = await autoTranslateProduct(nameFr, descFr, manualTranslations, true)
+    if (auto) {
+      const updated = await productRepository.update(id, { translations: auto as Prisma.InputJsonValue })
+      return toProductDto(updated)
+    }
     return toProductDto(product)
   },
 
@@ -267,7 +321,7 @@ export const adminProductService = {
    * Retourne un récapitulatif { translated, skipped, failed, lastError? }.
    */
   async translateAllMissing(force = false): Promise<{ translated: number; skipped: number; failed: number; lastError?: string }> {
-    if (!deeplService.isConfigured()) throw new DeeplNotConfiguredError()
+    if (!deeplService.isConfigured()) {throw new DeeplNotConfiguredError()}
 
     const products = await productRepository.findForAdmin({})
     const targets: Locale[] = ['en', 'es', 'de']

@@ -55,6 +55,20 @@ export const reviewService = {
       rating: input.rating,
       comment: input.comment,
     })
+
+    if (deeplService.isConfigured() && review.comment) {
+      try {
+        const targets: Locale[] = ['en', 'es', 'de']
+        const translations: Record<string, { comment?: string }> = {}
+        for (const target of targets) {
+          const [translated] = await deeplService.translateTexts([review.comment], target, 'fr')
+          translations[target] = { comment: (translated ?? '').trim() }
+        }
+        await reviewRepository.updateTranslations(review.id, translations)
+      } catch (err) {
+        console.error('[DeepL] auto-translate review failed:', err)
+      }
+    }
     return toProductReviewDto(review)
   },
 
