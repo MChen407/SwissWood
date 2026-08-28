@@ -685,6 +685,8 @@ export default {
     translateAll: 'Übersetzen (DeepL)',
     translating: 'Übersetze…',
     translateAllDone: 'Übersetzung abgeschlossen: {translated} übersetzt, {skipped} übersprungen, {failed} fehlgeschlagen.',
+    translateProductsDone: 'Produkte: {translated} übersetzt, {skipped} übersprungen, {failed} fehlgeschlagen.',
+    translateReviewsDone: 'Bewertungen: {translated} übersetzt, {skipped} übersprungen, {failed} fehlgeschlagen.',
     translateAllFailed: 'DeepL-Übersetzung fehlgeschlagen.',
     noProducts: 'Keine Produkte',
     newProduct: 'Neues Produkt',

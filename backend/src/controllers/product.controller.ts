@@ -7,6 +7,7 @@ import { ApiResponse } from '../utils/apiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { BadRequestError } from '../utils/httpErrors.js'
 import type { AdminProductInput } from '../services/product.service.js'
+import { normalizeLocale } from '../dto/public.dto.js'
 
 export const listProducts = asyncHandler(async (req: Request, res: Response) => {
   const query = (req.query as unknown) as {
@@ -39,7 +40,8 @@ export const getProductBySlug = asyncHandler(async (req: Request, res: Response)
 })
 
 export const productReviews = asyncHandler(async (req: Request, res: Response) => {
-  const reviews = await reviewService.getApprovedByProduct(req.params.id!)
+  const locale = normalizeLocale(req.query.locale)
+  const reviews = await reviewService.getApprovedByProduct(req.params.id!, locale)
   ApiResponse.success(res, reviews, StatusCodes.OK)
 })
 
@@ -66,8 +68,27 @@ export const adminDeleteProduct = asyncHandler(async (req: Request, res: Respons
 export const adminTranslateAll = asyncHandler(async (req: Request, res: Response) => {
   const force = (req.body as { force?: unknown })?.force === true
   if (!deeplService.isConfigured()) {
-    throw new BadRequestError('La clé DEEPL_API_KEY n’est pas configurée côté serveur.')
+    throw new BadRequestError('La clé DEEPL_API_KEY n\'est pas configurée côté serveur.')
   }
-  const result = await adminProductService.translateAllMissing(force)
+  const productsResult = await adminProductService.translateAllMissing(force)
+
+  let reviewsResult: { translated: number; skipped: number; failed: number; lastError: string | undefined } = { translated: 0, skipped: 0, failed: 0, lastError: undefined }
+  try {
+    reviewsResult = await reviewService.translateAllMissing(force) as typeof reviewsResult
+  } catch (err) {
+    reviewsResult.failed += 1
+    reviewsResult.lastError = err instanceof Error ? err.message : String(err)
+    console.error('[DeepL] review batch translation failed:', err)
+  }
+
+  const result = {
+    translated: productsResult.translated + reviewsResult.translated,
+    skipped: productsResult.skipped + reviewsResult.skipped,
+    failed: productsResult.failed + reviewsResult.failed,
+    lastError: productsResult.lastError ?? reviewsResult.lastError,
+    products: productsResult,
+    reviews: reviewsResult,
+  }
+
   ApiResponse.success(res, result)
 })

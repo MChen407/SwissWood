@@ -628,7 +628,7 @@ export const api = {
     homeSelection: () => request<HomeSelectionDto>('/products/home-selection', { query: { locale: currentLocale() }, auth: false }),
     featured: (limit = 6) => request<ProductDto[]>('/products/featured', { query: { limit, locale: currentLocale() }, auth: false }),
     bySlug: (slug: string) => request<ProductDto>(`/products/${encodeURIComponent(slug)}`, { query: { locale: currentLocale() }, auth: false }),
-    reviews: (productId: string) => request<ProductReviewDto[]>(`/products/${encodeURIComponent(productId)}/reviews`, { auth: false }),
+    reviews: (productId: string) => request<ProductReviewDto[]>(`/products/${encodeURIComponent(productId)}/reviews`, { query: { locale: currentLocale() }, auth: false }),
   },
 
   // ---------- Orders ----------
@@ -666,7 +666,7 @@ export const api = {
   reviews: {
     create: (input: CreateReviewInput) => request<ProductReviewDto>('/reviews', { method: 'POST', body: input }),
     listMine: () => request<ProductReviewDto[]>('/reviews/mine'),
-    latest: (limit = 5) => request<LatestReviewDto[]>('/reviews/latest', { query: { limit }, auth: false }),
+    latest: (limit = 5) => request<LatestReviewDto[]>('/reviews/latest', { query: { limit, locale: currentLocale() }, auth: false }),
   },
 
   // ---------- Contact ----------
@@ -697,7 +697,14 @@ export const api = {
       request<ProductDto>(`/admin/products/${encodeURIComponent(id)}`, { method: 'PATCH', body: input }),
     deleteProduct: (id: string) => request<null>(`/admin/products/${encodeURIComponent(id)}`, { method: 'DELETE' }),
     translateAllProducts: (force = false) =>
-      request<{ translated: number; skipped: number; failed: number }>('/admin/products/translate-all', {
+      request<{
+        translated: number
+        skipped: number
+        failed: number
+        lastError?: string
+        products: { translated: number; skipped: number; failed: number; lastError?: string }
+        reviews: { translated: number; skipped: number; failed: number; lastError?: string }
+      }>('/admin/products/translate-all', {
         method: 'POST',
         body: { force },
       }),

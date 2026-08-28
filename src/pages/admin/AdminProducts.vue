@@ -39,7 +39,17 @@ async function translateAll() {
   translateError.value = ''
   try {
     const res = await api.admin.translateAllProducts(false)
-    translateMessage.value = t('admin.translateAllDone', { translated: res.translated, skipped: res.skipped, failed: res.failed })
+    const parts = []
+    if (res.products) {
+      parts.push(t('admin.translateProductsDone', { translated: res.products.translated, skipped: res.products.skipped, failed: res.products.failed }))
+    }
+    if (res.reviews) {
+      parts.push(t('admin.translateReviewsDone', { translated: res.reviews.translated, skipped: res.reviews.skipped, failed: res.reviews.failed }))
+    }
+    translateMessage.value = parts.join(' — ')
+    if (res.lastError) {
+      translateMessage.value += ' (' + res.lastError + ')'
+    }
   } catch (err) {
     translateError.value = err instanceof Error ? err.message : t('admin.translateAllFailed')
   } finally {

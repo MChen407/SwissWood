@@ -685,6 +685,8 @@ export default {
     translateAll: 'Traducir (DeepL)',
     translating: 'Traduciendo…',
     translateAllDone: 'Traducción terminada: {translated} traducido(s), {skipped} omitido(s), {failed} fallido(s).',
+    translateProductsDone: 'Productos: {translated} traducido(s), {skipped} omitido(s), {failed} fallido(s).',
+    translateReviewsDone: 'Opiniones: {translated} traducido(s), {skipped} omitido(s), {failed} fallido(s).',
     translateAllFailed: 'Error en la traducción DeepL.',
     noProducts: 'No hay productos',
     newProduct: 'Nuevo producto',
