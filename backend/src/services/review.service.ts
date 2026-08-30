@@ -120,6 +120,10 @@ export const reviewService = {
     const summary = { translated: 0, skipped: 0, failed: 0, lastError: undefined as string | undefined }
 
     for (const review of reviews) {
+      if (!review.comment || review.comment.trim() === '') {
+        summary.skipped += 1
+        continue
+      }
       const existing = (review.translations ?? {}) as Record<string, { comment?: string }>
       const next: Record<string, { comment?: string }> = JSON.parse(JSON.stringify(existing))
       let changed = false

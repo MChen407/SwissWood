@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Check, X, Star } from 'lucide-vue-next'
+import { Check, X, Star, Languages } from 'lucide-vue-next'
 import { api, type AdminReviewDto } from '@/lib/api'
 import { useLocaleStore } from '@/stores/locale'
 
@@ -10,6 +10,10 @@ const localeStore = useLocaleStore()
 const reviews = ref<AdminReviewDto[]>([])
 const loading = ref(true)
 const filter = ref<'pending' | 'approved' | 'all'>('pending')
+
+const translating = ref(false)
+const translateMessage = ref('')
+const translateError = ref('')
 
 onMounted(load)
 
@@ -24,11 +28,39 @@ async function load() {
 
 async function approve(id: string) { await api.admin.approveReview(id); await load() }
 async function reject(id: string) { await api.admin.rejectReview(id); await load() }
+
+async function translateReviews() {
+  translating.value = true
+  translateMessage.value = ''
+  translateError.value = ''
+  try {
+    const res = await api.admin.translateAllProducts(true)
+    if (res.reviews) {
+      translateMessage.value = t('admin.translateReviewsDone', { translated: res.reviews.translated, skipped: res.reviews.skipped, failed: res.reviews.failed })
+      if (res.reviews.lastError) {
+        translateMessage.value += ' (' + res.reviews.lastError + ')'
+      }
+    }
+    await load()
+  } catch (err) {
+    translateError.value = err instanceof Error ? err.message : t('admin.translateAllFailed')
+  } finally {
+    translating.value = false
+  }
+}
 </script>
 
 <template>
   <div>
-    <h1 class="font-display text-2xl font-medium text-primary-500 mb-6">{{ t('admin.reviewsTitle') }}</h1>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h1 class="font-display text-2xl font-medium text-primary-500">{{ t('admin.reviewsTitle') }}</h1>
+      <button @click="translateReviews" :disabled="translating"
+        class="border border-wood-300 text-primary-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-wood-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        <Languages class="w-4 h-4" /> {{ translating ? t('admin.translating') : t('admin.translateAll') }}
+      </button>
+    </div>
+    <p v-if="translateMessage" class="mb-4 text-sm text-success-500">{{ translateMessage }}</p>
+    <p v-if="translateError" class="mb-4 text-sm text-error-500">{{ translateError }}</p>
     <div class="flex flex-wrap gap-2 mb-4">
       <button @click="filter = 'pending'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'pending' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">{{ t('admin.pending') }}</button>
       <button @click="filter = 'approved'; load()" :class="['px-4 py-2 rounded-lg text-sm font-medium', filter === 'approved' ? 'bg-primary-500 text-wood-100' : 'bg-white text-wood-500 border border-wood-200']">{{ t('admin.approved') }}</button>

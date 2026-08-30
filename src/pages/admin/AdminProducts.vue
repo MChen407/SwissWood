@@ -50,6 +50,7 @@ async function translateAll() {
     if (res.lastError) {
       translateMessage.value += ' (' + res.lastError + ')'
     }
+    await load()
   } catch (err) {
     translateError.value = err instanceof Error ? err.message : t('admin.translateAllFailed')
   } finally {
