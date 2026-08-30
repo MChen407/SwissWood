@@ -34,7 +34,7 @@ const customTreatment = ref('Naturel')
 
 onMounted(loadProduct)
 watch(() => route.params.slug, loadProduct)
-watch(locale, () => { if (product.value) loadReviews(product.value.id) })
+watch(locale, () => { if (product.value) loadProduct() })
 
 async function loadProduct() {
   loading.value = true
