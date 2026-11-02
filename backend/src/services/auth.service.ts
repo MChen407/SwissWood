@@ -59,18 +59,44 @@ export const authService = {
   },
 
   async login(data: LoginDto): Promise<AuthResponse> {
-    const user = await userRepository.findByEmail(data.email)
-    if (!user?.password) {
-      throw new UnauthorizedError('Email ou mot de passe incorrect')
-    }
+  const user = await userRepository.findByEmail(data.email)
+  if (!user?.password) {
+    throw new UnauthorizedError('Email ou mot de passe incorrect')
+  }
 
-    const valid = await bcrypt.compare(data.password, user.password)
-    if (!valid) {
-      throw new UnauthorizedError('Email ou mot de passe incorrect')
-    }
+  const now = new Date()
+  if (user.lockedUntil && user.lockedUntil > now) {
+    throw new UnauthorizedError('Compte temporairement verrouillé. Réessayez plus tard.')
+  }
 
-    return buildAuthResponse(user.id)
-  },
+  const valid = await bcrypt.compare(data.password, user.password)
+  if (!valid) {
+    const nextAttempts = (user.failedLoginAttempts ?? 0) + 1
+
+    const lockedUntil =
+      nextAttempts >= env.AUTH_MAX_LOGIN_ATTEMPTS
+        ? new Date(Date.now() + env.AUTH_LOCKOUT_MINUTES * 60 * 1000)
+        : null
+
+    await userRepository.update(user.id, {
+      failedLoginAttempts: nextAttempts,
+      lockedUntil,
+    })
+
+    throw new UnauthorizedError(
+      nextAttempts >= env.AUTH_MAX_LOGIN_ATTEMPTS
+        ? 'Compte verrouillé temporairement pour sécurité.'
+        : 'Email ou mot de passe incorrect'
+    )
+  }
+
+  await userRepository.update(user.id, {
+    failedLoginAttempts: 0,
+    lockedUntil: null,
+  })
+
+  return buildAuthResponse(user.id)
+},
 
   async refresh(refreshToken: string): Promise<AuthResponse> {
     const tokenHash = hashToken(refreshToken)
@@ -149,9 +175,12 @@ export const authService = {
     if (!valid) {
       throw new BadRequestError('Mot de passe actuel incorrect')
     }
-
+    
     const passwordHash = await bcrypt.hash(data.newPassword, BCRYPT_ROUNDS)
-    await userRepository.update(userId, { password: passwordHash })
+    await userRepository.update(userId, {
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    })
     await refreshTokenRepository.revokeAllForUser(userId)
   },
 }
