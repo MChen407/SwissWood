@@ -8,8 +8,7 @@
 
 const DEFAULT_BASE_URL = 'http://localhost:4000/api'
 
-export const ACCESS_TOKEN_KEY = 'swisswood_access_token'
-export const REFRESH_TOKEN_KEY = 'swisswood_refresh_token'
+let accessTokenMemory: string | null = null
 
 export const apiBaseUrl: string = (import.meta.env.VITE_API_URL as string | undefined) || DEFAULT_BASE_URL
 
@@ -32,25 +31,25 @@ export class ApiError extends Error {
 }
 
 // =====================================================================
-// Gestion des tokens (localStorage)
+// Gestion des tokens (en mémoire JS)
 // =====================================================================
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem(ACCESS_TOKEN_KEY)
+  return accessTokenMemory
 }
 
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY)
+  return null
 }
 
 export function setTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+  accessTokenMemory = accessToken
+  // refreshToken ne doit plus être utilisé côté JS
+  // il est livré via cookie HttpOnly par le backend
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem(ACCESS_TOKEN_KEY)
-  localStorage.removeItem(REFRESH_TOKEN_KEY)
+  accessTokenMemory = null
 }
 
 export function isAuthenticated(): boolean {
@@ -508,10 +507,10 @@ async function refreshTokens(): Promise<boolean> {
     if (!refreshToken) return false
     try {
       const res = await fetch(`${apiBaseUrl}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      })
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+          })
       if (!res.ok) return false
       const envelope = (await res.json()) as ApiEnvelope<AuthResponse>
       if (!envelope.success) return false
@@ -550,11 +549,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   const fetchBody = isFormData ? body : hasBody ? JSON.stringify(body) : undefined
 
-  let res = await fetch(url, {
-    method,
-    headers,
-    ...(fetchBody !== undefined ? { body: fetchBody as BodyInit } : {}),
-  })
+  const res = await fetch(url, {
+  method,
+  headers,
+  credentials: 'include',
+  ...(fetchBody !== undefined ? { body: fetchBody as BodyInit } : {}),
+})
 
   if (res.status === 401 && auth && retryOnUnauthorized && getRefreshToken()) {
     const refreshed = await refreshTokens()
