@@ -22,10 +22,16 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z.string().min(1, 'CLOUDINARY_API_SECRET est requis'),
   CLOUDINARY_FOLDER: z.string().default('swisswood'),
 
-  JWT_ACCESS_SECRET: z.string().min(16, 'JWT_ACCESS_SECRET doit contenir au moins 16 caractères'),
-  JWT_REFRESH_SECRET: z.string().min(16, 'JWT_REFRESH_SECRET doit contenir au moins 16 caractères'),
-  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
-  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+ JWT_ACCESS_SECRET: z.string().min(16, 'JWT_ACCESS_SECRET doit contenir au moins 16 caractères'),
+JWT_REFRESH_SECRET: z.string().min(16, 'JWT_REFRESH_SECRET doit contenir au moins 16 caractères'),
+JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
+JWT_REFRESH_EXPIRES_IN: z.string().default('12h'),
+
+LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
+
+AUTH_MAX_LOGIN_ATTEMPTS: z.coerce.number().int().positive().default(5),
+AUTH_LOCKOUT_MINUTES: z.coerce.number().int().positive().default(15),
 
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
