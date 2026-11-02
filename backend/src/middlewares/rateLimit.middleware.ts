@@ -20,11 +20,22 @@ export const generalLimiter = rateLimit({
 
 export const loginLimiter = rateLimit({
   windowMs: env.LOGIN_RATE_LIMIT_WINDOW_MS,
-  limit: env.LOGIN_RATE_LIMIT_MAX,
+  limit: 8,
   standardHeaders: true,
   legacyHeaders: false,
   handler: handleRateLimit,
   skipSuccessfulRequests: true,
+  keyGenerator: (req) => {
+    const email = typeof req.body?.email === 'string' ? req.body.email.toLowerCase() : 'unknown'
+    return `${req.ip}:${email}`
+  },
+  message: {
+    success: false,
+    error: {
+      code: 'TOO_MANY_REQUESTS',
+      message: 'Trop de tentatives de connexion. Réessayez plus tard.',
+    },
+  },
 })
 
 export const strictLimiter = rateLimit({
@@ -37,7 +48,7 @@ export const strictLimiter = rateLimit({
 
 export const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 20,
+  limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
   handler: handleRateLimit,
